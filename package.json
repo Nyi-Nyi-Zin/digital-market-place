@@ -4,10 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
-    "check": "tsc --noEmit",
+    "dev": "next dev",
+    "build": "NODE_ENV=production next build",
+    "start": "next start",
+    "check": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
@@ -62,6 +62,7 @@
     "lucide-react": "^0.453.0",
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",
+    "next": "15.5.23",
     "next-themes": "^0.4.6",
     "react": "^19.2.1",
     "react-day-picker": "^9.11.1",

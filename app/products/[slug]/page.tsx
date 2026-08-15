@@ -1,0 +1,8 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Header } from "../../components/Header";
+import { formatPrice, products } from "../../lib/catalog";
+import { AddToCartButton } from "../../cart/CartClient";
+
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const product = products.find(p => p.slug === slug); if (!product) notFound(); return <><Header /><main className="shell detail"><div className={`detail-cover cover-${product.tone}`}><span className="cover-pattern" /><strong>{product.title}</strong><span className="file-tag">Digital product</span></div><article className="detail-copy"><p className="eyebrow plain">{product.category}</p><h1>{product.title}</h1><p className="rating">★ {product.rating.toFixed(1)} · {product.sales} sales</p><p className="detail-description">{product.description} Built for practical use, easy customization, and a faster route from idea to delivery.</p><div className="purchase-panel"><div><small>One-time payment</small><strong>{formatPrice(product.salePrice ?? product.price)}</strong>{product.salePrice ? <s>{formatPrice(product.price)}</s> : null}</div><Link href="/checkout" className="button button-primary">Buy now →</Link><AddToCartButton item={{ id: product.id, title: product.title, price: product.salePrice ?? product.price }} /></div><div className="detail-grid"><div><h2>What’s included</h2><ul><li>Ready-to-use source files</li><li>Lifetime product access after approval</li><li>Practical setup notes</li></ul></div><div><h2>License</h2><p>Use this product in your personal and commercial projects. Redistribution is not permitted.</p></div></div></article></main></>;
+}

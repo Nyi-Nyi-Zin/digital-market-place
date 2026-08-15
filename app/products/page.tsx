@@ -1,0 +1,7 @@
+import { Header } from "../components/Header";
+import { ProductCard } from "../components/ProductCard";
+import { categories, products } from "../lib/catalog";
+
+type Props = { searchParams: Promise<{ category?: string; query?: string }> };
+export default async function ProductsPage({ searchParams }: Props) { const params = await searchParams; const q = params.query?.toLowerCase(); const visible = products.filter(p => (!params.category || p.category === params.category) && (!q || `${p.title} ${p.category}`.toLowerCase().includes(q))); return <><Header /><main className="shell catalogue"><div className="catalogue-title"><p className="eyebrow plain">DIGITAL PRODUCT LIBRARY</p><h1>Find your next shortcut.</h1><p>Browse professional digital resources, verified for clearer launches and better work.</p></div><form className="catalogue-controls"><input name="query" defaultValue={params.query} placeholder="Search templates, UI kits, code…" /><select name="category" defaultValue={params.category ?? ""}><option value="">All categories</option>{categories.map(c => <option key={c}>{c}</option>)}</select><button className="button button-primary">Search</button></form><div className="product-grid">{visible.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}</div>{visible.length === 0 ? <p className="empty">No products match your search. Try a different category or phrase.</p> : null}</main></>;
+}

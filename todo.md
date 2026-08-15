@@ -36,3 +36,18 @@
 - [x] Add admin product create/edit/delete controls and payment-settings update controls in the UI.
 - [x] Add comprehensive error and action-state coverage across customer and admin flows.
 - [x] Add behavior tests for payment verification, forbidden downloads, notification creation, and mark-read transitions.
+
+- [x] Audit the current React/Vite and Express/tRPC project for a safe Next.js App Router migration.
+- [x] Replace the Vite/Express application runtime with Next.js App Router configuration and scripts.
+- [x] Migrate shared database access, authentication, payment verification, and protected-download server workflows to Next.js server routes/actions.
+- [x] Migrate the storefront, product catalogue, cart, checkout, account, wishlist, purchases, and notification interfaces to Next.js pages and client components.
+- [x] Migrate the role-protected admin dashboard, payment review, product controls, and payment settings to Next.js routes.
+- [x] Validate the Next.js typecheck, tests, production build, and responsive preview.
+- [x] Save and deliver the Next.js migration checkpoint.
+- [x] Implement Next.js server routes or actions for authentication, payment submission and review, and protected download authorization.
+- [x] Connect Next.js cart, checkout, purchases, wishlist, and notifications pages to real data and state.
+- [x] Add role-protected Next.js admin payment review, product CRUD, and payment-method update flows.
+- [x] Save and deliver the Next.js migration checkpoint.
+- [x] Bridge the existing verified OAuth session into explicit Next.js login, logout, and callback routes.
+- [x] Connect the Next.js cart and checkout UI to order creation and payment-evidence submission flows.
+- [x] Connect protected Next.js admin pages to payment review, product management, and payment-settings API actions.
