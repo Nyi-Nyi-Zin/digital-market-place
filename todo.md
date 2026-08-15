@@ -51,3 +51,8 @@
 - [x] Bridge the existing verified OAuth session into explicit Next.js login, logout, and callback routes.
 - [x] Connect the Next.js cart and checkout UI to order creation and payment-evidence submission flows.
 - [x] Connect protected Next.js admin pages to payment review, product management, and payment-settings API actions.
+- [x] Rebrand the storefront and metadata from Marketplace to Cloud Nine.
+- [x] Upload and integrate the supplied Cloud Nine logo across the global header and browser identity.
+- [x] Resolve the Next.js production-output deployment mismatch and validate a deployable build.
+- [x] Verify the Cloud Nine branding on desktop and mobile, then save and deliver the updated checkpoint.
+- [x] Diagnose and repair the reported Next.js sign-in redirect failure.

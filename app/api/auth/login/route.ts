@@ -4,7 +4,9 @@ import { OAUTH_STATE_COOKIE, encodeOAuthState } from "../../../../shared/const";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const nonce = crypto.randomUUID();
-  const origin = new URL(request.url).origin;
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+  const origin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : new URL(request.url).origin;
   const redirectUri = `${origin}/api/auth/callback`;
   const state = encodeOAuthState({ redirectUri, nonce });
   const portalUrl = process.env.VITE_OAUTH_PORTAL_URL;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "./components/Header";
 import { ProductCard } from "./components/ProductCard";
 import { categories, products } from "./lib/catalog";
+import "./home.css";
 
 export default function HomePage() {
   const featured = products.filter((_, i) => i < 4);
