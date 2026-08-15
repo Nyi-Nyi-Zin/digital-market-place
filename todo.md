@@ -1,0 +1,35 @@
+# Project TODO
+
+- [x] Establish marketplace data model and relational schema for users, categories, products, orders, order items, payments, payment methods, downloads, reviews, and wishlists.
+- [x] Generate and apply the database migration through the schema-first workflow.
+- [x] Seed exactly 8 realistic demo products and demo payment configuration without real financial information.
+- [x] Implement backend product browsing, search, filtering, sorting, categories, product details, wishlist, and reviews procedures.
+- [x] Implement cart state and server-side order creation with price and ownership validation.
+- [x] Implement authenticated multi-step checkout with dynamic KBZPay, AYA Pay, and WavePay settings.
+- [x] Implement secure payment screenshot upload validation for JPG, JPEG, PNG, and WEBP files up to 5 MB.
+- [x] Implement pending payment submission with sender details, transaction reference, and owner notification.
+- [x] Implement admin payment review, approve/reject actions, rejection reasons, and access granting.
+- [x] Implement protected temporary download flow gated by approved purchases and download tracking.
+- [x] Implement public storefront homepage with hero, featured products, categories, best sellers, recent products, value propositions, and CTA.
+- [x] Implement responsive products listing page with search, filters, sorting, and grid layout.
+- [x] Implement responsive product detail, cart, checkout, payment confirmation, purchases, wishlist, profile, and notification views.
+- [ ] Implement admin dashboard, product CRUD, order management, payment settings, and role-protected routes.
+- [ ] Implement loading, empty, error, success, pending, rejected, and confirmation states.
+- [x] Add Vitest coverage for critical auth, pricing, payment status, approval, upload validation, and download authorization paths.
+- [x] Run type checking, tests, build validation, and responsive visual verification.
+- [ ] Save the final project checkpoint and deliver the project version to the user.
+
+- [x] Add backend rating and price filters plus review-list procedures.
+- [x] Add download tracking writes and purchase-library download metadata.
+- [ ] Add distinct best-seller and recently-added homepage sections.
+- [x] Add price and rating filters to the products page.
+- [x] Add wishlist, profile, and in-app notification routes/views.
+- [ ] Add payment approval/rejection and forbidden-download Vitest coverage.
+- [x] Run a full production build validation.
+- [x] Join download stats into purchases queries and display download count and last download date.
+- [x] Implement a real wishlist page listing saved products with navigation and removal.
+- [x] Implement a distinct notifications route with in-app notification states.
+- [x] Implement real in-app notification records, queries, and read/unread states for payment and purchase events.
+- [x] Create notification records for payment approval and rejection, including rejection reasons.
+- [ ] Create notification records for product updated events; product-purchase/access-granted notifications are complete.
+- [ ] Add tests covering notification creation and read/unread state transitions.

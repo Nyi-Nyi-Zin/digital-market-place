@@ -1,0 +1,1 @@
+ALTER TABLE `products` DROP INDEX `products_slug_idx`;
