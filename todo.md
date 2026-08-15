@@ -13,23 +13,26 @@
 - [x] Implement public storefront homepage with hero, featured products, categories, best sellers, recent products, value propositions, and CTA.
 - [x] Implement responsive products listing page with search, filters, sorting, and grid layout.
 - [x] Implement responsive product detail, cart, checkout, payment confirmation, purchases, wishlist, profile, and notification views.
-- [ ] Implement admin dashboard, product CRUD, order management, payment settings, and role-protected routes.
-- [ ] Implement loading, empty, error, success, pending, rejected, and confirmation states.
+- [x] Implement admin dashboard, product CRUD, order management, payment settings, and role-protected routes.
+- [x] Implement loading, empty, error, success, pending, rejected, and confirmation states.
 - [x] Add Vitest coverage for critical auth, pricing, payment status, approval, upload validation, and download authorization paths.
 - [x] Run type checking, tests, build validation, and responsive visual verification.
-- [ ] Save the final project checkpoint and deliver the project version to the user.
+- [x] Save the final project checkpoint and deliver the project version to the user.
 
 - [x] Add backend rating and price filters plus review-list procedures.
 - [x] Add download tracking writes and purchase-library download metadata.
-- [ ] Add distinct best-seller and recently-added homepage sections.
+- [x] Add distinct best-seller and recently-added homepage sections.
 - [x] Add price and rating filters to the products page.
 - [x] Add wishlist, profile, and in-app notification routes/views.
-- [ ] Add payment approval/rejection and forbidden-download Vitest coverage.
+- [x] Add payment approval/rejection and forbidden-download Vitest coverage.
 - [x] Run a full production build validation.
 - [x] Join download stats into purchases queries and display download count and last download date.
 - [x] Implement a real wishlist page listing saved products with navigation and removal.
 - [x] Implement a distinct notifications route with in-app notification states.
 - [x] Implement real in-app notification records, queries, and read/unread states for payment and purchase events.
 - [x] Create notification records for payment approval and rejection, including rejection reasons.
-- [ ] Create notification records for product updated events; product-purchase/access-granted notifications are complete.
-- [ ] Add tests covering notification creation and read/unread state transitions.
+- [x] Add notification records for product updated events; product-purchase/access-granted notifications are complete.
+- [x] Add tests covering notification creation and read/unread state transitions.
+- [x] Add admin product create/edit/delete controls and payment-settings update controls in the UI.
+- [x] Add comprehensive error and action-state coverage across customer and admin flows.
+- [x] Add behavior tests for payment verification, forbidden downloads, notification creation, and mark-read transitions.
