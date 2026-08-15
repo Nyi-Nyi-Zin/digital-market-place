@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "NODE_ENV=production next build && node scripts/prepare-server-output.mjs",
-    "start": "next start",
+    "start": "NODE_ENV=production node dist/index.js",
     "check": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
