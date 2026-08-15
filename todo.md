@@ -56,3 +56,6 @@
 - [x] Resolve the Next.js production-output deployment mismatch and validate a deployable build.
 - [x] Verify the Cloud Nine branding on desktop and mobile, then save and deliver the updated checkpoint.
 - [x] Diagnose and repair the reported Next.js sign-in redirect failure.
+- [x] Repair the managed production startup failure caused by missing dist/index.js after the Next.js migration.
+- [x] Validate the repaired startup contract and publish Cloud Nine successfully.
+- [ ] Publish the repaired standalone Cloud Nine package and verify the public domain responds successfully.
