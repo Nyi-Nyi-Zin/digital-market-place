@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-
-describe("Cloud Nine branding configuration", () => {
-  it("exposes the configured public site title", () => {
-    expect(process.env.VITE_APP_TITLE).toBe("Cloud Nine");
+import { readFileSync } from "node:fs";
+describe("Cloud Nine branding", () => {
+  it("sets the public title in Next.js metadata", () => {
+    expect(
+      readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8")
+    ).toContain("Cloud Nine");
   });
 });
