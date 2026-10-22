@@ -1,3 +1,52 @@
 "use client";
-import { useEffect, useState } from "react";
-export function NotificationsClient() { const [state, setState] = useState<{ loading: boolean; error?: string; notifications: any[] }>({ loading: true, notifications: [] }); useEffect(() => { fetch("/api/notifications").then(async r => { if (!r.ok) throw new Error(r.status === 401 ? "Sign in to view notifications." : "Unable to load notifications."); return r.json(); }).then(data => setState({ loading: false, notifications: data.notifications ?? [] })).catch(e => setState({ loading: false, notifications: [], error: e.message })); }, []); if (state.loading) return <p className="loading-copy">Loading notifications…</p>; if (state.error) return <div className="empty-panel"><h2>{state.error}</h2></div>; if (!state.notifications.length) return <div className="empty-panel"><h2>No notifications yet.</h2><p>Payment and product updates will appear here.</p></div>; return <div className="purchase-list">{state.notifications.map(notification => <article key={notification.id}><div><strong>{notification.title}</strong><p>{notification.body}</p></div><span>{notification.read ? "Read" : "Unread"}</span></article>)}</div>; }
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../lib/api";
+type Notification = {
+  id: number;
+  title: string;
+  body: string;
+  read: boolean;
+  createdAt: string;
+};
+export function NotificationsClient() {
+  const client = useQueryClient();
+  const query = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => api<{ notifications: Notification[] }>("/api/notifications"),
+  });
+  const mutation = useMutation({
+    mutationFn: () => api("/api/notifications", { method: "PATCH" }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+  if (query.isPending) return <p role="status">Loading notifications…</p>;
+  if (query.error) return <p role="alert">{query.error.message}</p>;
+  return (
+    <>
+      <button
+        className="button button-secondary"
+        disabled={
+          mutation.isPending || !query.data?.notifications.some(n => !n.read)
+        }
+        onClick={() => mutation.mutate()}
+      >
+        Mark all as read
+      </button>
+      {mutation.error && <p role="alert">{mutation.error.message}</p>}
+      <div className="purchase-list">
+        {query.data?.notifications.map(n => (
+          <article key={n.id}>
+            <div>
+              <strong>{n.title}</strong>
+              <p>{n.body}</p>
+              <small>{new Date(n.createdAt).toLocaleString()}</small>
+            </div>
+            <span className="pill">{n.read ? "Read" : "Unread"}</span>
+          </article>
+        ))}
+        {!query.data?.notifications.length && (
+          <div className="empty-panel">No notifications yet.</div>
+        )}
+      </div>
+    </>
+  );
+}

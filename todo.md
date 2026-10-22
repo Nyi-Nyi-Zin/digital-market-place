@@ -1,62 +1,27 @@
-# Project TODO
+# Marketplace implementation status
 
-- [x] Establish marketplace data model and relational schema for users, categories, products, orders, order items, payments, payment methods, downloads, reviews, and wishlists.
-- [x] Generate and apply the database migration through the schema-first workflow.
-- [x] Seed exactly 8 realistic demo products and demo payment configuration without real financial information.
-- [x] Implement backend product browsing, search, filtering, sorting, categories, product details, wishlist, and reviews procedures.
-- [x] Implement cart state and server-side order creation with price and ownership validation.
-- [x] Implement authenticated multi-step checkout with dynamic KBZPay, AYA Pay, and WavePay settings.
-- [x] Implement secure payment screenshot upload validation for JPG, JPEG, PNG, and WEBP files up to 5 MB.
-- [x] Implement pending payment submission with sender details, transaction reference, and owner notification.
-- [x] Implement admin payment review, approve/reject actions, rejection reasons, and access granting.
-- [x] Implement protected temporary download flow gated by approved purchases and download tracking.
-- [x] Implement public storefront homepage with hero, featured products, categories, best sellers, recent products, value propositions, and CTA.
-- [x] Implement responsive products listing page with search, filters, sorting, and grid layout.
-- [x] Implement responsive product detail, cart, checkout, payment confirmation, purchases, wishlist, profile, and notification views.
-- [x] Implement admin dashboard, product CRUD, order management, payment settings, and role-protected routes.
-- [x] Implement loading, empty, error, success, pending, rejected, and confirmation states.
-- [x] Add Vitest coverage for critical auth, pricing, payment status, approval, upload validation, and download authorization paths.
-- [x] Run type checking, tests, build validation, and responsive visual verification.
-- [x] Save the final project checkpoint and deliver the project version to the user.
+## Implemented
 
-- [x] Add backend rating and price filters plus review-list procedures.
-- [x] Add download tracking writes and purchase-library download metadata.
-- [x] Add distinct best-seller and recently-added homepage sections.
-- [x] Add price and rating filters to the products page.
-- [x] Add wishlist, profile, and in-app notification routes/views.
-- [x] Add payment approval/rejection and forbidden-download Vitest coverage.
-- [x] Run a full production build validation.
-- [x] Join download stats into purchases queries and display download count and last download date.
-- [x] Implement a real wishlist page listing saved products with navigation and removal.
-- [x] Implement a distinct notifications route with in-app notification states.
-- [x] Implement real in-app notification records, queries, and read/unread states for payment and purchase events.
-- [x] Create notification records for payment approval and rejection, including rejection reasons.
-- [x] Add notification records for product updated events; product-purchase/access-granted notifications are complete.
-- [x] Add tests covering notification creation and read/unread state transitions.
-- [x] Add admin product create/edit/delete controls and payment-settings update controls in the UI.
-- [x] Add comprehensive error and action-state coverage across customer and admin flows.
-- [x] Add behavior tests for payment verification, forbidden downloads, notification creation, and mark-read transitions.
+- [x] PostgreSQL schema, migrations, stable marketplace user IDs and Drizzle queries.
+- [x] Better Auth sign-up, verification, sign-in/out, recovery, database sessions and server-side roles.
+- [x] Protected admin navigation with real dashboard metrics.
+- [x] Product create/edit, category management, publish/draft and safe unpublishing.
+- [x] Thumbnail/digital-file upload forms with server validation and upload limits.
+- [x] Database-backed storefront, detail pages, search, category/price/rating filters, sorting and pagination.
+- [x] Persistent cart state, dynamic cart badge and product-aware Buy now.
+- [x] Server-priced checkout with a confirmed total before payment instructions.
+- [x] Dynamic payment account settings and manual screenshot submission.
+- [x] Admin review, required rejection reason, rejected-payment resubmission and duplicate submission protection.
+- [x] Transactional/idempotent approval, reviewer/time metadata and payment notifications.
+- [x] Approved-purchase downloads, private storage authorization and download counts.
+- [x] Order history, wishlist add/remove, notification mark-read, verified reviews and profile name editing.
+- [x] Consistent store currency formatting (USD default; configurable before entering prices).
+- [x] Loading, empty, validation, request failure and saved/pending states for the main flows.
 
-- [x] Audit the current React/Vite and Express/tRPC project for a safe Next.js App Router migration.
-- [x] Replace the Vite/Express application runtime with Next.js App Router configuration and scripts.
-- [x] Migrate shared database access, authentication, payment verification, and protected-download server workflows to Next.js server routes/actions.
-- [x] Migrate the storefront, product catalogue, cart, checkout, account, wishlist, purchases, and notification interfaces to Next.js pages and client components.
-- [x] Migrate the role-protected admin dashboard, payment review, product controls, and payment settings to Next.js routes.
-- [x] Validate the Next.js typecheck, tests, production build, and responsive preview.
-- [x] Save and deliver the Next.js migration checkpoint.
-- [x] Implement Next.js server routes or actions for authentication, payment submission and review, and protected download authorization.
-- [x] Connect Next.js cart, checkout, purchases, wishlist, and notifications pages to real data and state.
-- [x] Add role-protected Next.js admin payment review, product CRUD, and payment-method update flows.
-- [x] Save and deliver the Next.js migration checkpoint.
-- [x] Bridge the existing verified OAuth session into explicit Next.js login, logout, and callback routes.
-- [x] Connect the Next.js cart and checkout UI to order creation and payment-evidence submission flows.
-- [x] Connect protected Next.js admin pages to payment review, product management, and payment-settings API actions.
-- [x] Rebrand the storefront and metadata from Marketplace to Cloud Nine.
-- [x] Upload and integrate the supplied Cloud Nine logo across the global header and browser identity.
-- [x] Resolve the Next.js production-output deployment mismatch and validate a deployable build.
-- [x] Verify the Cloud Nine branding on desktop and mobile, then save and deliver the updated checkpoint.
-- [x] Diagnose and repair the reported Next.js sign-in redirect failure.
-- [x] Repair the managed production startup failure caused by missing dist/index.js after the Next.js migration.
-- [x] Validate the repaired startup contract and publish Cloud Nine successfully.
-- [x] Publish the repaired standalone Cloud Nine package and verify the public domain responds successfully.
-- [x] Resolve the remaining Next.js development runtime manifest error and revalidate the Cloud Nine preview.
+## Deployment configuration and validation
+
+- [ ] Configure the production PostgreSQL URL, auth URL/secret, SMTP sender and Forge/S3 credentials.
+- [ ] If existing MySQL data is needed, rehearse the read-only-source import and verified identity linking on staging first.
+- [ ] Rehearse the complete purchase/download flow against the real hosted PostgreSQL and storage services before enabling real orders.
+
+See README.md for setup and operating instructions. Automated and local browser checks do not perform a live data cutover.

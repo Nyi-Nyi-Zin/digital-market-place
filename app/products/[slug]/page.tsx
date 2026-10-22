@@ -1,8 +1,86 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "../../components/Header";
-import { formatPrice, products } from "../../lib/catalog";
+import { formatPrice } from "../../lib/catalog";
+import { productBySlug } from "../../../server/catalog";
 import { AddToCartButton } from "../../cart/CartClient";
-
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const product = products.find(p => p.slug === slug); if (!product) notFound(); return <><Header /><main className="shell detail"><div className={`detail-cover cover-${product.tone}`}><span className="cover-pattern" /><strong>{product.title}</strong><span className="file-tag">Digital product</span></div><article className="detail-copy"><p className="eyebrow plain">{product.category}</p><h1>{product.title}</h1><p className="rating">★ {product.rating.toFixed(1)} · {product.sales} sales</p><p className="detail-description">{product.description} Built for practical use, easy customization, and a faster route from idea to delivery.</p><div className="purchase-panel"><div><small>One-time payment</small><strong>{formatPrice(product.salePrice ?? product.price)}</strong>{product.salePrice ? <s>{formatPrice(product.price)}</s> : null}</div><Link href="/checkout" className="button button-primary">Buy now →</Link><AddToCartButton item={{ id: product.id, title: product.title, price: product.salePrice ?? product.price }} /></div><div className="detail-grid"><div><h2>What’s included</h2><ul><li>Ready-to-use source files</li><li>Lifetime product access after approval</li><li>Practical setup notes</li></ul></div><div><h2>License</h2><p>Use this product in your personal and commercial projects. Redistribution is not permitted.</p></div></div></article></main></>;
+import {
+  WishlistButton,
+  ProductReviews,
+} from "../../components/ProductActions";
+export const dynamic = "force-dynamic";
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const product = await productBySlug(slug);
+  if (!product) notFound();
+  const item = {
+    id: product.id,
+    title: product.title,
+    price: product.salePrice ?? product.price,
+  };
+  return (
+    <>
+      <Header />
+      <main className="shell">
+        <div className="detail">
+          <div className={`detail-cover cover-${product.tone}`}>
+            {product.thumbnailKey ? (
+              <img
+                className="product-image"
+                src={`/manus-storage/${product.thumbnailKey}`}
+                alt={product.title}
+              />
+            ) : (
+              <strong>{product.title}</strong>
+            )}
+          </div>
+          <article className="detail-copy">
+            <p className="eyebrow plain">{product.category}</p>
+            <h1>{product.title}</h1>
+            <p>
+              ★ {product.rating.toFixed(1)} · {product.sales} sales
+            </p>
+            <p className="detail-description">{product.description}</p>
+            <div className="purchase-panel">
+              <div>
+                <small>One-time payment</small>
+                <strong>{formatPrice(item.price)}</strong>
+                {product.salePrice !== undefined && (
+                  <s>{formatPrice(product.price)}</s>
+                )}
+              </div>
+              <AddToCartButton item={item} buy />
+              <AddToCartButton item={item} />
+            </div>
+            <WishlistButton productId={product.id} />
+            <div className="detail-grid">
+              <div>
+                <h2>What is included</h2>
+                <ul>
+                  {(product.includes || "Digital source files")
+                    .split("\n")
+                    .filter(Boolean)
+                    .map(text => (
+                      <li key={text}>{text}</li>
+                    ))}
+                </ul>
+                <p>
+                  {product.fileType} · {product.fileSize} · Version{" "}
+                  {product.version}
+                </p>
+              </div>
+              <div>
+                <h2>License</h2>
+                <p>{product.license}</p>
+              </div>
+            </div>
+          </article>
+        </div>
+        <ProductReviews productId={product.id} />
+      </main>
+    </>
+  );
 }

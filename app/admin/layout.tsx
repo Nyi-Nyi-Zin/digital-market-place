@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "../lib/auth";
+import { Header } from "../components/Header";
+import { AdminNav } from "./AdminNav";
+import "./admin.css";
 export const dynamic = "force-dynamic";
 export default async function AdminLayout({
   children,
@@ -9,5 +12,13 @@ export default async function AdminLayout({
   const user = await currentUser();
   if (!user) redirect("/sign-in?next=/admin");
   if (user.role !== "admin") redirect("/account");
-  return children;
+  return (
+    <>
+      <Header />
+      <div className="shell admin-workspace">
+        <AdminNav />
+        <main className="admin-main">{children}</main>
+      </div>
+    </>
+  );
 }

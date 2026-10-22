@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { createPayment, createUserNotification, getOrderForUser } from "../../../../server/db";
-import { storagePut } from "../../../../server/storage";
-import { validateScreenshot } from "../../../../server/validation";
-import { notifyOwner } from "../../../../server/_core/notification";
 import { requireUser } from "../../../lib/auth";
-
+import { submitEvidence } from "../../../../server/marketplace";
+import { fail, readJson } from "../../../../server/http";
 export const dynamic = "force-dynamic";
-const schema = z.object({ orderId: z.number().int().positive(), paymentMethod: z.string().min(2), senderName: z.string().min(2), senderPhone: z.string().min(5), transactionReference: z.string().max(120).optional(), screenshotData: z.string().min(30), screenshotContentType: z.enum(["image/jpeg", "image/png", "image/webp"]) });
-export async function POST(request: Request) { try { const user = await requireUser(); const input = schema.parse(await request.json()); const order = await getOrderForUser(user.id, input.orderId); if (!order || order.paymentStatus !== "pending") return new NextResponse("Order is not awaiting payment", { status: 400 }); const bytes = Buffer.from(input.screenshotData.replace(/^data:[^;]+;base64,/, ""), "base64"); validateScreenshot(input.screenshotContentType, bytes.byteLength); const extension = input.screenshotContentType.split("/")[1]; const stored = await storagePut(`payment-screenshots/${user.id}/${input.orderId}.${extension}`, bytes, input.screenshotContentType); const paymentId = await createPayment({ orderId: order.id, userId: user.id, paymentMethod: input.paymentMethod, amount: order.total, senderName: input.senderName, senderPhone: input.senderPhone, transactionReference: input.transactionReference, screenshotKey: stored.key }); await createUserNotification(user.id, "Payment submitted", `Order #${order.id} is pending manual review.`, "payment_submitted"); await notifyOwner({ title: `New payment submission #${order.id}`, content: `${input.paymentMethod} payment submitted by ${input.senderName}.` }); return NextResponse.json({ paymentId, status: "pending" }, { status: 201 }); } catch (error) { const message = error instanceof Error ? error.message : "Unable to submit payment"; const status = error instanceof Response ? error.status : 400; return new NextResponse(message, { status }); } }
+export async function POST(request: Request) {
+  try {
+    const user = await requireUser();
+    return NextResponse.json(
+      await submitEvidence(user.id, await readJson(request)),
+      { status: 201 }
+    );
+  } catch (e) {
+    return fail(e);
+  }
+}

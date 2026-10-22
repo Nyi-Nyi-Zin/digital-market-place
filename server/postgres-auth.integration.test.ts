@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -16,6 +16,14 @@ import * as schema from "../drizzle/schema";
 import { createAuth } from "./auth";
 
 // Opt-in isolated schema. Never use DATABASE_URL for destructive test setup.
+vi.mock("./storage", () => ({
+  storagePut: vi.fn(async () => ({
+    key: "payment-screenshots/integration.png",
+    url: "/manus-storage/payment-screenshots/integration.png",
+  })),
+}));
+import { submitEvidence, writeReview } from "./marketplace";
+import { catalog } from "./catalog";
 const databaseURL = process.env.TEST_DATABASE_URL;
 describe.skipIf(!databaseURL)("PostgreSQL and Better Auth integration", () => {
   const namespace = `test_${randomUUID().replaceAll("-", "")}`;
@@ -191,6 +199,67 @@ describe.skipIf(!databaseURL)("PostgreSQL and Better Auth integration", () => {
       )[0].paymentStatus
     ).toBe("approved");
     expect(await db.select().from(schema.notifications)).toHaveLength(1);
+  });
+  it("supports rejection, resubmission, approval and verified reviews", async () => {
+    const [buyer] = await db.select().from(schema.users);
+    const [product] = await db.select().from(schema.products);
+    await db.insert(schema.paymentMethods).values({
+      name: "KBZPay",
+      enabled: true,
+      accountName: "Test account",
+      accountNumber: "091234567",
+    });
+    const order = await createOrder(buyer.id, "Buyer", email, [
+      { productId: product.id, quantity: 1 },
+    ]);
+    const proof = {
+      orderId: order.orderId,
+      paymentMethod: "KBZPay",
+      senderName: "Buyer",
+      senderPhone: "091234567",
+      screenshotContentType: "image/png",
+      screenshotData: Buffer.from([
+        137,
+        80,
+        78,
+        71,
+        13,
+        10,
+        26,
+        10,
+        ...Array(30).fill(0),
+      ]).toString("base64"),
+    };
+    const first = await submitEvidence(buyer.id, proof);
+    await expect(submitEvidence(buyer.id, proof)).rejects.toThrow(
+      "awaiting review"
+    );
+    await setPaymentStatus(
+      first.paymentId,
+      "rejected",
+      buyer.id,
+      "Reference is unclear"
+    );
+    const second = await submitEvidence(buyer.id, proof);
+    expect(second.paymentId).not.toBe(first.paymentId);
+    await setPaymentStatus(second.paymentId, "approved", buyer.id);
+    await expect(submitEvidence(buyer.id, proof)).rejects.toThrow(
+      "already approved"
+    );
+    await writeReview(buyer.id, product.id, 4, "Useful product");
+    await writeReview(buyer.id, product.id, 5, "Updated after using it");
+    expect(await db.select().from(schema.reviews)).toHaveLength(1);
+    expect((await db.select().from(schema.products))[0].rating).toBe("5.00");
+  });
+  it("does not return demo products for an empty catalogue result", async () => {
+    const result = await catalog({ query: "does-not-exist" });
+    expect(result.products).toHaveLength(0);
+    const listed = await catalog();
+    expect(listed.products.length).toBeGreaterThan(0);
+    expect(listed.products[0]).not.toHaveProperty("digitalFileKey");
+    expect(
+      (await catalog({ minPrice: "", maxPrice: "" })).products.length
+    ).toBeGreaterThan(0);
   });
   it("revokes the session on sign-out", async () => {
     const response = await auth.handler(

@@ -1,4 +1,64 @@
 "use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
-export function WishlistClient() { const [state, setState] = useState<{ loading: boolean; error?: string; items: any[] }>({ loading: true, items: [] }); useEffect(() => { fetch("/api/wishlist").then(async r => { if (!r.ok) throw new Error(r.status === 401 ? "Sign in to view your wishlist." : "Unable to load wishlist."); return r.json(); }).then(data => setState({ loading: false, items: data.items ?? [] })).catch(e => setState({ loading: false, items: [], error: e.message })); }, []); if (state.loading) return <p className="loading-copy">Loading your wishlist…</p>; if (state.error) return <div className="empty-panel"><h2>{state.error}</h2></div>; if (!state.items.length) return <div className="empty-panel"><h2>Your wishlist is empty.</h2><p>Save products you want to revisit while planning your next project.</p></div>; return <div className="purchase-list">{state.items.map(({ product }) => <article key={product.id}><div><strong>{product.title}</strong><p>{product.shortDescription}</p></div><Link className="button button-primary" href={`/products/${product.slug}`}>View product</Link></article>)}</div>; }
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../lib/api";
+type Item = {
+  product: {
+    id: number;
+    title: string;
+    slug: string;
+    shortDescription: string | null;
+    status: string;
+  };
+};
+export function WishlistClient() {
+  const client = useQueryClient();
+  const query = useQuery({
+    queryKey: ["wishlist"],
+    queryFn: () => api<{ items: Item[] }>("/api/wishlist"),
+  });
+  const remove = useMutation({
+    mutationFn: (productId: number) =>
+      api("/api/wishlist", {
+        method: "POST",
+        body: JSON.stringify({ productId }),
+      }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["wishlist"] }),
+  });
+  if (query.isPending) return <p role="status">Loading wishlist…</p>;
+  if (query.error) return <p role="alert">{query.error.message}</p>;
+  return (
+    <>
+      {remove.error && <p role="alert">{remove.error.message}</p>}
+      {query.data?.items.length ? (
+        <div className="purchase-list">
+          {query.data.items.map(({ product }) => (
+            <article key={product.id}>
+              <div>
+                <strong>{product.title}</strong>
+                <p>{product.shortDescription}</p>
+                {product.status === "published" ? (
+                  <Link href={`/products/${product.slug}`}>View product →</Link>
+                ) : (
+                  <small>This product is currently unavailable.</small>
+                )}
+              </div>
+              <button
+                className="button button-secondary"
+                disabled={remove.isPending}
+                onClick={() => remove.mutate(product.id)}
+              >
+                Remove {product.title}
+              </button>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-panel">
+          <h2>Your wishlist is empty</h2>
+          <Link href="/products">Browse products</Link>
+        </div>
+      )}
+    </>
+  );
+}

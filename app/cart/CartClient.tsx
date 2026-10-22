@@ -1,6 +1,73 @@
 "use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
-type CartItem = { id: number; title: string; price: number };
-export function AddToCartButton({ item }: { item: CartItem }) { return <button className="button button-secondary" onClick={() => { const stored = JSON.parse(localStorage.getItem("marketplace-cart") ?? "[]") as CartItem[]; if (!stored.some(entry => entry.id === item.id)) localStorage.setItem("marketplace-cart", JSON.stringify([...stored, item])); window.dispatchEvent(new Event("marketplace-cart")); }}>Add to cart</button>; }
-export function CartClient() { const [items, setItems] = useState<CartItem[]>([]); useEffect(() => { const sync = () => setItems(JSON.parse(localStorage.getItem("marketplace-cart") ?? "[]")); sync(); window.addEventListener("marketplace-cart", sync); return () => window.removeEventListener("marketplace-cart", sync); }, []); const total = items.reduce((sum, item) => sum + item.price, 0); if (!items.length) return <div className="empty-panel"><h2>Add a product to continue</h2><p>Digital products are delivered from your purchase library after payment approval.</p><Link className="button button-primary" href="/products">Browse products</Link></div>; return <div className="purchase-list">{items.map(item => <article key={item.id}><div><strong>{item.title}</strong><p>Digital product · ${item.price.toFixed(2)}</p></div><button onClick={() => { const next = items.filter(entry => entry.id !== item.id); localStorage.setItem("marketplace-cart", JSON.stringify(next)); setItems(next); }}>Remove</button></article>)}<div className="cart-total"><strong>Total: ${total.toFixed(2)}</strong><Link className="button button-primary" href="/checkout">Continue to checkout</Link></div></div>; }
+import { useState } from "react";
+import { type CartItem, readCart, writeCart, useCart } from "../lib/cart";
+import { formatPrice } from "../lib/catalog";
+export function AddToCartButton({
+  item,
+  buy = false,
+}: {
+  item: CartItem;
+  buy?: boolean;
+}) {
+  const [added, setAdded] = useState(false);
+  return (
+    <button
+      className={`button button-${buy ? "primary" : "secondary"}`}
+      onClick={() => {
+        const cart = readCart();
+        if (!cart.some(x => x.id === item.id)) writeCart([...cart, item]);
+        setAdded(true);
+        if (buy) window.location.assign(`/checkout?buy=${item.id}`);
+      }}
+    >
+      {buy ? "Buy now" : added ? "Added to cart" : "Add to cart"}
+    </button>
+  );
+}
+export function CartBadge() {
+  const items = useCart();
+  return (
+    <Link className="cart-link" href="/cart">
+      Cart <b>{items.length}</b>
+    </Link>
+  );
+}
+export function CartClient() {
+  const items = useCart();
+  return items.length ? (
+    <div className="purchase-list">
+      {items.map(item => (
+        <article key={item.id}>
+          <div>
+            <strong>{item.title}</strong>
+            <p>{formatPrice(item.price)}</p>
+          </div>
+          <button
+            className="button button-secondary"
+            onClick={() => writeCart(items.filter(x => x.id !== item.id))}
+          >
+            Remove {item.title}
+          </button>
+        </article>
+      ))}
+      <div className="cart-total">
+        <strong>
+          Estimated total:{" "}
+          {formatPrice(items.reduce((sum, item) => sum + item.price, 0))}
+        </strong>
+        <p>Final prices are confirmed at checkout.</p>
+        <Link className="button button-primary" href="/checkout">
+          Continue to checkout
+        </Link>
+      </div>
+    </div>
+  ) : (
+    <div className="empty-panel">
+      <h2>Your cart is empty</h2>
+      <Link className="button button-primary" href="/products">
+        Browse products
+      </Link>
+    </div>
+  );
+}
