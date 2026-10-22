@@ -61,4 +61,21 @@ pnpm build
 
 Integration tests run only when `TEST_DATABASE_URL` is explicitly set to an empty, disposable PostgreSQL database. They create an isolated schema and never target the default application database.
 
-The existing Forge/S3 storage configuration is separate from auth and is still needed for hosted product files and the logo. The rest of the admin/checkout integration backlog remains separate from this database/auth migration.
+The existing Forge/S3 storage configuration is separate from auth and is still needed for hosted product files and the logo. The admin and customer flows now use the live PostgreSQL catalogue. No sample products are returned when a database query is empty.
+
+## Marketplace operations
+
+- `/admin`: real revenue, order and payment counts; recent orders.
+- `/admin/categories`: create/edit/delete categories (database constraints prevent deleting a category that still contains products).
+- `/admin/products`: create/edit products, upload thumbnail and digital files, publish/draft, feature and unpublish products. Unpublishing preserves existing purchases and downloads.
+- `/admin/orders`: customer/order details, item snapshots and payment status.
+- `/admin/payments`: inspect screenshots, approve or reject with a reason, and see the reviewer/time. Approval is transactional and cannot increase sales twice.
+- `/admin/settings/payment`: create/update and enable/disable KBZPay, AYA Pay and WavePay account details. New installations start with no enabled accounts.
+
+A new installation needs an admin account, a category, an uploaded product file and an enabled payment method before it can accept an order. Uploads require the existing Forge/S3 configuration. Thumbnail and payment evidence uploads accept JPG/PNG/WEBP up to 5 MB and validate image signatures. Digital product uploads accept ZIP/PDF/FIG/TXT/CSV/JSON/XLSX/DOCX/PPTX up to 25 MB. Large products can be packaged into an allowed archive; the current upload limit is enforced on the server.
+
+Customers can search/filter/sort the catalogue, save/remove wishlist items, add to cart or buy one product directly, create an order with server-confirmed pricing, submit payment evidence, and resubmit after rejection. Pending payments block duplicate evidence submissions. Downloads require an approved purchase; purchase history retains the original item title/price after catalogue edits. Verified buyers can write/update one review per product. Notifications support read/unread state and a mark-all-read action. Account names can be edited through Better Auth.
+
+`NEXT_PUBLIC_MARKETPLACE_CURRENCY` controls the single store currency and defaults to **USD**, matching the original prices. Changing it does not convert existing amounts. Configure it before entering prices, and review existing order amounts before changing an established store's currency.
+
+Local integration validation can use PGlite through the PostgreSQL wire protocol, but deployment should be rehearsed with the actual hosted PostgreSQL and Forge/S3 services. No real financial transfers are performed by this app; payment review is manual.

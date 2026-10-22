@@ -730,3 +730,4 @@ footer .shell {
   opacity: 0.6;
   cursor: wait;
 }
+.product-image{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.detail-cover{position:relative;overflow:hidden}.detail-description{white-space:pre-line}.checkout-grid .admin-form{padding:20px;background:#fff;border:1px solid var(--line);border-radius:14px}.purchase-list article{gap:16px;flex-wrap:wrap}.admin-form input[type=file]{white-space:normal;max-width:100%}.cover strong{position:relative;z-index:1;text-shadow:0 1px 8px #fff8}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}

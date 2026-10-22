@@ -1,3 +1,39 @@
 import Link from "next/link";
 import { Header } from "../components/Header";
-export default function AccountPage() { return <><Header /><main className="shell simple-page"><p className="eyebrow plain">YOUR WORKSPACE</p><h1>Account</h1><div className="account-grid"><Link href="/account/purchases"><b>⇩</b><h2>My purchases</h2><p>Access approved downloads and view download history.</p></Link><Link href="/account/wishlist"><b>♡</b><h2>Wishlist</h2><p>Keep digital products you want to revisit.</p></Link><Link href="/account/notifications"><b>◌</b><h2>Notifications</h2><p>View payment, purchase, and product updates.</p></Link></div></main></>; }
+import { currentUser } from "../lib/auth";
+import { ProfileForm } from "./ProfileForm";
+export const dynamic = "force-dynamic";
+export default async function AccountPage() {
+  const user = await currentUser();
+  return (
+    <>
+      <Header />
+      <main className="shell simple-page">
+        <p className="eyebrow plain">YOUR WORKSPACE</p>
+        <h1>Account</h1>
+        {user?.role === "admin" && (
+          <Link className="button button-primary" href="/admin">
+            Open admin panel
+          </Link>
+        )}
+        <div className="account-grid">
+          {[
+            [
+              "purchases",
+              "My purchases",
+              "Order status and approved downloads",
+            ],
+            ["wishlist", "Wishlist", "Products saved for later"],
+            ["notifications", "Notifications", "Payment and product updates"],
+          ].map(([path, title, body]) => (
+            <Link href={`/account/${path}`} key={path}>
+              <h2>{title}</h2>
+              <p>{body}</p>
+            </Link>
+          ))}
+        </div>
+        <ProfileForm name={user?.name ?? ""} email={user?.email ?? ""} />
+      </main>
+    </>
+  );
+}

@@ -1,13 +1,89 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { eq } from "drizzle-orm";
-import { getDb, products } from "../../../../server/db";
+import { and, eq } from "drizzle-orm";
 import { requireAdmin } from "../../../lib/auth";
-
+import {
+  getDb,
+  products,
+  orders,
+  orderItems,
+  notifications,
+} from "../../../../server/db";
+import {
+  productInput,
+  checkProduct,
+} from "../../../../shared/marketplace-validation";
+import { fail, readJson, HttpError } from "../../../../server/http";
 export const dynamic = "force-dynamic";
-const createSchema = z.object({ title: z.string().min(2), slug: z.string().min(2), categoryId: z.number().int().positive(), price: z.string(), status: z.enum(["draft", "published"]).default("draft"), featured: z.boolean().default(false) });
-const updateSchema = createSchema.partial().extend({ id: z.number().int().positive(), discountPrice: z.string().optional() });
-export async function GET() { try { await requireAdmin(); const db = await getDb(); return NextResponse.json({ products: db ? await db.select().from(products) : [] }); } catch (error) { return new NextResponse("Administrator access required", { status: error instanceof Response ? error.status : 403 }); } }
-export async function POST(request: Request) { try { await requireAdmin(); const input = createSchema.parse(await request.json()); const db = await getDb(); if (!db) return new NextResponse("Database unavailable", { status: 503 }); await db.insert(products).values(input); return NextResponse.json({ success: true }, { status: 201 }); } catch (error) { return new NextResponse(error instanceof Error ? error.message : "Unable to create product", { status: 400 }); } }
-export async function PATCH(request: Request) { try { await requireAdmin(); const input = updateSchema.parse(await request.json()); const { id, ...changes } = input; const db = await getDb(); if (!db) return new NextResponse("Database unavailable", { status: 503 }); await db.update(products).set(changes).where(eq(products.id, id)); return NextResponse.json({ success: true }); } catch (error) { return new NextResponse(error instanceof Error ? error.message : "Unable to update product", { status: 400 }); } }
-export async function DELETE(request: Request) { try { await requireAdmin(); const id = Number(new URL(request.url).searchParams.get("id")); if (!Number.isInteger(id) || id <= 0) return new NextResponse("Invalid product id", { status: 400 }); const db = await getDb(); if (!db) return new NextResponse("Database unavailable", { status: 503 }); await db.delete(products).where(eq(products.id, id)); return NextResponse.json({ success: true }); } catch (error) { return new NextResponse(error instanceof Error ? error.message : "Unable to delete product", { status: error instanceof Response ? error.status : 400 }); } }
+export async function GET() {
+  try {
+    await requireAdmin();
+    return NextResponse.json({
+      products: await getDb().select().from(products),
+    });
+  } catch (e) {
+    return fail(e);
+  }
+}
+export async function POST(request: Request) {
+  try {
+    await requireAdmin();
+    const input = checkProduct(productInput.parse(await readJson(request)));
+    const [product] = await getDb().insert(products).values(input).returning();
+    return NextResponse.json({ product }, { status: 201 });
+  } catch (e) {
+    return fail(e);
+  }
+}
+export async function PATCH(request: Request) {
+  try {
+    await requireAdmin();
+    const raw = await readJson(request);
+    const id = Number(raw.id);
+    const db = getDb();
+    const [old] = await db.select().from(products).where(eq(products.id, id));
+    if (!old) throw new HttpError(404, "Product not found");
+    const input = checkProduct(productInput.parse({ ...old, ...raw }));
+    const [product] = await db
+      .update(products)
+      .set(input)
+      .where(eq(products.id, id))
+      .returning();
+    const buyers = await db
+      .selectDistinct({ userId: orders.userId })
+      .from(orders)
+      .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
+      .where(
+        and(eq(orderItems.productId, id), eq(orders.paymentStatus, "approved"))
+      );
+    if (buyers.length)
+      await db.insert(notifications).values(
+        buyers.map(buyer => ({
+          userId: buyer.userId,
+          title: "Product updated",
+          body: `${product.title} has been updated.`,
+          kind: "product_updated",
+        }))
+      );
+    return NextResponse.json({ product });
+  } catch (e) {
+    return fail(e);
+  }
+}
+// Keep historical orders and downloads intact: removal unpublishes the product.
+export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+    const id = Number(new URL(request.url).searchParams.get("id"));
+    if (!Number.isInteger(id) || id < 1)
+      throw new HttpError(400, "Invalid product");
+    const [product] = await getDb()
+      .update(products)
+      .set({ status: "draft", featured: false })
+      .where(eq(products.id, id))
+      .returning();
+    if (!product) throw new HttpError(404, "Product not found");
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    return fail(e);
+  }
+}
