@@ -7,10 +7,35 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const search = url.searchParams.get("query") ?? undefined;
   const category = url.searchParams.get("category") ?? undefined;
-  const sort = url.searchParams.get("sort") as "newest" | "best" | "price_low" | "price_high" | "rating" | null;
+  const sort = url.searchParams.get("sort") as
+    | "newest"
+    | "best"
+    | "price_low"
+    | "price_high"
+    | "rating"
+    | null;
   const categories = category ? await listCategories() : [];
-  const categoryId = categories.find((entry) => entry.name === category)?.id;
-  const databaseProducts = await listProducts({ search, categoryId, sort: sort ?? undefined });
-  const payload = databaseProducts.length ? databaseProducts : products;
+  const categoryId = categories.find(entry => entry.name === category)?.id;
+  const databaseProducts = await listProducts({
+    search,
+    categoryId,
+    sort: sort ?? undefined,
+  });
+  const payload = databaseProducts.length
+    ? databaseProducts.map(({ product, category }) => ({
+        id: product.id,
+        slug: product.slug,
+        title: product.title,
+        category: category?.name ?? "",
+        price: Number(product.price),
+        salePrice: product.discountPrice
+          ? Number(product.discountPrice)
+          : undefined,
+        rating: Number(product.rating),
+        sales: product.salesCount,
+        description: product.shortDescription ?? product.description ?? "",
+        tone: "blue",
+      }))
+    : products;
   return NextResponse.json({ products: payload, total: payload.length });
 }
