@@ -1,0 +1,22 @@
+export type PublicProduct = {
+  id: number;
+  slug: string;
+  title: string;
+  category: string;
+  categoryId: number;
+  price: number;
+  salePrice: number | undefined;
+  rating: number;
+  sales: number;
+  description: string;
+  shortDescription: string;
+  thumbnailKey: string | null;
+  fileType: string | null;
+  fileSize: string | null;
+  version: string | null;
+  license: string | null;
+  includes: string | null;
+  featured: boolean;
+  createdAt: Date;
+  tone: string;
+};

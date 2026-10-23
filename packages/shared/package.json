@@ -1,0 +1,13 @@
+{
+  "name": "@marketplace/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./locales": "./src/locales/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
+}

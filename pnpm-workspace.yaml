@@ -1,0 +1,4 @@
+packages:
+  - customer-web
+  - admin
+  - packages/*

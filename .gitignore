@@ -86,6 +86,7 @@ jspm_packages/
 
 # Next.js build output
 .next
+.next-dev
 
 # Nuxt.js build / generate output
 .nuxt
@@ -109,6 +110,4 @@ temp/
 # Webdev artifacts (checkpoint zips, migrations, etc.)
 .webdev/
 
-# Manus version file (auto-generated, not part of source)
-client/public/__manus__/version.json
 .project-config.json

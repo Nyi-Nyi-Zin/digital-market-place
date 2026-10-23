@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+.npm/
+.next/
+.next-dev/
+tmp/
 
 # Build outputs
 dist/

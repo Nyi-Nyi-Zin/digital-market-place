@@ -1,6 +1,33 @@
 # Cloud Nine digital marketplace
 
-Next.js App Router + PostgreSQL + Drizzle ORM + Better Auth.
+Two Next.js App Router sites + shared PostgreSQL, Drizzle ORM and Better Auth.
+
+## Customer and admin sites
+
+Two independent Next.js projects live directly under this workspace root:
+
+| Site     | Project         | Local URL               | Routes                                                                                   |
+| -------- | --------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
+| Customer | `customer-web/` | `http://localhost:3000` | Catalogue, products, cart, checkout, account, sign-up and recovery                       |
+| Admin    | `admin/`        | `http://localhost:3001` | Overview, products, categories, orders, payments, payment settings, profile and recovery |
+
+Each app owns its routes, components, CSS, public assets, package manifest, dependencies, Next.js/TypeScript configuration and build output. Neither app imports the other. The customer visual identity and ordering behavior are preserved. Admin has its own responsive sidebar/drawer, topbar, login, profile and light/dark styles; its theme uses `cloud-nine-admin-theme`, independently of the customer theme.
+
+`packages/server` owns PostgreSQL/Drizzle schema and business logic, Better Auth and Cloudinary access. `packages/shared` owns client-safe validation, public types, formatting and the five locale dictionaries. Both sites access the same database through these explicit workspace packages; no separate API service or data migration is needed. Runtime dependencies are declared where used. The root manifest contains tooling/test dependencies only, and pnpm manages one workspace lockfile.
+
+Run `pnpm install --frozen-lockfile`, then `pnpm dev` for both sites. Use `pnpm dev:customer` / `pnpm dev:admin`, or `pnpm --filter @marketplace/customer dev` / `pnpm --filter @marketplace/admin dev`, to run one. The same filters support `check`, `build` and `start`. Stop an older preview using ports 3000/3001 before launching these apps.
+
+Launchers load the root `.env` without overriding provided environment variables. Development outputs are `customer-web/.next-dev` and `admin/.next-dev`; production outputs are each app's `.next`. Each deployment receives its own server environment, while database/storage settings point to the shared services. Set `NEXT_PUBLIC_CUSTOMER_URL` and `NEXT_PUBLIC_ADMIN_URL` to different origins and rebuild after changing them. Each site's `BETTER_AUTH_URL` is derived from its own origin.
+
+Customer admin APIs and admin shopping routes are absent. Customer `/admin/*` redirects to the matching admin URL, preserving queries. Admin has no public sign-up; create a customer identity, verify it, and grant the administrator role using the trusted CLI. Admin role checks and separate host-only auth cookies remain enforced; signing out of one site preserves the other session.
+
+### Independent production artifacts
+
+`pnpm build:customer` and `pnpm build:admin` each create Next.js standalone output. On Windows, the build launcher uses directory junctions for Next 15's pnpm links so the build needs no symlink privilege. On deployment platforms, use the native standalone output and copy that app's `public` and `.next/static` directories as described in the Next.js standalone documentation.
+
+For a local artifact with traced runtime packages materialized and no links back to workspace `node_modules`, run `pnpm package:customer` or `pnpm package:admin` after building. The command prints a fresh `dist/<app>-<timestamp>/` directory and its server entrypoint. It includes only traced runtime packages and fails explicitly if traced versions cannot be flattened safely. Provide the deployment's server environment and `PORT` when starting the printed entrypoint. Artifacts include platform-specific dependencies; build/package on the target operating system.
+
+`pnpm check` verifies both apps, shared code and import/dependency boundaries. Current regression tests live in `tests/`; `pnpm test:integration` runs them against a newly created disposable local PostgreSQL database and removes it afterward. Obsolete Vite/tRPC source, compatibility facades and template configuration have been removed. Database migration history and the explicit MySQL import/identity recovery tools are retained.
 
 ## Local setup
 
@@ -8,11 +35,11 @@ Use Node.js 22 or newer and the package manager pinned in `package.json`.
 
 1. Copy `.env.example` to `.env` and set a random `BETTER_AUTH_SECRET` (at least 32 characters).
 2. Start PostgreSQL, for example `POSTGRES_PASSWORD=<local-password> docker compose up -d`.
-3. Set `DATABASE_URL` to that PostgreSQL database and `BETTER_AUTH_URL` to `http://localhost:3000`.
+3. Set `DATABASE_URL` to that PostgreSQL database. Use `NEXT_PUBLIC_CUSTOMER_URL=http://localhost:3000` and `NEXT_PUBLIC_ADMIN_URL=http://localhost:3001`.
 4. Run `pnpm install --frozen-lockfile`, then `pnpm db:migrate` and `pnpm dev`.
-5. Open `/sign-up`. Configure SMTP to test email verification and recovery.
+5. Open `http://localhost:3000/sign-up`. Configure SMTP to test email verification and recovery. Admin sign-in is at `http://localhost:3001/sign-in`.
 
-Next.js reads `.env` automatically. CLI scripts import `dotenv/config` and use the same file. The PostgreSQL example password is for local development only.
+The site launchers/configurations load the root `.env`. Database CLI scripts import `dotenv/config` and use the same file. The PostgreSQL example password is for local development only.
 
 ## Authentication
 
@@ -61,21 +88,34 @@ pnpm build
 
 Integration tests run only when `TEST_DATABASE_URL` is explicitly set to an empty, disposable PostgreSQL database. They create an isolated schema and never target the default application database.
 
-The existing Forge/S3 storage configuration is separate from auth and is still needed for hosted product files and the logo. The admin and customer flows now use the live PostgreSQL catalogue. No sample products are returned when a database query is empty.
+Storage uses Cloudinary directly, independently of authentication. The admin and customer flows use the live PostgreSQL catalogue. No sample products are returned when a database query is empty.
+
+## Cloudinary storage
+
+1. Create a Cloudinary account and find your Cloud name, API key and API secret in the Cloudinary Console API Keys settings.
+2. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in the root `.env` locally and in the server environment for **both** deployments. Keep the secret server-side; do not add a `NEXT_PUBLIC_` prefix. Restart both sites after changing credentials. No unsigned upload preset, AWS account or Manus service is required.
+3. Product thumbnails are uploaded as public `image/upload` assets. Payment screenshots use `image/authenticated`, and optional product files use `raw/authenticated`, so originals and derived assets are protected. The `/storage/...` route checks database ownership, payment approval or the administrator role before issuing a private download URL valid for five minutes. These links are bearer links until expiry; redirects and errors use `private, no-store`.
+4. Image uploads remain limited to 5 MB. `CLOUDINARY_MAX_FILE_MB` defaults to **10**, matching the Free plan raw-file limit. Raise it only if your Cloudinary plan supports it; this app caps it at 25 MB. Free credits are shared by storage, bandwidth and transformations. If delivering PDFs/ZIP archives, enable **Allow delivery of PDF and ZIP files** in the Cloudinary product environment's Security settings.
+
+Existing files are **not** transferred automatically. New database file keys start with `cloudinary/` and preserve their resource and delivery types. Legacy keys return 404; re-upload thumbnails/product files and update the corresponding database keys. Historical payment evidence must be uploaded as authenticated assets and its payment record updated through a controlled migration before cutover. Preserve original evidence and database backups until verified. There is no fallback to the old storage service. The header keeps its existing cloud icon and favicons are bundled locally.
+
+See [Cloudinary access controls](https://cloudinary.com/documentation/control_access_to_media), [plan limits](https://cloudinary.com/pricing/compare-plans) and [PDF/ZIP delivery settings](https://cloudinary.com/documentation/image_delivery_options#blocked_delivery_formats). Local tests mock uploads; a real upload and authorized download should be checked after configuring your own account.
 
 ## Marketplace operations
 
-- `/admin`: real revenue, order and payment counts; recent orders.
-- `/admin/categories`: create/edit/delete categories (database constraints prevent deleting a category that still contains products).
-- `/admin/products`: create/edit products, upload thumbnail and digital files, publish/draft, feature and unpublish products. Unpublishing preserves existing purchases and downloads.
-- `/admin/orders`: customer/order details, item snapshots and payment status.
-- `/admin/payments`: inspect screenshots, approve or reject with a reason, and see the reviewer/time. Approval is transactional and cannot increase sales twice.
-- `/admin/settings/payment`: create/update and enable/disable KBZPay, AYA Pay and WavePay account details. New installations start with no enabled accounts.
+On the admin site (`http://localhost:3001` locally):
 
-A new installation needs an admin account, a category, an uploaded product file and an enabled payment method before it can accept an order. Uploads require the existing Forge/S3 configuration. Thumbnail and payment evidence uploads accept JPG/PNG/WEBP up to 5 MB and validate image signatures. Digital product uploads accept ZIP/PDF/FIG/TXT/CSV/JSON/XLSX/DOCX/PPTX up to 25 MB. Large products can be packaged into an allowed archive; the current upload limit is enforced on the server.
+- `/`: real revenue, order and payment counts; recent orders.
+- `/categories`: create/edit/delete categories (database constraints prevent deleting a category that still contains products).
+- `/products`: create/edit products, upload a thumbnail, publish/draft, feature and unpublish products. Digital products are delivered manually after payment approval; publishing does not require a file upload. Unpublishing preserves existing purchases.
+- `/orders`: customer/order details, item snapshots and payment status.
+- `/payments`: inspect screenshots, approve or reject with a reason, and see the reviewer/time. Approval is transactional and cannot increase sales twice.
+- `/settings/payment`: create/update and enable/disable KBZPay, AYA Pay and WavePay account details. New installations start with no enabled accounts.
 
-Customers can search/filter/sort the catalogue, save/remove wishlist items, add to cart or buy one product directly, create an order with server-confirmed pricing, submit payment evidence, and resubmit after rejection. Pending payments block duplicate evidence submissions. Downloads require an approved purchase; purchase history retains the original item title/price after catalogue edits. Verified buyers can write/update one review per product. Notifications support read/unread state and a mark-all-read action. Account names can be edited through Better Auth.
+A new installation needs an admin account, a category, a published product and an enabled payment method before it can accept an order. Uploads require Cloudinary configuration. Thumbnail and payment evidence uploads accept JPG/PNG/WEBP up to 5 MB and validate image signatures. The optional digital-file API accepts ZIP/PDF/FIG/TXT/CSV/JSON/XLSX/DOCX/PPTX up to `CLOUDINARY_MAX_FILE_MB` (10 MB by default). The product editor continues to use manual product delivery after payment approval.
+
+Customers can search/filter/sort the catalogue, save/remove wishlist items, add to cart or buy one product directly, create an order with server-confirmed pricing, submit payment evidence, and resubmit after rejection. Pending payments block duplicate evidence submissions. The seller delivers products manually after payment approval; approved purchases show delivery guidance and a support link. Payment approval does not record delivery completion. Purchase history retains the original item title/price after catalogue edits. Verified buyers can write/update one review per product. Notifications support read/unread state and a mark-all-read action. Account names can be edited through Better Auth.
 
 `NEXT_PUBLIC_MARKETPLACE_CURRENCY` controls the single store currency and defaults to **USD**, matching the original prices. Changing it does not convert existing amounts. Configure it before entering prices, and review existing order amounts before changing an established store's currency.
 
-Local integration validation can use PGlite through the PostgreSQL wire protocol, but deployment should be rehearsed with the actual hosted PostgreSQL and Forge/S3 services. No real financial transfers are performed by this app; payment review is manual.
+Local integration validation can use PGlite through the PostgreSQL wire protocol, but deployment should be rehearsed with the actual hosted PostgreSQL and Cloudinary services. No real financial transfers are performed by this app; payment review is manual.
