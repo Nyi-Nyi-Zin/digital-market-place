@@ -1,3 +1,4 @@
+import { recordActivity } from "@marketplace/server/activity";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@marketplace/server/next-auth";
 import { getDb, paymentMethods } from "@marketplace/server/db";
@@ -16,14 +17,24 @@ export async function GET() {
 }
 export async function PATCH(request: Request) {
   try {
-    await requireAdmin();
-    const { id, ...input } = paymentMethodInput.parse(await readJson(request));
-    const [method] = await getDb()
-      .insert(paymentMethods)
-      .values(input)
-      .onConflictDoUpdate({ target: paymentMethods.name, set: input })
-      .returning();
-    return NextResponse.json({ method });
+    const actor = await requireAdmin();
+    return await getDb().transaction(async tx => {
+      const { id, ...input } = paymentMethodInput.parse(
+        await readJson(request)
+      );
+      const [method] = await tx
+        .insert(paymentMethods)
+        .values(input)
+        .onConflictDoUpdate({ target: paymentMethods.name, set: input })
+        .returning();
+      await recordActivity(
+        tx,
+        actor.id,
+        "Payment settings updated",
+        `payment-method:${method.id}`
+      );
+      return NextResponse.json({ method });
+    });
   } catch (e) {
     return fail(e);
   }

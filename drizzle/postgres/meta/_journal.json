@@ -8,6 +8,27 @@
       "when": 1792650181719,
       "tag": "0000_dusty_toad_men",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792857325137,
+      "tag": "0001_product_archive",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792864783891,
+      "tag": "0002_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792869988915,
+      "tag": "0003_store_support_operations",
+      "breakpoints": true
     }
   ]
 }

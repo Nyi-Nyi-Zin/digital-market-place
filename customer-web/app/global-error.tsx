@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "./components/ui/button";
 
 import { useEffect, useState } from "react";
 import {
@@ -57,7 +58,9 @@ export default function GlobalError({
           <p>Cloud Nine</p>
           <h1>{t("Something needs another try.")}</h1>
           <p>{t("Refresh this route or return to the storefront.")}</p>
-          <button
+          <Button
+            variant="brand"
+            size="brand"
             type="button"
             onClick={reset}
             style={{
@@ -73,7 +76,7 @@ export default function GlobalError({
             }}
           >
             {t("Try again")}
-          </button>
+          </Button>
         </main>
       </body>
     </html>

@@ -1,0 +1,26 @@
+import type { MetadataRoute } from "next";
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    id: "/",
+    name: "Cloud Nine Admin",
+    short_name: "Cloud Nine",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    background_color: "#fbfbfd",
+    theme_color: "#6954dc",
+    icons: [
+      {
+        src: "/notification-icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/notification-icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+    ],
+  };
+}

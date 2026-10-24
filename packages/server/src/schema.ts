@@ -11,10 +11,15 @@ import {
   uniqueIndex,
   index,
   bigint,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const marketplaceRole = pgEnum("marketplace_role", ["user", "admin"]);
-export const productStatus = pgEnum("product_status", ["draft", "published"]);
+export const productStatus = pgEnum("product_status", [
+  "draft",
+  "published",
+  "archived",
+]);
 export const orderPaymentStatus = pgEnum("order_payment_status", [
   "pending",
   "approved",
@@ -211,6 +216,10 @@ export const orders = pgTable("orders", {
     .default("pending")
     .notNull(),
   orderStatus: orderStatus("orderStatus").default("payment_pending").notNull(),
+  completedBy: int("completedBy").references(() => users.id, {
+    onDelete: "restrict",
+  }),
+  completedAt: timestamp("completedAt", { withTimezone: true }),
   createdAt: timestamp("createdAt", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -308,19 +317,151 @@ export const reviews = pgTable("reviews", {
     .notNull(),
 });
 
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: int("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "restrict" }),
-  title: varchar("title", { length: 180 }).notNull(),
-  body: text("body").notNull(),
-  kind: varchar("kind", { length: 40 }).notNull(),
-  read: boolean("read").default(false).notNull(),
-  createdAt: timestamp("createdAt", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    title: varchar("title", { length: 180 }).notNull(),
+    body: text("body").notNull(),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    audience: varchar("audience", { length: 16 })
+      .$type<"customer" | "admin">()
+      .default("customer")
+      .notNull(),
+    eventKey: varchar("eventKey", { length: 160 }),
+    orderId: int("orderId").references(() => orders.id, {
+      onDelete: "restrict",
+    }),
+    paymentId: int("paymentId").references(() => payments.id, {
+      onDelete: "restrict",
+    }),
+    data: jsonb("data").$type<Record<string, string | number>>(),
+    read: boolean("read").default(false).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  table => [
+    uniqueIndex("notifications_recipient_event_idx").on(
+      table.userId,
+      table.audience,
+      table.eventKey
+    ),
+    index("notifications_inbox_idx").on(
+      table.userId,
+      table.audience,
+      table.createdAt,
+      table.id
+    ),
+    index("notifications_unread_idx").on(
+      table.userId,
+      table.audience,
+      table.read
+    ),
+  ]
+);
+
+export const notificationPreferences = pgTable(
+  "notification_preferences",
+  {
+    id: serial("id").primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    audience: varchar("audience", { length: 16 })
+      .$type<"customer" | "admin">()
+      .notNull(),
+    emailEnabled: boolean("emailEnabled").default(true).notNull(),
+    locale: varchar("locale", { length: 8 }).default("en").notNull(),
+  },
+  table => [
+    uniqueIndex("notification_preferences_user_site_idx").on(
+      table.userId,
+      table.audience
+    ),
+  ]
+);
+
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    audience: varchar("audience", { length: 16 })
+      .$type<"customer" | "admin">()
+      .notNull(),
+    sessionId: text("sessionId")
+      .notNull()
+      .references(() => authSessions.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    active: boolean("active").default(true).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  table => [
+    uniqueIndex("push_subscriptions_endpoint_idx").on(table.endpoint),
+    index("push_subscriptions_user_site_idx").on(
+      table.userId,
+      table.audience,
+      table.active
+    ),
+  ]
+);
+
+export const notificationDeliveries = pgTable(
+  "notification_deliveries",
+  {
+    id: serial("id").primaryKey(),
+    notificationId: int("notificationId")
+      .notNull()
+      .references(() => notifications.id, { onDelete: "cascade" }),
+    channel: varchar("channel", { length: 8 })
+      .$type<"email" | "push">()
+      .notNull(),
+    target: varchar("target", { length: 80 }).notNull(),
+    subscriptionId: int("subscriptionId").references(
+      () => pushSubscriptions.id,
+      { onDelete: "set null" }
+    ),
+    locale: varchar("locale", { length: 8 }).default("en").notNull(),
+    status: varchar("status", { length: 16 })
+      .$type<
+        "pending" | "processing" | "sent" | "failed" | "blocked" | "skipped"
+      >()
+      .default("pending")
+      .notNull(),
+    attempts: int("attempts").default(0).notNull(),
+    nextAttemptAt: timestamp("nextAttemptAt", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    leaseToken: text("leaseToken"),
+    leaseUntil: timestamp("leaseUntil", { withTimezone: true }),
+    lastError: text("lastError"),
+    sentAt: timestamp("sentAt", { withTimezone: true }),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  table => [
+    uniqueIndex("notification_deliveries_target_idx").on(
+      table.notificationId,
+      table.channel,
+      table.target
+    ),
+    index("notification_deliveries_queue_idx").on(
+      table.status,
+      table.nextAttemptAt
+    ),
+  ]
+);
 
 export const wishlists = pgTable(
   "wishlists",
@@ -350,3 +491,111 @@ export type Product = typeof products.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type PaymentMethod = typeof paymentMethods.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
+
+export const storeSettings = pgTable("store_settings", {
+  id: int("id").primaryKey(),
+  supportEmail: varchar("supportEmail", { length: 320 }).notNull(),
+  telegramUsername: varchar("telegramUsername", { length: 32 }).notNull(),
+  supportHours: text("supportHours").notNull().default(""),
+  revision: int("revision").notNull().default(1),
+  updatedAt: timestamp("updatedAt", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+export const storeDocuments = pgTable(
+  "store_documents",
+  {
+    id: serial("id").primaryKey(),
+    key: varchar("key", { length: 40 }).notNull(),
+    locale: varchar("locale", { length: 8 }).notNull(),
+    content: jsonb("content")
+      .$type<import("@marketplace/shared/store").StoreDocument>()
+      .notNull(),
+    revision: int("revision").notNull().default(1),
+    updatedAt: timestamp("updatedAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => [
+    uniqueIndex("store_documents_key_locale_idx").on(table.key, table.locale),
+  ]
+);
+export const supportTickets = pgTable(
+  "support_tickets",
+  {
+    id: serial("id").primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    orderId: int("orderId").references(() => orders.id, {
+      onDelete: "restrict",
+    }),
+    subject: varchar("subject", { length: 180 }).notNull(),
+    status: varchar("status", { length: 16 })
+      .$type<"open" | "closed">()
+      .notNull()
+      .default("open"),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => [
+    index("support_tickets_owner_idx").on(table.userId, table.updatedAt),
+    index("support_tickets_status_idx").on(table.status, table.updatedAt),
+  ]
+);
+export const supportMessages = pgTable(
+  "support_messages",
+  {
+    id: serial("id").primaryKey(),
+    ticketId: int("ticketId")
+      .notNull()
+      .references(() => supportTickets.id, { onDelete: "restrict" }),
+    authorId: int("authorId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    audience: varchar("audience", { length: 16 })
+      .$type<"customer" | "admin">()
+      .notNull(),
+    body: text("body").notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => [index("support_messages_ticket_idx").on(table.ticketId, table.id)]
+);
+export const activityLogs = pgTable(
+  "activity_logs",
+  {
+    id: serial("id").primaryKey(),
+    actorId: int("actorId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    action: varchar("action", { length: 80 }).notNull(),
+    target: varchar("target", { length: 180 }).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => [index("activity_logs_created_idx").on(table.createdAt, table.id)]
+);
+export const orderNotes = pgTable(
+  "order_notes",
+  {
+    id: serial("id").primaryKey(),
+    orderId: int("orderId")
+      .notNull()
+      .references(() => orders.id, { onDelete: "restrict" }),
+    authorId: int("authorId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    body: text("body").notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => [index("order_notes_order_idx").on(table.orderId, table.id)]
+);

@@ -5,10 +5,7 @@ import { Header } from "../../components/Header";
 import { formatPrice } from "@marketplace/shared/pricing";
 import { productBySlug } from "@marketplace/server/catalog";
 import { AddToCartButton } from "../../cart/CartClient";
-import {
-  WishlistButton,
-  ProductReviews,
-} from "../../components/ProductActions";
+import { WishlistButton } from "../../components/ProductActions";
 export const dynamic = "force-dynamic";
 export default async function ProductPage({
   params,
@@ -44,7 +41,7 @@ export default async function ProductPage({
             <p className="eyebrow plain">{product.category}</p>
             <h1>{product.title}</h1>
             <p>
-              ★ {product.rating.toFixed(1)} · {product.sales} {t("sales")}
+              {product.sales} {t("sales")}
             </p>
             <p className="detail-description">{product.description}</p>
             <div className="purchase-panel">
@@ -73,11 +70,6 @@ export default async function ProductPage({
                       <li key={text}>{text}</li>
                     ))}
                 </ul>
-                {product.version && (
-                  <p>
-                    {t("Version")} {product.version}
-                  </p>
-                )}
               </div>
               <div>
                 <h2>{t("License")}</h2>
@@ -86,7 +78,6 @@ export default async function ProductPage({
             </div>
           </article>
         </div>
-        <ProductReviews productId={product.id} />
       </main>
     </>
   );

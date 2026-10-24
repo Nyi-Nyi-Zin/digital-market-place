@@ -7,14 +7,25 @@
       }
     ],
     "incremental": true,
-    "tsBuildInfoFile": "./.next/cache/tsbuildinfo"
+    "tsBuildInfoFile": "./.next/cache/tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./app/*"
+      ]
+    }
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    ".next-dev/types/**/*.ts",
     ".next/types/**/*.ts",
-    ".next-dev/types/**/*.ts"
+    "next-env.d.ts",
+    "node_modules/.cache/product-detail-layout-qa/types/**/*.ts",
+    "node_modules/.cache/product-detail-layout-qa-3136/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next/standalone"]
+  "exclude": [
+    "node_modules",
+    ".next/standalone"
+  ]
 }

@@ -1,8 +1,21 @@
 "use client";
+import { NativeSelect } from "./ui/native-select";
+
+import { Button } from "./ui/button";
+
+import { Input } from "./ui/input";
+
 import { useI18n } from "./I18nProvider";
 
 import { useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "./ui/dialog";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
   catalogueSortOptions,
@@ -17,7 +30,11 @@ type Props = {
 
 function HiddenFilters({ filters }: { filters: CatalogueFilters }) {
   return Object.entries(filters).map(([name, value]) =>
-    value ? <input key={name} type="hidden" name={name} value={value} /> : null
+    value &&
+    name !== "minRating" &&
+    !(name === "sort" && value === "rating") ? (
+      <input key={name} type="hidden" name={name} value={value} />
+    ) : null
   );
 }
 
@@ -28,7 +45,6 @@ export function CatalogueControls({ path, filters, categories }: Props) {
     filters.category,
     filters.minPrice,
     filters.maxPrice,
-    Number(filters.minRating) > 0 ? filters.minRating : undefined,
   ].filter(Boolean).length;
 
   return (
@@ -41,7 +57,7 @@ export function CatalogueControls({ path, filters, categories }: Props) {
         autoComplete="off"
       >
         <Search size={20} aria-hidden="true" />
-        <input
+        <Input
           id="library-search"
           key={filters.query ?? ""}
           aria-label={t("Search the library")}
@@ -54,141 +70,127 @@ export function CatalogueControls({ path, filters, categories }: Props) {
         <HiddenFilters
           filters={{ ...filters, query: undefined, page: undefined }}
         />
-        <button
+        <Button
+          variant="brand"
+          size="brand"
           type="submit"
           className="search-submit"
           aria-label={t("Search products")}
         >
           <Search size={18} aria-hidden="true" />
-        </button>
+        </Button>
       </form>
-      <Dialog.Root
+      <Dialog
         onOpenChange={open => {
           if (open) setDraft(filters);
         }}
       >
-        <Dialog.Trigger className="button button-secondary catalogue-filter-trigger">
+        <DialogTrigger className="button button-secondary catalogue-filter-trigger">
           <SlidersHorizontal size={18} aria-hidden="true" />
           {t("Filters")}{" "}
           {activeCount > 0 ? (
             <span className="filter-active">{activeCount}</span>
           ) : null}
-        </Dialog.Trigger>
-        <Dialog.Portal>
-          <Dialog.Overlay className="catalogue-modal-overlay" />
-          <Dialog.Content className="catalogue-modal">
-            <div className="catalogue-modal-heading">
-              <div>
-                <Dialog.Title>
-                  {t("Find your next starting point")}
-                </Dialog.Title>
-                <Dialog.Description>
-                  {t("Narrow the library down to what works for you.")}
-                </Dialog.Description>
-              </div>
-              <Dialog.Close
-                className="catalogue-modal-close"
-                aria-label={t("Close filters")}
-              >
-                <X size={20} aria-hidden="true" />
-              </Dialog.Close>
+        </DialogTrigger>
+        <DialogContent
+          branded
+          showCloseButton={false}
+          overlayClassName="catalogue-modal-overlay"
+          className="catalogue-modal"
+        >
+          <div className="catalogue-modal-heading">
+            <div>
+              <DialogTitle>{t("Find your next starting point")}</DialogTitle>
+              <DialogDescription>
+                {t("Narrow the library down to what works for you.")}
+              </DialogDescription>
             </div>
-            <form action={path}>
-              <HiddenFilters
-                filters={{ query: filters.query, sort: filters.sort }}
-              />
-              <div className="catalogue-modal-fields">
-                <label>
-                  {t("Collection")}
-                  <select
-                    name="category"
-                    aria-label={t("Collection")}
-                    value={draft.category ?? ""}
-                    onChange={event =>
-                      setDraft({ ...draft, category: event.target.value })
-                    }
-                  >
-                    <option value="">{t("All collections")}</option>
-                    {categories.map(category => (
-                      <option key={category.id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <fieldset>
-                  <legend>{t("Price range")}</legend>
-                  <div className="catalogue-price-fields">
-                    <label>
-                      {t("Minimum price")}
-                      <input
-                        name="minPrice"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder={t("No minimum")}
-                        value={draft.minPrice ?? ""}
-                        onChange={event =>
-                          setDraft({ ...draft, minPrice: event.target.value })
-                        }
-                      />
-                    </label>
-                    <label>
-                      {t("Maximum price")}
-                      <input
-                        name="maxPrice"
-                        type="number"
-                        min={draft.minPrice || "0"}
-                        step="0.01"
-                        placeholder={t("No maximum")}
-                        value={draft.maxPrice ?? ""}
-                        onChange={event =>
-                          setDraft({ ...draft, maxPrice: event.target.value })
-                        }
-                      />
-                    </label>
-                  </div>
-                </fieldset>
-                <fieldset>
-                  <legend>{t("Minimum rating")}</legend>
-                  <div className="catalogue-rating-options">
-                    {[
-                      ["0", t("Any rating")],
-                      ["3", "3+ stars"],
-                      ["4", "4+ stars"],
-                    ].map(([value, label]) => (
-                      <label key={value}>
-                        <input
-                          type="radio"
-                          name="minRating"
-                          value={value}
-                          checked={(draft.minRating || "0") === value}
-                          onChange={() =>
-                            setDraft({ ...draft, minRating: value })
-                          }
-                        />
-                        <span>{t(label)}</span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              </div>
-              <div className="catalogue-modal-actions">
-                <button
-                  className="button button-secondary"
-                  type="button"
-                  onClick={() => setDraft({})}
+            <DialogClose
+              className="catalogue-modal-close"
+              aria-label={t("Close filters")}
+            >
+              <X size={20} aria-hidden="true" />
+            </DialogClose>
+          </div>
+          <form action={path}>
+            <HiddenFilters
+              filters={{ query: filters.query, sort: filters.sort }}
+            />
+            <div className="catalogue-modal-fields">
+              <label>
+                {t("Collection")}
+                <NativeSelect
+                  name="category"
+                  aria-label={t("Collection")}
+                  value={draft.category ?? ""}
+                  onChange={event =>
+                    setDraft({ ...draft, category: event.target.value })
+                  }
                 >
-                  {t("Reset")}
-                </button>
-                <button className="button button-primary" type="submit">
-                  {t("Show resources")}
-                </button>
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+                  <option value="">{t("All collections")}</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </label>
+              <fieldset>
+                <legend>{t("Price range")}</legend>
+                <div className="catalogue-price-fields">
+                  <label>
+                    {t("Minimum price")}
+                    <Input
+                      name="minPrice"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder={t("No minimum")}
+                      value={draft.minPrice ?? ""}
+                      onChange={event =>
+                        setDraft({ ...draft, minPrice: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    {t("Maximum price")}
+                    <Input
+                      name="maxPrice"
+                      type="number"
+                      min={draft.minPrice || "0"}
+                      step="0.01"
+                      placeholder={t("No maximum")}
+                      value={draft.maxPrice ?? ""}
+                      onChange={event =>
+                        setDraft({ ...draft, maxPrice: event.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+            <div className="catalogue-modal-actions">
+              <Button
+                variant="brand"
+                size="brand"
+                className="button button-secondary"
+                type="button"
+                onClick={() => setDraft({})}
+              >
+                {t("Reset")}
+              </Button>
+              <Button
+                variant="brand"
+                size="brand"
+                className="button button-primary"
+                type="submit"
+              >
+                {t("Show resources")}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -202,7 +204,7 @@ export function CatalogueSort({ path, filters }: Omit<Props, "categories">) {
       />
       <label>
         <span>{t("Sort by")}</span>
-        <select
+        <NativeSelect
           name="sort"
           aria-label={t("Sort by")}
           key={filters.sort ?? "newest"}
@@ -214,7 +216,7 @@ export function CatalogueSort({ path, filters }: Omit<Props, "categories">) {
               {t(title)}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </label>
     </form>
   );

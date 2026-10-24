@@ -41,12 +41,6 @@ export async function Storefront({
           label: t("Max. price: {price}", { price: filters.maxPrice }),
         }
       : null,
-    Number(filters.minRating) > 0
-      ? {
-          key: "minRating",
-          label: t("{count}+ stars", { count: filters.minRating ?? "" }),
-        }
-      : null,
   ].filter(chip => chip !== null);
   const Heading = children && !chips.length ? "h2" : "h1";
   return (

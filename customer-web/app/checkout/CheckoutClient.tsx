@@ -1,4 +1,11 @@
 "use client";
+import { toast } from "sonner";
+import { NativeSelect } from "../components/ui/native-select";
+
+import { Button } from "../components/ui/button";
+
+import { Input } from "../components/ui/input";
+
 import { useI18n } from "../components/I18nProvider";
 
 import { useEffect, useState } from "react";
@@ -43,7 +50,7 @@ export function CheckoutClient({
   } | null>(null);
   const [method, setMethod] = useState("");
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState("");
+
   const [submitted, setSubmitted] = useState(false);
   const [file, setFile] = useState<File>();
   const existing = orders.data?.orders.find(o => o.id === orderId);
@@ -87,11 +94,6 @@ export function CheckoutClient({
   return (
     <div className="checkout-grid">
       <section>
-        {error && (
-          <p role="alert" className="error">
-            {t(error)}
-          </p>
-        )}
         {existing?.latestPayment?.rejectionReason && (
           <p className="error">
             {t("Previous payment rejected:")}{" "}
@@ -105,7 +107,7 @@ export function CheckoutClient({
             onSubmit={async e => {
               e.preventDefault();
               setPending(true);
-              setError("");
+
               const data = new FormData(e.currentTarget);
               try {
                 const result = await api<{ orderId: number; total: string }>(
@@ -127,13 +129,14 @@ export function CheckoutClient({
                   total: result.total,
                   productIds: items.map(i => i.id),
                 });
+                toast.success(t("Order created."));
                 window.history.replaceState(
                   null,
                   "",
                   `/checkout?order=${result.orderId}`
                 );
               } catch (e) {
-                setError((e as Error).message);
+                toast.error(t((e as Error).message), { id: "operation-error" });
               } finally {
                 setPending(false);
               }
@@ -142,7 +145,7 @@ export function CheckoutClient({
             <h2>{t("1. Customer details")}</h2>
             <label>
               {t("Full name")}
-              <input
+              <Input
                 name="name"
                 defaultValue={customer.name}
                 required
@@ -151,7 +154,7 @@ export function CheckoutClient({
             </label>
             <label>
               {t("Email address")}
-              <input
+              <Input
                 name="email"
                 type="email"
                 defaultValue={customer.email}
@@ -170,7 +173,9 @@ export function CheckoutClient({
                 <Link href="/">{t("Browse products")}</Link>
               </p>
             )}
-            <button
+            <Button
+              variant="brand"
+              size="brand"
               className="button button-primary"
               disabled={
                 pending || !items.length || !methods.data?.methods.length
@@ -179,7 +184,7 @@ export function CheckoutClient({
               {pending
                 ? t("Creating order…")
                 : t("Create order and confirm total")}
-            </button>
+            </Button>
           </form>
         ) : (
           <form
@@ -187,7 +192,7 @@ export function CheckoutClient({
             onSubmit={async e => {
               e.preventDefault();
               setPending(true);
-              setError("");
+
               const data = new FormData(e.currentTarget);
               try {
                 if (!file || !selected)
@@ -224,8 +229,9 @@ export function CheckoutClient({
                   readCart().filter(item => !order.productIds.includes(item.id))
                 );
                 setSubmitted(true);
+                toast.success(t("Payment is awaiting review"));
               } catch (e) {
-                setError((e as Error).message);
+                toast.error(t((e as Error).message), { id: "operation-error" });
               } finally {
                 setPending(false);
               }
@@ -243,7 +249,7 @@ export function CheckoutClient({
             </p>
             <label>
               {t("Payment method")}
-              <select
+              <NativeSelect
                 aria-label={t("Payment method")}
                 value={selected?.name ?? ""}
                 onChange={e => setMethod(e.target.value)}
@@ -251,7 +257,7 @@ export function CheckoutClient({
                 {methods.data?.methods.map(m => (
                   <option key={m.id}>{m.name}</option>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             {selected && (
               <div className="payment-detail">
@@ -263,7 +269,7 @@ export function CheckoutClient({
             <h3>{t("3. Submit payment evidence")}</h3>
             <label>
               {t("Sender name")}
-              <input
+              <Input
                 name="senderName"
                 defaultValue={customer.name}
                 required
@@ -272,15 +278,15 @@ export function CheckoutClient({
             </label>
             <label>
               {t("Sender phone")}
-              <input name="senderPhone" type="tel" required minLength={5} />
+              <Input name="senderPhone" type="tel" required minLength={5} />
             </label>
             <label>
               {t("Transaction reference")}
-              <input name="transactionReference" maxLength={120} />
+              <Input name="transactionReference" maxLength={120} />
             </label>
             <label>
               {t("Payment screenshot")}
-              <input
+              <Input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 required
@@ -288,12 +294,14 @@ export function CheckoutClient({
               />
             </label>
             <small>{t("JPG, PNG, or WEBP · up to 5 MB")}</small>
-            <button
+            <Button
+              variant="brand"
+              size="brand"
               className="button button-primary"
               disabled={pending || !selected}
             >
               {pending ? t("Submitting…") : t("Submit payment")}
-            </button>
+            </Button>
           </form>
         )}
       </section>

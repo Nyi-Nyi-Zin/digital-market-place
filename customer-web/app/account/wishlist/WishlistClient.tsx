@@ -1,4 +1,7 @@
 "use client";
+import { toast } from "sonner";
+import { Button } from "../../components/ui/button";
+
 import { useI18n } from "../../components/I18nProvider";
 
 import Link from "next/link";
@@ -26,13 +29,15 @@ export function WishlistClient() {
         method: "POST",
         body: JSON.stringify({ productId }),
       }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["wishlist"] }),
+    onSuccess: () => {
+      toast.success(t("Removed from wishlist."));
+      return client.invalidateQueries({ queryKey: ["wishlist"] });
+    },
   });
   if (query.isPending) return <p role="status">{t("Loading wishlist…")}</p>;
   if (query.error) return <p role="alert">{t(query.error.message)}</p>;
   return (
     <>
-      {remove.error && <p role="alert">{t(remove.error.message)}</p>}
       {query.data?.items.length ? (
         <div className="purchase-list">
           {query.data.items.map(({ product }) => (
@@ -48,13 +53,15 @@ export function WishlistClient() {
                   <small>{t("This product is currently unavailable.")}</small>
                 )}
               </div>
-              <button
+              <Button
+                variant="brand"
+                size="brand"
                 className="button button-secondary"
                 disabled={remove.isPending}
                 onClick={() => remove.mutate(product.id)}
               >
                 {t("Remove {title}", { title: product.title })}
-              </button>
+              </Button>
             </article>
           ))}
         </div>

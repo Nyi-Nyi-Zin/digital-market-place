@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getStoreSettings } from "@marketplace/server/store";
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -23,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SupportPage() {
+  const settings = await getStoreSettings();
   const { t } = await getServerI18n();
   const topics = [
     {
@@ -60,6 +63,19 @@ export default async function SupportPage() {
     >
       <section className="help-contact" aria-labelledby="contact-title">
         <h2 id="contact-title">{t("Contact support")}</h2>
+        {settings.supportHours && (
+          <p>
+            {t("Support hours")}: {settings.supportHours}
+          </p>
+        )}
+        <div className="page-actions">
+          <Link className="button button-primary" href="/account/support">
+            {t("My support requests")}
+          </Link>
+          <Link className="button button-secondary" href="/how-to-buy">
+            {t("How to buy")}
+          </Link>
+        </div>
         <p>
           {t(
             "For order-specific help, include your order number and a short description of the issue."
@@ -67,18 +83,18 @@ export default async function SupportPage() {
         </p>
         <div className="help-contact-links">
           <a
-            href="mailto:nyinyizin1818@gmail.com"
+            href={`mailto:${settings.supportEmail}`}
             className="help-contact-link"
           >
             <Mail size={22} aria-hidden="true" />
             <span>
               <small>{t("Email support")}</small>
-              <strong>nyinyizin1818@gmail.com</strong>
+              <strong>{settings.supportEmail}</strong>
             </span>
             <ArrowUpRight size={18} aria-hidden="true" />
           </a>
           <a
-            href="https://t.me/miracle5373"
+            href={`https://t.me/${settings.telegramUsername}`}
             target="_blank"
             rel="noopener noreferrer"
             className="help-contact-link"
@@ -86,7 +102,7 @@ export default async function SupportPage() {
             <MessageCircle size={22} aria-hidden="true" />
             <span>
               <small>{t("Message on Telegram")}</small>
-              <strong>@miracle5373</strong>
+              <strong>@{settings.telegramUsername}</strong>
             </span>
             <ArrowUpRight size={18} aria-hidden="true" />
           </a>

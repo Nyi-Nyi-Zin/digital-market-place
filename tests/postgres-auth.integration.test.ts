@@ -196,7 +196,10 @@ describe.skipIf(!databaseURL)("PostgreSQL and Better Auth integration", () => {
       .where(eq(schema.orders.id, order.orderId));
     expect(approvedOrder.paymentStatus).toBe("approved");
     expect(approvedOrder.orderStatus).toBe("paid");
-    const notices = await db.select().from(schema.notifications);
+    const notices = await db
+      .select()
+      .from(schema.notifications)
+      .where(eq(schema.notifications.kind, "payment_approved"));
     expect(notices).toHaveLength(1);
     expect(notices[0].body).toContain("delivered manually");
   });

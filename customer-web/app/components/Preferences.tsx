@@ -1,8 +1,15 @@
 "use client";
+import { Button } from "./ui/button";
 
 import { useEffect, useState } from "react";
-import { Check, ChevronDown, Languages, Moon, Sun } from "lucide-react";
-import * as Select from "@radix-ui/react-select";
+import { Languages, Moon, Sun } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./ui/select";
 import { useTheme } from "next-themes";
 import { localeNames, locales, type Locale } from "@marketplace/shared/i18n";
 import { useI18n } from "./I18nProvider";
@@ -19,7 +26,9 @@ export function Preferences() {
       role="group"
       aria-label={t("Display preferences")}
     >
-      <button
+      <Button
+        variant="brand"
+        size="brand"
         type="button"
         className="theme-toggle"
         disabled={!mounted}
@@ -29,50 +38,40 @@ export function Preferences() {
       >
         <Sun className="theme-sun" size={18} aria-hidden="true" />
         <Moon className="theme-moon" size={18} aria-hidden="true" />
-      </button>
-      <Select.Root
+      </Button>
+      <Select
         value={locale}
         disabled={changingLocale}
         onValueChange={value => changeLocale(value as Locale)}
       >
-        <Select.Trigger
+        <SelectTrigger
           className="language-picker"
           aria-label={t("Language")}
           aria-busy={changingLocale}
         >
           <Languages size={16} aria-hidden="true" />
-          <Select.Value />
-          <Select.Icon className="language-chevron">
-            <ChevronDown size={15} aria-hidden="true" />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Content
-            className="language-menu"
-            data-header-preference=""
-            position="popper"
-            sideOffset={8}
-            align="end"
-            collisionPadding={12}
-          >
-            <Select.Viewport className="language-menu-options">
-              {locales.map(value => (
-                <Select.Item
-                  className="language-option"
-                  key={value}
-                  value={value}
-                  lang={value}
-                >
-                  <Select.ItemText>{localeNames[value]}</Select.ItemText>
-                  <Select.ItemIndicator className="language-check">
-                    <Check size={16} aria-hidden="true" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-              ))}
-            </Select.Viewport>
-          </Select.Content>
-        </Select.Portal>
-      </Select.Root>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent
+          className="language-menu"
+          data-header-preference=""
+          position="popper"
+          sideOffset={8}
+          align="end"
+          collisionPadding={12}
+        >
+          {locales.map(value => (
+            <SelectItem
+              className="language-option"
+              key={value}
+              value={value}
+              lang={value}
+            >
+              {localeNames[value]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <span className="sr-only" role="status">
         {changingLocale ? t("Changing language…") : ""}
       </span>

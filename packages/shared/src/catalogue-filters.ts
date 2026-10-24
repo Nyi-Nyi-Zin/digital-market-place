@@ -4,7 +4,6 @@ export type CatalogueFilters = {
   sort?: string;
   minPrice?: string;
   maxPrice?: string;
-  minRating?: string;
   page?: string;
 };
 
@@ -13,7 +12,6 @@ export const catalogueSortOptions = [
   ["best", "Best sellers"],
   ["price_asc", "Price: low to high"],
   ["price_desc", "Price: high to low"],
-  ["rating", "Highest rated"],
 ] as const;
 
 export function catalogueHref(
@@ -27,6 +25,7 @@ export function catalogueHref(
     page: undefined,
     ...changes,
   })) {
+    if (key === "minRating" || (key === "sort" && value === "rating")) continue;
     if (value?.trim()) params.set(key, value);
   }
   const query = params.toString();

@@ -482,13 +482,19 @@ a {
 }
 .detail {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 65px;
   padding: 70px 0;
+  overflow-wrap: anywhere;
+}
+.detail > *,
+.detail-grid > * {
+  min-width: 0;
 }
 .detail-cover {
   min-height: 490px;
   border-radius: 25px;
+  align-self: start;
 }
 .detail-copy h1 {
   font-size: 48px;
@@ -504,8 +510,16 @@ a {
   border-radius: 16px;
   margin: 28px 0;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+.purchase-panel > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.purchase-panel .button {
+  white-space: normal;
 }
 .purchase-panel > div {
   margin-right: auto;
@@ -519,7 +533,7 @@ a {
 }
 .detail-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 .detail-grid h2 {

@@ -1,5 +1,6 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { getDb } from "./database";
+import { emitOrderNotification } from "./notifications";
 export { getDb } from "./database";
 import {
   InsertUser,
@@ -14,6 +15,7 @@ import {
   reviews,
   wishlists,
   notifications,
+  activityLogs,
 } from "./schema";
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -278,6 +280,12 @@ export async function createOrder(
         quantity: 1,
       }))
     );
+    await emitOrderNotification(tx, {
+      kind: "order_created",
+      eventKey: `order:${order.id}:created`,
+      userId,
+      orderId: order.id,
+    });
     return { orderId: order.id, total, items: found };
   });
 }
@@ -376,14 +384,19 @@ export async function setPaymentStatus(
           .set({ salesCount: sql`${products.salesCount} + ${item.quantity}` })
           .where(eq(products.id, item.productId));
     }
-    await tx.insert(notifications).values({
+    await tx.insert(activityLogs).values({
+      actorId: adminId,
+      action: status === "approved" ? "Payment approved" : "Payment rejected",
+      target: `payment:${payment.id}`,
+    });
+    await emitOrderNotification(tx, {
       userId: payment.userId,
-      title: status === "approved" ? "Payment approved" : "Payment rejected",
-      body:
-        status === "approved"
-          ? `Payment for order #${order.id} is approved. Your products will be delivered manually.`
-          : `Order #${order.id}: ${rejectionReason}`,
+      orderId: order.id,
+      paymentId: payment.id,
+      actorId: adminId,
       kind: status === "approved" ? "payment_approved" : "payment_rejected",
+      eventKey: `payment:${payment.id}:${status}`,
+      reason: rejectionReason?.trim(),
     });
     return order.id;
   });

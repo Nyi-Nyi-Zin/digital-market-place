@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "../components/ui/button";
+
 import { useEffect, useState } from "react";
 import {
   createTranslator,
@@ -55,7 +57,9 @@ export default function GlobalError({
         <main style={{ maxWidth: 480 }}>
           <p>Cloud Nine · Admin</p>
           <h1>{t("Something needs another try.")}</h1>
-          <button
+          <Button
+            variant="brand"
+            size="brand"
             onClick={reset}
             style={{
               padding: "12px 20px",
@@ -68,7 +72,7 @@ export default function GlobalError({
             }}
           >
             {t("Try again")}
-          </button>
+          </Button>
         </main>
       </body>
     </html>

@@ -1,4 +1,7 @@
 "use client";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+
 import { useI18n } from "../components/I18nProvider";
 
 import Link from "next/link";
@@ -22,17 +25,20 @@ export function AddToCartButton({
   const { t } = useI18n();
   const [added, setAdded] = useState(false);
   return (
-    <button
+    <Button
+      variant="brand"
+      size="brand"
       className={`button button-${buy ? "primary" : "secondary"}`}
       onClick={() => {
         const cart = readCart();
         if (!cart.some(x => x.id === item.id)) writeCart([...cart, item]);
         setAdded(true);
+        if (!buy) toast.success(t("Added to cart"));
         if (buy) window.location.assign(`/checkout?buy=${item.id}`);
       }}
     >
       {buy ? t("Buy now") : added ? t("Added to cart") : t("Add to cart")}
-    </button>
+    </Button>
   );
 }
 export function CartBadge() {
@@ -87,7 +93,9 @@ export function CartClient() {
               <strong className="cart-item-price">
                 {formatPrice(item.price, intlLocale)}
               </strong>
-              <button
+              <Button
+                variant="brand"
+                size="brand"
                 type="button"
                 className="cart-remove"
                 aria-label={t("Remove {title}", { title: item.title })}
@@ -98,13 +106,14 @@ export function CartClient() {
                   const nextButton =
                     adjacent?.querySelector<HTMLButtonElement>(".cart-remove");
                   writeCart(readCart().filter(x => x.id !== item.id));
+                  toast.success(t("Removed from cart."));
                   if (nextButton) nextButton.focus();
                   else requestAnimationFrame(() => browseLink.current?.focus());
                 }}
               >
                 <Trash2 size={14} aria-hidden="true" />
                 {t("Remove")}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

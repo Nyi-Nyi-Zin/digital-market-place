@@ -1,7 +1,7 @@
 import { getServerI18n } from "../lib/i18n-server";
 import Link from "next/link";
 import { storageUrl } from "@marketplace/shared/storage";
-import { ArrowUpRight, PackageOpen, Star } from "lucide-react";
+import { ArrowUpRight, PackageOpen } from "lucide-react";
 import { type Product, formatPrice } from "@marketplace/shared/pricing";
 
 export async function ProductCard({
@@ -40,12 +40,6 @@ export async function ProductCard({
       <div className="card-body">
         <div className="card-meta">
           <span>{product.category || t("Digital resource")}</span>
-          <span className="card-rating">
-            <Star size={12} aria-hidden="true" />
-            {product.rating > 0
-              ? product.rating.toFixed(1)
-              : t("Not rated yet")}
-          </span>
         </div>
         <h3>
           <Link href={href}>{product.title}</Link>

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "./ui/button";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,6 +9,7 @@ import { AuthControls } from "./AuthControls";
 import { BrandMark } from "./BrandMark";
 import { Menu, Search, X } from "lucide-react";
 import { Preferences } from "./Preferences";
+import { NotificationBell } from "./NotificationCenter";
 import { useI18n } from "./I18nProvider";
 import "../header.css";
 
@@ -73,7 +75,9 @@ function CustomerHeader({ activePage }: { activePage?: "/support" | "/faq" }) {
             Cloud <span>Nine</span>
           </span>
         </Link>
-        <button
+        <Button
+          variant="brand"
+          size="brand"
           type="button"
           className="header-menu-toggle"
           ref={toggle}
@@ -87,7 +91,7 @@ function CustomerHeader({ activePage }: { activePage?: "/support" | "/faq" }) {
           ) : (
             <Menu size={21} aria-hidden="true" />
           )}
-        </button>
+        </Button>
         <nav
           className="header-navigation"
           id={`${id}-navigation`}
@@ -116,6 +120,7 @@ function CustomerHeader({ activePage }: { activePage?: "/support" | "/faq" }) {
             <Search size={19} aria-hidden="true" />
           </Link>
           <CartBadge />
+          <NotificationBell />
         </div>
         <div className="header-settings" id={`${id}-settings`}>
           <Preferences />

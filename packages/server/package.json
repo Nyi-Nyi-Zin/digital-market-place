@@ -8,13 +8,14 @@
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.12",
+    "@marketplace/shared": "workspace:*",
     "better-auth": "1.7.12",
     "cloudinary": "^2.11.0",
     "drizzle-orm": "0.45.2",
     "nodemailer": "^7.0.10",
     "pg": "^8.16.3",
-    "zod": "^4.1.12",
-    "@marketplace/shared": "workspace:*"
+    "web-push": "3.6.7",
+    "zod": "^4.1.12"
   },
   "peerDependencies": {
     "next": "15.5.23",
@@ -24,6 +25,7 @@
     "@types/node": "^24.7.0",
     "@types/nodemailer": "^7.0.4",
     "@types/pg": "^8.15.5",
+    "@types/web-push": "3.6.4",
     "typescript": "5.9.3"
   }
 }

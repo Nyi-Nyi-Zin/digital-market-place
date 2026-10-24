@@ -19,6 +19,7 @@ describe("marketplace language dictionaries", () => {
       for (const [message, translated] of Object.entries(dictionary)) {
         expect(translated.trim(), `${locale}: ${message}`).not.toBe("");
         expect(translated, `${locale}: ${message}`).not.toContain("\uFFFD");
+        expect(translated, `${locale}: ${message}`).not.toMatch(/\?{2,}/);
         expect(
           [...translated.matchAll(/\{\w+\}/g)].map(m => m[0]).sort(),
           `${locale}: ${message}`

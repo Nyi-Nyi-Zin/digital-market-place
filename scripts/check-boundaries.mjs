@@ -50,8 +50,15 @@ for (const directory of [
       const specifier = statement.moduleSpecifier;
       if (!specifier || !ts.isStringLiteral(specifier)) continue;
       const value = specifier.text;
-      if (value.startsWith(".")) {
-        const resolved = path.resolve(path.dirname(filename), value);
+      const appAlias =
+        value.startsWith("@/") && ["admin", "customer-web"].includes(directory);
+      if (value.startsWith(".") || appAlias) {
+        const resolved = appAlias
+          ? path.resolve(
+              directory === "customer-web" ? path.join(base, "app") : base,
+              value.slice(2)
+            )
+          : path.resolve(path.dirname(filename), value);
         if (!resolved.startsWith(base + path.sep)) {
           // Next config may share build tooling, never app implementation.
           if (

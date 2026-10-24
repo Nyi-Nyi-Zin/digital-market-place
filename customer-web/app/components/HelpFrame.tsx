@@ -10,7 +10,7 @@ export async function HelpFrame({
   description,
   children,
 }: {
-  page: "Support" | "FAQ";
+  page: string;
   title: string;
   description: string;
   children: React.ReactNode;
@@ -18,7 +18,11 @@ export async function HelpFrame({
   const { t } = await getServerI18n();
   return (
     <>
-      <Header activePage={page === "Support" ? "/support" : "/faq"} />
+      <Header
+        activePage={
+          page === "Support" ? "/support" : page === "FAQ" ? "/faq" : undefined
+        }
+      />
       <main className="shell help-page">
         <nav className="help-breadcrumbs" aria-label={t("Breadcrumbs")}>
           <Link href="/">{t("Home")}</Link>

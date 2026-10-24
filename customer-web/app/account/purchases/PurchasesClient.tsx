@@ -1,8 +1,11 @@
 "use client";
+import { Button } from "../../components/ui/button";
+
 import { formatDate } from "@marketplace/shared/format";
 import { useI18n } from "../../components/I18nProvider";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { formatPrice } from "@marketplace/shared/pricing";
@@ -12,19 +15,29 @@ export function PurchasesClient() {
   const query = useQuery({
     queryKey: ["orders"],
     queryFn: () => api<{ orders: CustomerOrder[] }>("/api/orders"),
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
+  useEffect(() => {
+    if (!query.data || !/^#order-\d+$/.test(window.location.hash)) return;
+    const target = document.getElementById(window.location.hash.slice(1));
+    target?.scrollIntoView({ block: "center" });
+    target?.focus({ preventScroll: true });
+  }, [query.data]);
   if (query.isPending)
     return <p role="status">{t("Loading orders and purchases…")}</p>;
   if (query.error) return <p role="alert">{t(query.error.message)}</p>;
   return (
     <>
-      <button
+      <Button
+        variant="brand"
+        size="brand"
         className="button button-secondary"
         onClick={() => query.refetch()}
         disabled={query.isFetching}
       >
         {t("Refresh order status")}
-      </button>
+      </Button>
       {!query.data?.orders.length && (
         <div className="empty-panel">
           <h2>{t("No orders yet")}</h2>
@@ -32,7 +45,12 @@ export function PurchasesClient() {
         </div>
       )}
       {query.data?.orders.map(order => (
-        <section className="account-panel" key={order.id}>
+        <section
+          className="account-panel"
+          key={order.id}
+          id={`order-${order.id}`}
+          tabIndex={-1}
+        >
           <div className="section-heading">
             <h2>
               {t("Order #{id}", { id: order.id })} ·{" "}
@@ -43,6 +61,11 @@ export function PurchasesClient() {
             </span>
           </div>
           <small>{formatDate(order.createdAt, intlLocale)}</small>
+          <p>
+            <Link href={`/account/purchases/${order.id}`}>
+              {t("View order details")}
+            </Link>
+          </p>
           {order.items.map(item => (
             <article className="record-row" key={item.id}>
               <div>
@@ -55,10 +78,25 @@ export function PurchasesClient() {
           ))}
           {order.paymentStatus === "approved" && (
             <div>
-              <p>
+              <strong>
                 {t(
-                  "After payment approval, your product will be delivered manually. Contact support with your order number if you need help."
+                  order.orderStatus === "completed"
+                    ? "Delivered"
+                    : "Delivery pending"
                 )}
+              </strong>
+              {order.completedAt && (
+                <p>{formatDate(order.completedAt, intlLocale)}</p>
+              )}
+              <p>
+                {order.orderStatus === "completed"
+                  ? t(
+                      "Your products for order #{orderId} have been delivered.",
+                      { orderId: order.id }
+                    )
+                  : t(
+                      "After payment approval, your product will be delivered manually. Contact support with your order number if you need help."
+                    )}
               </p>
               <Link className="button button-secondary" href="/support">
                 {t("Contact support")}

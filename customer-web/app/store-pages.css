@@ -1,0 +1,180 @@
+.store-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 28px;
+  padding-block: 28px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+.store-links a:hover {
+  color: var(--violet);
+}
+.information-sections {
+  display: grid;
+  gap: 18px;
+}
+.information-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: clamp(18px, 3vw, 28px);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.information-panel h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+.information-panel p,
+.buying-steps p {
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+.information-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.information-contact {
+  margin-top: 24px;
+}
+.buying-steps {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+  counter-reset: steps;
+}
+.buying-steps li {
+  display: flex;
+  gap: 18px;
+  background: var(--surface);
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  min-width: 0;
+}
+.buying-steps li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.buying-steps h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.step-number {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-weight: 700;
+}
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0;
+}
+.store-page {
+  max-width: 1000px;
+  display: grid;
+  gap: 20px;
+}
+.store-page > h1 {
+  margin-bottom: 0;
+}
+.order-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  padding-inline-start: 24px;
+}
+.order-progress [aria-current="step"] {
+  color: var(--violet);
+  font-weight: 700;
+}
+.payment-history {
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.support-form {
+  display: grid;
+  gap: 16px;
+}
+.support-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.support-form textarea {
+  min-height: 120px;
+}
+.support-list {
+  display: grid;
+  gap: 12px;
+}
+.support-list a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-decoration: none;
+}
+.support-message {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.support-message[data-author="admin"] {
+  border-inline-start: 4px solid var(--violet);
+}
+.support-message p {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+.support-message small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+}
+.support-thread {
+  display: grid;
+  gap: 14px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+@media (max-width: 600px) {
+  .buying-steps li {
+    padding: 18px;
+    gap: 12px;
+  }
+  .store-page .record-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+.store-page .section-heading h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 38px);
+}
+
+.store-page .section-heading {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.store-page .section-heading .pill {
+  flex-shrink: 0;
+  overflow-wrap: normal;
+  max-width: 100%;
+}

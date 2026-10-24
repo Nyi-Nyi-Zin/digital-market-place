@@ -24,6 +24,11 @@ export default async function AccountPage() {
             ["purchases", t("My purchases"), t("Order status and purchases")],
             ["wishlist", t("Wishlist"), t("Products saved for later")],
             [
+              "support",
+              t("My support requests"),
+              t("Get help with an order or your account"),
+            ],
+            [
               "notifications",
               t("Notifications"),
               t("Payment and product updates"),

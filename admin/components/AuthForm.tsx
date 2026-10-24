@@ -1,4 +1,9 @@
 "use client";
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+
+import { Input } from "./ui/input";
+
 import { useState } from "react";
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
@@ -13,8 +18,7 @@ export function AuthForm({
 }) {
   const { t } = useI18n();
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+
   const title = {
     "sign-in": "Sign in",
     "forgot-password": "Reset your password",
@@ -33,8 +37,7 @@ export function AuthForm({
         onSubmit={async event => {
           event.preventDefault();
           setPending(true);
-          setMessage("");
-          setError("");
+
           const fields = new FormData(event.currentTarget);
           const email = String(fields.get("email") ?? "");
           const password = String(fields.get("password") ?? "");
@@ -59,8 +62,10 @@ export function AuthForm({
                 throw new Error(
                   result.error.message ?? "Unable to request a password reset"
                 );
-              setMessage(
-                "If an account exists for that email, password reset instructions will be sent."
+              toast.success(
+                t(
+                  "If an account exists for that email, password reset instructions will be sent."
+                )
               );
             } else {
               const token = params.get("token");
@@ -76,13 +81,14 @@ export function AuthForm({
                 throw new Error(
                   result.error.message ?? "Unable to reset password"
                 );
-              setMessage(
-                "Password updated. You can sign in with your new password."
+              toast.success(
+                t("Password updated. You can sign in with your new password.")
               );
             }
           } catch (cause) {
-            setError(
-              cause instanceof Error ? cause.message : "Please try again."
+            toast.error(
+              t(cause instanceof Error ? cause.message : "Please try again."),
+              { id: "operation-error" }
             );
           } finally {
             setPending(false);
@@ -92,13 +98,13 @@ export function AuthForm({
         {mode !== "reset-password" && (
           <label>
             {t("Email address")}
-            <input name="email" type="email" autoComplete="email" required />
+            <Input name="email" type="email" autoComplete="email" required />
           </label>
         )}
         {mode !== "forgot-password" && (
           <label>
             {t("Password")}
-            <input
+            <Input
               name="password"
               type="password"
               autoComplete={
@@ -118,19 +124,15 @@ export function AuthForm({
             )}
           </label>
         )}
-        {error && (
-          <p className="error" role="alert">
-            {t(error)}
-          </p>
-        )}
-        {message && (
-          <p className="notice" role="status">
-            {t(message)}
-          </p>
-        )}
-        <button className="button button-primary" disabled={pending}>
+
+        <Button
+          variant="brand"
+          size="brand"
+          className="button button-primary"
+          disabled={pending}
+        >
           {pending ? t("Please wait…") : t(title)}
-        </button>
+        </Button>
       </form>
       <div className="auth-links">
         <Link href={mode === "sign-in" ? "/forgot-password" : "/sign-in"}>

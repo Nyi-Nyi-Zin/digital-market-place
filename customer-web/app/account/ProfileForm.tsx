@@ -1,4 +1,9 @@
 "use client";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+
+import { Input } from "../components/ui/input";
+
 import { useI18n } from "../components/I18nProvider";
 
 import Link from "next/link";
@@ -6,7 +11,7 @@ import { useState } from "react";
 import { authClient } from "../lib/auth-client";
 export function ProfileForm({ name, email }: { name: string; email: string }) {
   const { t } = useI18n();
-  const [message, setMessage] = useState("");
+
   const [pending, setPending] = useState(false);
   return (
     <form
@@ -19,9 +24,12 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
           const result = await authClient.updateUser({
             name: String(data.get("name")),
           });
-          setMessage(result.error?.message ?? "Profile updated.");
+          if (result.error) throw new Error(result.error.message);
+          toast.success(t("Profile updated."));
         } catch {
-          setMessage("Unable to update your profile. Please try again.");
+          toast.error(t("Unable to update your profile. Please try again."), {
+            id: "operation-error",
+          });
         } finally {
           setPending(false);
         }
@@ -30,7 +38,7 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
       <h2>{t("Profile")}</h2>
       <label>
         {t("Full name")}
-        <input
+        <Input
           name="name"
           defaultValue={name}
           required
@@ -40,12 +48,17 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
       </label>
       <label>
         {t("Email")}
-        <input value={email} readOnly type="email" />
+        <Input value={email} readOnly type="email" />
       </label>
-      <button className="button button-primary" disabled={pending}>
+      <Button
+        variant="brand"
+        size="brand"
+        className="button button-primary"
+        disabled={pending}
+      >
         {t("Save profile")}
-      </button>
-      {message && <p role="status">{t(message)}</p>}
+      </Button>
+
       <Link href="/forgot-password">{t("Reset your password →")}</Link>
     </form>
   );

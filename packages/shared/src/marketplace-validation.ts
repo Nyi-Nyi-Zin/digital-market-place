@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { productStatuses } from "./pagination";
 const money = z
   .string()
   .regex(
@@ -6,12 +7,11 @@ const money = z
     "Enter a non-negative amount with up to two decimal places"
   );
 export const productInput = z.object({
-  title: z.string().trim().min(2).max(220),
-  slug: z
+  title: z
     .string()
     .trim()
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-    .max(240),
+    .min(2, "Enter a title with at least 2 characters.")
+    .max(220),
   categoryId: z.number().int().positive(),
   price: money,
   discountPrice: money.nullable().default(null),
@@ -21,14 +21,13 @@ export const productInput = z.object({
   digitalFileKey: z.string().max(512).nullable().default(null),
   fileType: z.string().max(40).default(""),
   fileSize: z.string().max(40).default(""),
-  version: z.string().max(40).default("1.0"),
   license: z
     .string()
     .max(180)
     .default("Personal and commercial use. Redistribution prohibited."),
   tags: z.string().max(2000).default(""),
   includes: z.string().max(5000).default(""),
-  status: z.enum(["draft", "published"]).default("draft"),
+  status: z.enum(productStatuses).default("draft"),
   featured: z.boolean().default(false),
 });
 export function checkProduct(input: z.infer<typeof productInput>) {
@@ -43,14 +42,13 @@ export function checkProduct(input: z.infer<typeof productInput>) {
         message: "Discount price must be lower than regular price",
       },
     ]);
-  return input;
+  return {
+    ...input,
+    featured: input.status === "archived" ? false : input.featured,
+  };
 }
 export const categoryInput = z.object({
   name: z.string().trim().min(2).max(120),
-  slug: z
-    .string()
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-    .max(140),
   description: z.string().max(5000).default(""),
 });
 export const paymentMethodInput = z

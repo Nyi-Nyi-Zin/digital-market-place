@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   productInput,
+  categoryInput,
   checkProduct,
   paymentMethodInput,
   evidenceInput,
@@ -8,11 +9,26 @@ import {
 import { validateImageBytes } from "@marketplace/server/validation";
 const draft = {
   title: "Starter",
-  slug: "starter",
   categoryId: 1,
   price: "10.00",
 };
 describe("marketplace form validation", () => {
+  it("creates products without a slug or version and ignores client overrides", () => {
+    const input = productInput.parse({
+      ...draft,
+      slug: "client-url",
+      version: "9.0",
+      rating: 5,
+    });
+    expect(input).not.toHaveProperty("slug");
+    expect(input).not.toHaveProperty("version");
+    expect(input).not.toHaveProperty("rating");
+  });
+  it("creates categories without asking for a slug", () => {
+    expect(categoryInput.parse({ name: "Design", slug: "client-url" })).toEqual(
+      { name: "Design", description: "" }
+    );
+  });
   it("accepts drafts without a published file", () =>
     expect(checkProduct(productInput.parse(draft)).status).toBe("draft"));
   it("publishes products for manual delivery without a digital file", () => {
@@ -21,6 +37,16 @@ describe("marketplace form validation", () => {
     );
     expect(product.status).toBe("published");
     expect(product.digitalFileKey).toBeNull();
+  });
+  it("accepts the archived product lifecycle state", () => {
+    expect(productInput.parse({ ...draft, status: "archived" }).status).toBe(
+      "archived"
+    );
+    expect(
+      checkProduct(
+        productInput.parse({ ...draft, status: "archived", featured: true })
+      ).featured
+    ).toBe(false);
   });
   it.each(["-1", "ten", "1.999", "999999999"])(
     "rejects invalid prices %s",

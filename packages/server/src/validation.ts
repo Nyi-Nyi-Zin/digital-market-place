@@ -11,13 +11,7 @@ export function validateScreenshot(contentType: string, size: number) {
     throw new Error("Screenshot must be 5 MB or smaller");
   return true;
 }
-export const NOTIFICATION_KINDS = [
-  "payment_submitted",
-  "payment_approved",
-  "payment_rejected",
-  "product_purchased",
-  "product_updated",
-] as const;
+export { notificationKinds as NOTIFICATION_KINDS } from "@marketplace/shared/notifications";
 export function assertApprovedDownload(approved: boolean) {
   if (!approved) throw new Error("Payment approval required");
   return true;

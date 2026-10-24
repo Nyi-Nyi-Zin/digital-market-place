@@ -4,7 +4,26 @@ import { stopProcess } from "./stop-process.mjs";
 
 const launcher = fileURLToPath(new URL("./site.mjs", import.meta.url));
 const children = ["customer", "admin"].map(site =>
-  spawn(process.execPath, [launcher, site, "dev"], { stdio: "inherit" })
+  spawn(process.execPath, [launcher, site, "dev"], {
+    stdio: "inherit",
+    windowsHide: true,
+  })
+);
+children.push(
+  spawn(
+    process.execPath,
+    [
+      "--import",
+      "tsx",
+      fileURLToPath(new URL("./notification-worker.ts", import.meta.url)),
+    ],
+    {
+      cwd: fileURLToPath(new URL("../", import.meta.url)),
+      stdio: "inherit",
+      windowsHide: true,
+      env: { ...process.env, NODE_ENV: "development" },
+    }
+  )
 );
 let stopping = false;
 function stop(signal = "SIGTERM") {

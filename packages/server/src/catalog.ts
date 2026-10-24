@@ -59,7 +59,6 @@ export async function catalog(
     sort?: string;
     minPrice?: string;
     maxPrice?: string;
-    minRating?: string;
     page?: string;
     featured?: boolean;
   } = {}
@@ -95,8 +94,6 @@ export async function catalog(
     Number.isFinite(Number(input.maxPrice))
   )
     where.push(sql`${price} <= ${Number(input.maxPrice)}`);
-  if (input.minRating !== undefined && Number.isFinite(Number(input.minRating)))
-    where.push(sql`${products.rating} >= ${Number(input.minRating)}`);
   const sort =
     input.sort === "price_asc"
       ? price
@@ -104,9 +101,7 @@ export async function catalog(
         ? desc(price)
         : input.sort === "best"
           ? desc(products.salesCount)
-          : input.sort === "rating"
-            ? desc(products.rating)
-            : desc(products.createdAt);
+          : desc(products.createdAt);
   const [{ total }] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(products)

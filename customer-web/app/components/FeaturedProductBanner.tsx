@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "./ui/button";
+
 import { useI18n } from "./I18nProvider";
 import { storageUrl } from "@marketplace/shared/storage";
 
@@ -135,7 +137,9 @@ export function FeaturedProductBanner({
       </div>
       {products.length > 1 ? (
         <div className="featured-navigation">
-          <button
+          <Button
+            variant="brand"
+            size="brand"
             type="button"
             className="featured-arrow"
             aria-label={t("Previous featured product")}
@@ -146,10 +150,12 @@ export function FeaturedProductBanner({
             }
           >
             <ArrowLeft size={16} aria-hidden="true" />
-          </button>
+          </Button>
           <div className="featured-dots">
             {products.map((item, itemIndex) => (
-              <button
+              <Button
+                variant="brand"
+                size="brand"
                 key={item.id}
                 type="button"
                 className="featured-dot"
@@ -159,16 +165,20 @@ export function FeaturedProductBanner({
               />
             ))}
           </div>
-          <button
+          <Button
+            variant="brand"
+            size="brand"
             type="button"
             className="featured-arrow"
             aria-label={t("Next featured product")}
             onClick={() => setIndex(current => (current + 1) % products.length)}
           >
             <ArrowRight size={16} aria-hidden="true" />
-          </button>
+          </Button>
           {!reducedMotion ? (
-            <button
+            <Button
+              variant="brand"
+              size="brand"
               type="button"
               className="featured-arrow"
               aria-label={t(
@@ -181,7 +191,7 @@ export function FeaturedProductBanner({
               ) : (
                 <Pause size={14} aria-hidden="true" />
               )}
-            </button>
+            </Button>
           ) : null}
         </div>
       ) : null}
