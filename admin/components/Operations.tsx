@@ -10,7 +10,14 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { ConfirmAction } from "./ConfirmAction";
 import { formatDate } from "@marketplace/shared/format";
-import { formatPrice } from "@marketplace/shared/pricing";
+import {
+  formatPrice,
+  formatOrderTotal,
+  formatOrderItem,
+  formatOrderSubtotal,
+  formatOrderDiscount,
+} from "@marketplace/shared/pricing";
+import { resolveCurrency } from "@marketplace/shared/currency";
 import { storageUrl } from "@marketplace/shared/storage";
 import { adminStatusLabels } from "@marketplace/shared/pagination";
 import type {
@@ -211,7 +218,7 @@ export function CustomerDetails({ id }: { id: string }) {
                   >
                     <strong>{t("Order #{id}", { id: order.id })}</strong>
                     <span>{t(adminStatusLabels[order.orderStatus])}</span>
-                    <span>{formatPrice(order.total, intlLocale)}</span>
+                    <span>{formatOrderTotal(order, intlLocale)}</span>
                     <small>{formatDate(order.createdAt, intlLocale)}</small>
                   </Link>
                 ))
@@ -523,7 +530,7 @@ export function AdminOrderDetails({ id }: { id: string }) {
               <p>{formatDate(data.order.createdAt, intlLocale)}</p>
               <p>
                 {t(adminStatusLabels[data.order.orderStatus])} ·{" "}
-                {formatPrice(data.order.total, intlLocale)}
+                {formatOrderTotal(data.order, intlLocale)}
               </p>
               {data.order.completedAt && (
                 <p>
@@ -560,18 +567,19 @@ export function AdminOrderDetails({ id }: { id: string }) {
                 <div className="operations-row" key={item.id}>
                   <strong>{item.title}</strong>
                   <span>
-                    {formatPrice(item.unitPrice, intlLocale)} × {item.quantity}
+                    {formatOrderItem(item, data.order, intlLocale)} ×{" "}
+                    {item.quantity}
                   </span>
                 </div>
               ))}
               <p>
-                {t("Subtotal")}: {formatPrice(data.order.subtotal, intlLocale)}
+                {t("Subtotal")}: {formatOrderSubtotal(data.order, intlLocale)}
               </p>
               <p>
-                {t("Discount")}: {formatPrice(data.order.discount, intlLocale)}
+                {t("Discount")}: {formatOrderDiscount(data.order, intlLocale)}
               </p>
               <strong>
-                {t("Total")}: {formatPrice(data.order.total, intlLocale)}
+                {t("Total")}: {formatOrderTotal(data.order, intlLocale)}
               </strong>
             </section>
             <section className="admin-panel">
@@ -652,7 +660,12 @@ function PaymentRecord({
   return (
     <article className="payment-history">
       <strong>
-        {payment.paymentMethod} · {formatPrice(payment.amount, intlLocale)}
+        {payment.paymentMethod} ·{" "}
+        {formatPrice(
+          payment.payableAmount ?? payment.amount,
+          intlLocale,
+          resolveCurrency(payment.currency)
+        )}
       </strong>
       <p>
         {t(adminStatusLabels[payment.status])} ·{" "}

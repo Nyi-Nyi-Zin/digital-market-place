@@ -1,12 +1,9 @@
-import { Header } from "../components/Header";
+import { AuthLayout } from "../components/AuthLayout";
 import { AuthForm } from "../components/AuthForm";
 export default function Page() {
   return (
-    <>
-      <Header />
-      <main className="shell simple-page">
-        <AuthForm mode="forgot-password" />
-      </main>
-    </>
+    <AuthLayout>
+      <AuthForm mode="forgot-password" />
+    </AuthLayout>
   );
 }

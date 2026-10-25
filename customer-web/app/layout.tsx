@@ -8,6 +8,7 @@ import "./preferences.css";
 import "./notifications.css";
 import "./store-pages.css";
 import { StoreLinks } from "./components/StoreLinks";
+import { getServerCurrency } from "./lib/currency-server";
 
 export const metadata: Metadata = {
   title: "Cloud Nine | Digital products for modern creators",
@@ -19,11 +20,19 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { locale, messages } = await getServerI18n();
+  const [{ locale, messages }, { config, currency }] = await Promise.all([
+    getServerI18n(),
+    getServerCurrency(),
+  ]);
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
-        <Providers locale={locale} messages={messages}>
+        <Providers
+          locale={locale}
+          messages={messages}
+          currency={currency}
+          currencyConfig={config}
+        >
           {children}
           <StoreLinks />
         </Providers>

@@ -19,6 +19,7 @@ import type {
   getStoreSettings,
 } from "@marketplace/server/store";
 import { locales, localeNames } from "@marketplace/shared/i18n";
+import { baseCurrency, currencies } from "@marketplace/shared/currency";
 
 type Settings = Awaited<ReturnType<typeof getStoreSettings>>;
 type Document = Awaited<ReturnType<typeof getStoreDocument>>;
@@ -106,12 +107,21 @@ function SettingsForm({ initial }: { initial: Settings }) {
     supportEmail: initial.supportEmail,
     telegramUsername: initial.telegramUsername,
     supportHours: initial.supportHours,
+    usdRate: initial.usdRate ?? "",
+    sgdRate: initial.sgdRate ?? "",
+    mmkRate: initial.mmkRate ?? "",
   });
   const mutation = useMutation({
     mutationFn: () =>
       api("/api/admin/settings/store", {
         method: "PATCH",
-        body: JSON.stringify({ ...data, revision: initial.revision }),
+        body: JSON.stringify({
+          ...data,
+          usdRate: data.usdRate || null,
+          sgdRate: data.sgdRate || null,
+          mmkRate: data.mmkRate || null,
+          revision: initial.revision,
+        }),
       }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ["admin", "store-settings"] });
@@ -163,6 +173,45 @@ function SettingsForm({ initial }: { initial: Settings }) {
         <p>
           {t("Leave support hours blank until your schedule is confirmed.")}
         </p>
+        <fieldset className="content-section">
+          <legend>{t("Exchange rates")}</legend>
+          <p>
+            {t("Product prices and reports use {currency}.", {
+              currency: baseCurrency,
+            })}
+          </p>
+          {currencies
+            .filter(value => value !== baseCurrency)
+            .map(value => {
+              const field = `${value.toLowerCase()}Rate` as
+                | "usdRate"
+                | "sgdRate"
+                | "mmkRate";
+              return (
+                <label key={value}>
+                  {`1 ${baseCurrency} = ${value}`}
+                  <Input
+                    aria-label={`1 ${baseCurrency} = ${value}`}
+                    type="number"
+                    inputMode="decimal"
+                    min="0.00000001"
+                    max="99999999.99999999"
+                    step="0.00000001"
+                    value={data[field]}
+                    disabled={mutation.isPending}
+                    onChange={e =>
+                      setData({ ...data, [field]: e.target.value })
+                    }
+                  />
+                </label>
+              );
+            })}
+          <p>
+            {t(
+              "Leave a rate blank to disable that currency. Existing orders keep their confirmed rate and total."
+            )}
+          </p>
+        </fieldset>
         <Button type="submit" disabled={mutation.isPending}>
           {t(mutation.isPending ? "Saving…" : "Save changes")}
         </Button>

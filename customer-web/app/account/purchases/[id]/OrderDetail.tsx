@@ -5,7 +5,14 @@ import type { orderDetail } from "@marketplace/server/operations";
 import { api } from "../../../lib/api";
 import { useI18n } from "../../../components/I18nProvider";
 import { Button } from "../../../components/ui/button";
-import { formatPrice } from "@marketplace/shared/pricing";
+import {
+  formatPrice,
+  formatOrderTotal,
+  formatOrderItem,
+  formatOrderSubtotal,
+  formatOrderDiscount,
+} from "@marketplace/shared/pricing";
+import { resolveCurrency } from "@marketplace/shared/currency";
 import { formatDate } from "@marketplace/shared/format";
 import { adminStatusLabels } from "@marketplace/shared/pagination";
 
@@ -99,18 +106,18 @@ export function OrderDetail({ id }: { id: string }) {
           <div className="record-row" key={item.id}>
             <Link href={`/products/${item.slug}`}>{item.title}</Link>
             <span>
-              {formatPrice(item.unitPrice, intlLocale)} × {item.quantity}
+              {formatOrderItem(item, order, intlLocale)} × {item.quantity}
             </span>
           </div>
         ))}
         <p>
-          {t("Subtotal")}: {formatPrice(order.subtotal, intlLocale)}
+          {t("Subtotal")}: {formatOrderSubtotal(order, intlLocale)}
         </p>
         <p>
-          {t("Discount")}: {formatPrice(order.discount, intlLocale)}
+          {t("Discount")}: {formatOrderDiscount(order, intlLocale)}
         </p>
         <strong>
-          {t("Total")}: {formatPrice(order.total, intlLocale)}
+          {t("Total")}: {formatOrderTotal(order, intlLocale)}
         </strong>
       </section>
       <section className="information-panel">
@@ -119,7 +126,12 @@ export function OrderDetail({ id }: { id: string }) {
           payments.map(payment => (
             <article className="payment-history" key={payment.id}>
               <strong>
-                {payment.method} · {formatPrice(payment.amount, intlLocale)}
+                {payment.method} ·{" "}
+                {formatPrice(
+                  payment.payableAmount ?? payment.amount,
+                  intlLocale,
+                  resolveCurrency(payment.currency)
+                )}
               </strong>
               <p>
                 {t(adminStatusLabels[payment.status])} ·{" "}

@@ -1,13 +1,15 @@
 import { getServerI18n } from "../lib/i18n-server";
 import Link from "next/link";
 import { Header } from "../components/Header";
-import { currentUser } from "@marketplace/server/next-auth";
+import { currentUser, telegramConnection } from "@marketplace/server/next-auth";
+import { TelegramConnection } from "../components/TelegramConnection";
 import { ProfileForm } from "./ProfileForm";
 import { adminSiteUrl } from "@marketplace/shared/sites";
 export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const { t } = await getServerI18n();
   const user = await currentUser();
+  const telegram = await telegramConnection();
   return (
     <>
       <Header />
@@ -41,6 +43,7 @@ export default async function AccountPage() {
           ))}
         </div>
         <ProfileForm name={user?.name ?? ""} email={user?.email ?? ""} />
+        <TelegramConnection {...telegram} />
       </main>
     </>
   );

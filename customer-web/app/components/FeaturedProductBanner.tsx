@@ -7,7 +7,7 @@ import { storageUrl } from "@marketplace/shared/storage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play, Sparkles } from "lucide-react";
-import { formatPrice } from "@marketplace/shared/pricing";
+import { usePricing } from "./CurrencyProvider";
 
 type FeaturedProduct = {
   id: number;
@@ -25,7 +25,8 @@ export function FeaturedProductBanner({
 }: {
   products: FeaturedProduct[];
 }) {
-  const { t, intlLocale } = useI18n();
+  const { t } = useI18n();
+  const { price } = usePricing();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -100,12 +101,8 @@ export function FeaturedProductBanner({
             <p className="featured-description">{product.description}</p>
           ) : null}
           <div className="featured-price">
-            <strong>
-              {formatPrice(product.salePrice ?? product.price, intlLocale)}
-            </strong>
-            {product.salePrice != null ? (
-              <s>{formatPrice(product.price, intlLocale)}</s>
-            ) : null}
+            <strong>{price(product.salePrice ?? product.price)}</strong>
+            {product.salePrice != null ? <s>{price(product.price)}</s> : null}
           </div>
           <div className="featured-actions">
             <Link className="button button-primary" href={href}>

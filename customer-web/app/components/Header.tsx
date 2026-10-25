@@ -7,7 +7,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { CartBadge } from "../cart/CartClient";
 import { AuthControls } from "./AuthControls";
 import { BrandMark } from "./BrandMark";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Preferences } from "./Preferences";
 import { NotificationBell } from "./NotificationCenter";
 import { useI18n } from "./I18nProvider";
@@ -111,14 +111,6 @@ function CustomerHeader({ activePage }: { activePage?: "/support" | "/faq" }) {
           ))}
         </nav>
         <div className="header-tools">
-          <Link
-            className="icon-link"
-            href="/#library-search"
-            aria-label={t("Search")}
-            onClick={() => setMenuOpen(false)}
-          >
-            <Search size={19} aria-hidden="true" />
-          </Link>
           <CartBadge />
           <NotificationBell />
         </div>

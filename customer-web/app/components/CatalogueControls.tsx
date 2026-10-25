@@ -8,6 +8,7 @@ import { Input } from "./ui/input";
 import { useI18n } from "./I18nProvider";
 
 import { useState } from "react";
+import { usePricing } from "./CurrencyProvider";
 import {
   Dialog,
   DialogTrigger,
@@ -40,6 +41,7 @@ function HiddenFilters({ filters }: { filters: CatalogueFilters }) {
 
 export function CatalogueControls({ path, filters, categories }: Props) {
   const { t } = useI18n();
+  const { currency } = usePricing();
   const [draft, setDraft] = useState(filters);
   const activeCount = [
     filters.category,
@@ -136,7 +138,9 @@ export function CatalogueControls({ path, filters, categories }: Props) {
                 </NativeSelect>
               </label>
               <fieldset>
-                <legend>{t("Price range")}</legend>
+                <legend>
+                  {t("Price range")} ({currency})
+                </legend>
                 <div className="catalogue-price-fields">
                   <label>
                     {t("Minimum price")}

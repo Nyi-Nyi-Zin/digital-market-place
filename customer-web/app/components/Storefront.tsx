@@ -1,6 +1,6 @@
 import { getServerI18n } from "../lib/i18n-server";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Search, X } from "lucide-react";
+import { ArrowRight, Search, X } from "lucide-react";
 import type { ReactNode } from "react";
 import type { catalog } from "@marketplace/server/catalog";
 import {
@@ -11,6 +11,7 @@ import { CatalogueControls, CatalogueSort } from "./CatalogueControls";
 import { Header } from "./Header";
 import { ProductCard } from "./ProductCard";
 import "../products/catalogue.css";
+import { getServerCurrency } from "../lib/currency-server";
 
 export async function Storefront({
   result,
@@ -24,6 +25,7 @@ export async function Storefront({
   children?: ReactNode;
 }) {
   const { t } = await getServerI18n();
+  const { currency } = await getServerCurrency();
   const chips = [
     filters.query?.trim()
       ? { key: "query", label: t("Search: {query}", { query: filters.query }) }
@@ -32,13 +34,17 @@ export async function Storefront({
     filters.minPrice?.trim()
       ? {
           key: "minPrice",
-          label: t("Min. price: {price}", { price: filters.minPrice }),
+          label: t("Min. price: {price}", {
+            price: `${currency} ${filters.minPrice}`,
+          }),
         }
       : null,
     filters.maxPrice?.trim()
       ? {
           key: "maxPrice",
-          label: t("Max. price: {price}", { price: filters.maxPrice }),
+          label: t("Max. price: {price}", {
+            price: `${currency} ${filters.maxPrice}`,
+          }),
         }
       : null,
   ].filter(chip => chip !== null);
@@ -166,20 +172,10 @@ export async function Storefront({
           ) : null}
         </section>
       </main>
-      <footer className="storefront-footer">
+      <footer>
         <div className="shell">
-          <Link className="footer-brand" href="/">
-            Cloud <span>Nine</span>
-            <small>{t("For the things you're going to make.")}</small>
-          </Link>
-          <div>
-            <span>© {new Date().getFullYear()} Cloud Nine</span>
-            <span>{t("Made for modern creators in Myanmar & beyond.")}</span>
-          </div>
-          <Link href="/#library-title">
-            {t("Explore the library")}{" "}
-            <ArrowUpRight size={15} aria-hidden="true" />
-          </Link>
+          © {new Date().getFullYear()} Cloud Nine. Built for modern creators.
+          <span>Manual Myanmar payment review · Secure digital delivery</span>
         </div>
       </footer>
     </>

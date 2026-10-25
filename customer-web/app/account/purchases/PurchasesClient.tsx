@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
-import { formatPrice } from "@marketplace/shared/pricing";
+import { formatOrderTotal, formatOrderItem } from "@marketplace/shared/pricing";
 import type { CustomerOrder } from "@marketplace/server/customer-orders";
 export function PurchasesClient() {
   const { t, intlLocale } = useI18n();
@@ -54,7 +54,7 @@ export function PurchasesClient() {
           <div className="section-heading">
             <h2>
               {t("Order #{id}", { id: order.id })} ·{" "}
-              {formatPrice(order.total, intlLocale)}
+              {formatOrderTotal(order, intlLocale)}
             </h2>
             <span className={`pill ${order.paymentStatus}`}>
               {t(order.paymentStatus)}
@@ -72,7 +72,7 @@ export function PurchasesClient() {
                 <Link href={`/products/${item.slug}`}>
                   <strong>{item.titleSnapshot}</strong>
                 </Link>
-                <p>{formatPrice(item.unitPrice, intlLocale)}</p>
+                <p>{formatOrderItem(item, order, intlLocale)}</p>
               </div>
             </article>
           ))}

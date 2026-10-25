@@ -1,6 +1,14 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { getDb } from "./database";
 import { emitOrderNotification } from "./notifications";
+import {
+  baseCurrency,
+  currencyConfig,
+  currencyInput,
+  convertAmount,
+  sumAmounts,
+  type Currency,
+} from "@marketplace/shared/currency";
 export { getDb } from "./database";
 import {
   InsertUser,
@@ -16,6 +24,7 @@ import {
   wishlists,
   notifications,
   activityLogs,
+  storeSettings,
 } from "./schema";
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -223,9 +232,11 @@ export async function createOrder(
   userId: number,
   customerName: string,
   customerEmail: string,
-  items: Array<{ productId: number; quantity: number }>
+  items: Array<{ productId: number; quantity: number }>,
+  requestedCurrency: Currency = baseCurrency
 ) {
   const db = getDb();
+  const selectedCurrency = currencyInput.parse(requestedCurrency);
   if (
     !items.length ||
     items.some(
@@ -238,6 +249,16 @@ export async function createOrder(
   )
     throw new Error("Choose distinct products");
   return db.transaction(async tx => {
+    const [settings] = await tx
+      .select()
+      .from(storeSettings)
+      .where(eq(storeSettings.id, 1));
+    const config = currencyConfig(
+      settings ?? { usdRate: null, sgdRate: null, mmkRate: null }
+    );
+    const exchangeRate = config.rates[selectedCurrency];
+    if (!exchangeRate)
+      throw new Error("Exchange rate is not configured for this currency.");
     const ids = items.map(item => item.productId);
     const found = await tx
       .select()
@@ -260,6 +281,14 @@ export async function createOrder(
       0
     );
     const total = (cents / 100).toFixed(2);
+    const payablePrices = found.map(product =>
+      convertAmount(
+        product.discountPrice ?? product.price,
+        exchangeRate,
+        selectedCurrency
+      )
+    );
+    const payableTotal = sumAmounts(payablePrices);
     const [order] = await tx
       .insert(orders)
       .values({
@@ -269,14 +298,18 @@ export async function createOrder(
         subtotal: total,
         total,
         discount: "0.00",
+        currency: selectedCurrency,
+        exchangeRate,
+        payableTotal,
       })
       .returning({ id: orders.id });
     await tx.insert(orderItems).values(
-      found.map(product => ({
+      found.map((product, index) => ({
         orderId: order.id,
         productId: product.id,
         titleSnapshot: product.title,
         unitPrice: String(product.discountPrice ?? product.price),
+        payableUnitPrice: payablePrices[index],
         quantity: 1,
       }))
     );
@@ -286,7 +319,14 @@ export async function createOrder(
       userId,
       orderId: order.id,
     });
-    return { orderId: order.id, total, items: found };
+    return {
+      orderId: order.id,
+      total,
+      currency: selectedCurrency,
+      exchangeRate,
+      payableTotal,
+      items: found,
+    };
   });
 }
 export async function getOrderForUser(userId: number, orderId: number) {

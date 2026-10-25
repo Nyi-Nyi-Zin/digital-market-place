@@ -370,6 +370,11 @@ export async function submitEvidence(userId: number, raw: unknown) {
       )
     );
   if (!method) throw new HttpError(400, "That payment method is unavailable");
+  if (method.currency !== owned.currency)
+    throw new HttpError(
+      400,
+      "Choose a payment account that matches the order currency."
+    );
   const stored = await storagePut(
     `payment-screenshots/${userId}/${input.orderId}.${input.screenshotContentType.split("/")[1]}`,
     bytes,
@@ -398,6 +403,8 @@ export async function submitEvidence(userId: number, raw: unknown) {
         userId,
         paymentMethod: method.name,
         amount: order.total,
+        currency: order.currency,
+        payableAmount: order.payableTotal ?? order.total,
         senderName: input.senderName,
         senderPhone: input.senderPhone,
         transactionReference: input.transactionReference,

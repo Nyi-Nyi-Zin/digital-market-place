@@ -5,6 +5,8 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { createTransport } from "nodemailer";
 import * as schema from "./schema";
 import { getDb } from "./database";
+import { googleOAuthConfig } from "./oauth";
+import { telegramAuthPlugin } from "./telegram-auth";
 
 export function createAuth(
   database: NodePgDatabase<typeof schema>,
@@ -18,6 +20,8 @@ export function createAuth(
   if (!env.BETTER_AUTH_URL)
     throw new Error("Set BETTER_AUTH_URL to the application origin");
   const mailEnabled = Boolean(env.SMTP_HOST && env.MAIL_FROM);
+  const google = googleOAuthConfig(env);
+  const telegram = telegramAuthPlugin(database, env);
   if (production && !mailEnabled)
     throw new Error(
       "Production authentication requires SMTP_HOST and MAIL_FROM for verified sign-up and password recovery"
@@ -46,6 +50,7 @@ export function createAuth(
     secret,
     baseURL: env.BETTER_AUTH_URL,
     trustedOrigins: [new URL(env.BETTER_AUTH_URL).origin],
+    onAPIError: { errorURL: `${new URL(env.BETTER_AUTH_URL).origin}/sign-in` },
     database: drizzleAdapter(database, {
       provider: "pg",
       transaction: true,
@@ -66,6 +71,14 @@ export function createAuth(
       sendResetPassword: async ({ user, url }) =>
         send(user.email, "Reset your Cloud Nine password", url),
     },
+    socialProviders: google ? { google } : {},
+    account: {
+      accountLinking: {
+        enabled: true,
+        requireLocalEmailVerified: true,
+        allowDifferentEmails: false,
+      },
+    },
     emailVerification: {
       sendOnSignUp: mailEnabled,
       autoSignInAfterVerification: true,
@@ -73,12 +86,14 @@ export function createAuth(
         send(user.email, "Verify your Cloud Nine email", url),
     },
     advanced: {
+      disableOriginCheck: false,
+      disableCSRFCheck: false,
       cookiePrefix: adminSite ? "cloud-nine-admin" : "cloud-nine-customer",
       crossSubDomainCookies: { enabled: false },
     },
     session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24 },
     rateLimit: { enabled: true, storage: "database", window: 60, max: 60 },
-    plugins: [nextCookies()],
+    plugins: [...(telegram ? [telegram] : []), nextCookies()],
   });
 }
 let instance: ReturnType<typeof createAuth> | undefined;

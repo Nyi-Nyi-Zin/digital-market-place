@@ -1,12 +1,18 @@
-import { Header } from "../components/Header";
+import { AuthLayout } from "../components/AuthLayout";
 import { AuthForm } from "../components/AuthForm";
+import {
+  isGoogleOAuthEnabled,
+  isTelegramOAuthEnabled,
+} from "@marketplace/server/oauth";
+export const dynamic = "force-dynamic";
 export default function Page() {
   return (
-    <>
-      <Header />
-      <main className="shell simple-page">
-        <AuthForm mode="sign-up" />
-      </main>
-    </>
+    <AuthLayout>
+      <AuthForm
+        mode="sign-up"
+        googleEnabled={isGoogleOAuthEnabled()}
+        telegramEnabled={isTelegramOAuthEnabled()}
+      />
+    </AuthLayout>
   );
 }

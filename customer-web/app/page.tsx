@@ -5,6 +5,7 @@ import { Storefront } from "./components/Storefront";
 import { catalog } from "@marketplace/server/catalog";
 import type { CatalogueFilters } from "@marketplace/shared/catalogue-filters";
 import "./home.css";
+import { getServerCurrency } from "./lib/currency-server";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,14 @@ export default async function HomePage({
 }) {
   const { t } = await getServerI18n();
   const filters = await searchParams;
+  const { config, currency } = await getServerCurrency();
+  const priceFilters = {
+    ...filters,
+    displayCurrency: currency,
+    displayRate: config.rates[currency]!,
+  };
   const [result, featured] = await Promise.all([
-    catalog(filters),
+    catalog(priceFilters),
     catalog({ featured: true }),
   ]);
   return (
@@ -35,7 +42,7 @@ export default async function HomePage({
               thumbnailKey: product.thumbnailKey,
             }))}
           />
-          <div className="storefront-trust">
+          {/* <div className="storefront-trust">
             <span>
               <ShieldCheck size={15} aria-hidden="true" />{" "}
               {t("Reviewed payments")}
@@ -45,7 +52,7 @@ export default async function HomePage({
               {t("Delivery after approval")}
             </span>
             <span>{t("Made for modern creators.")}</span>
-          </div>
+          </div> */}
         </>
       ) : null}
     </Storefront>

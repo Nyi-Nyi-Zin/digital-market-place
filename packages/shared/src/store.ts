@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { exchangeRateInput } from "./currency";
 
 export const documentKeys = [
   "how-to-buy",
@@ -31,11 +32,17 @@ export const settingsInput = z.object({
   supportEmail: z.email().max(320),
   telegramUsername: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/),
   supportHours: z.string().trim().max(300),
+  usdRate: exchangeRateInput.optional(),
+  sgdRate: exchangeRateInput.optional(),
+  mmkRate: exchangeRateInput.optional(),
 });
 export const defaultSettings = {
   supportEmail: "nyinyizin1818@gmail.com",
   telegramUsername: "miracle5373",
   supportHours: "",
+  usdRate: null,
+  sgdRate: null,
+  mmkRate: null,
 };
 export const newTicketInput = z.object({
   subject: z.string().trim().min(3).max(180),

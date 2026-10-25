@@ -2,6 +2,7 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "./database";
 import { products, categories } from "./schema";
 import type { PublicProduct } from "@marketplace/shared/product";
+import { fractionDigits, type Currency } from "@marketplace/shared/currency";
 export type { PublicProduct } from "@marketplace/shared/product";
 export const publicProductFields = {
   id: products.id,
@@ -61,6 +62,8 @@ export async function catalog(
     maxPrice?: string;
     page?: string;
     featured?: boolean;
+    displayCurrency?: Currency;
+    displayRate?: string;
   } = {}
 ) {
   const db = getDb();
@@ -83,7 +86,11 @@ export async function catalog(
       return { products: [], categories: groups, total: 0, page: 1, pages: 1 };
     where.push(eq(products.categoryId, category.id));
   }
-  const price = sql`coalesce(${products.discountPrice},${products.price})`;
+  const basePrice = sql`coalesce(${products.discountPrice},${products.price})`;
+  const price =
+    input.displayCurrency && input.displayRate
+      ? sql`round(${basePrice} * ${input.displayRate}::numeric, ${fractionDigits(input.displayCurrency)})`
+      : basePrice;
   if (
     Boolean(input.minPrice?.trim()) &&
     Number.isFinite(Number(input.minPrice))

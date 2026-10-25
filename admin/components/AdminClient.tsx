@@ -32,7 +32,16 @@ import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog";
 import Link from "next/link";
 import type { AdminOverview } from "@marketplace/server/marketplace";
 import { api } from "../lib/api";
-import { formatPrice } from "@marketplace/shared/pricing";
+import {
+  formatPrice,
+  formatOrderTotal,
+  formatOrderItem,
+} from "@marketplace/shared/pricing";
+import {
+  baseCurrency,
+  currencies,
+  resolveCurrency,
+} from "@marketplace/shared/currency";
 import { ProductForm } from "./ProductForm";
 import { RowActions } from "./RowActions";
 import { Pagination } from "./Pagination";
@@ -652,7 +661,7 @@ function OrderList({ orders }: { orders: AdminOverview["orders"] }) {
           <summary>
             <strong>{t("Order #{id}", { id: order.id })}</strong>
             <span>{order.customerName}</span>
-            <span>{formatPrice(order.total, intlLocale)}</span>
+            <span>{formatOrderTotal(order, intlLocale)}</span>
             <span className={`pill ${order.orderStatus}`}>
               {t(adminStatusLabels[order.orderStatus])}
             </span>
@@ -666,8 +675,8 @@ function OrderList({ orders }: { orders: AdminOverview["orders"] }) {
           <ul>
             {order.items.map(item => (
               <li key={item.id}>
-                {item.titleSnapshot} · {formatPrice(item.unitPrice, intlLocale)}{" "}
-                × {item.quantity}
+                {item.titleSnapshot} ·{" "}
+                {formatOrderItem(item, order, intlLocale)} × {item.quantity}
               </li>
             ))}
           </ul>
@@ -736,8 +745,14 @@ function PaymentReview({
         <span className={`pill ${payment.status}`}>{t(payment.status)}</span>
       </div>
       <p>
-        <strong>{formatPrice(payment.amount, intlLocale)}</strong> {t("via")}{" "}
-        {payment.paymentMethod}
+        <strong>
+          {formatPrice(
+            payment.payableAmount ?? payment.amount,
+            intlLocale,
+            resolveCurrency(payment.currency)
+          )}
+        </strong>{" "}
+        {t("via")} {payment.paymentMethod}
       </p>
       <p>
         {payment.senderName} · {payment.senderPhone}
@@ -853,6 +868,7 @@ function MethodForm({
               accountNumber: values.get("accountNumber"),
               instructions: values.get("instructions"),
               enabled: values.get("enabled") === "on",
+              currency: values.get("currency"),
             },
           });
         } catch (e) {
@@ -884,6 +900,20 @@ function MethodForm({
           defaultValue={method?.accountNumber}
           maxLength={80}
         />
+      </label>
+      <label>
+        {t("Currency")}
+        <NativeSelect
+          name="currency"
+          defaultValue={method?.currency ?? baseCurrency}
+          aria-label={t("Currency")}
+        >
+          {currencies.map(value => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </NativeSelect>
       </label>
       <label>
         {t("Checkout instructions")}

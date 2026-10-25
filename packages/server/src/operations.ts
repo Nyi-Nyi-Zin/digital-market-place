@@ -39,6 +39,7 @@ export async function orderDetail(id: number, ownerId?: number) {
       title: orderItems.titleSnapshot,
       quantity: orderItems.quantity,
       unitPrice: orderItems.unitPrice,
+      payableUnitPrice: orderItems.payableUnitPrice,
       slug: products.slug,
     })
     .from(orderItems)
@@ -50,6 +51,8 @@ export async function orderDetail(id: number, ownerId?: number) {
       id: payments.id,
       method: payments.paymentMethod,
       amount: payments.amount,
+      currency: payments.currency,
+      payableAmount: payments.payableAmount,
       status: payments.status,
       reference: payments.transactionReference,
       rejectionReason: payments.rejectionReason,

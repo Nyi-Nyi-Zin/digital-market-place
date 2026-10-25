@@ -1,6 +1,21 @@
 import { headers } from "next/headers";
 import { getAuth } from "./auth";
 import { ensureMarketplaceUser } from "./db";
+import { isTelegramOAuthEnabled } from "./oauth";
+
+export async function telegramConnection() {
+  const requestHeaders = await headers();
+  const auth = getAuth();
+  const session = await auth.api.getSession({ headers: requestHeaders });
+  const accounts = session
+    ? await auth.api.listUserAccounts({ headers: requestHeaders })
+    : [];
+  return {
+    enabled: isTelegramOAuthEnabled(),
+    linked: accounts.some(account => account.providerId === "telegram"),
+    emailVerified: session?.user.emailVerified ?? false,
+  };
+}
 export async function currentUser() {
   const session = await getAuth().api.getSession({ headers: await headers() });
   return session ? ensureMarketplaceUser(session.user) : undefined;

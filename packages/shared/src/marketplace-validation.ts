@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { productStatuses } from "./pagination";
+import { baseCurrency, currencyInput } from "./currency";
 const money = z
   .string()
   .regex(
@@ -55,6 +56,7 @@ export const paymentMethodInput = z
   .object({
     id: z.number().int().positive().optional(),
     name: z.enum(["KBZPay", "AYA Pay", "WavePay"]),
+    currency: currencyInput.default(baseCurrency),
     enabled: z.boolean(),
     accountName: z.string().trim().max(160),
     accountNumber: z.string().trim().max(80),
@@ -78,7 +80,7 @@ export const evidenceInput = z.object({
     .max(7 * 1024 * 1024),
   screenshotContentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
 });
-export const currency = process.env.NEXT_PUBLIC_MARKETPLACE_CURRENCY ?? "USD";
+export const currency = baseCurrency;
 export function formatMoney(value: number | string) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
     Number(value)

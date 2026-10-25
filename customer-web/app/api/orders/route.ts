@@ -4,10 +4,12 @@ import { createOrder } from "@marketplace/server/db";
 import { customerOrders } from "@marketplace/server/customer-orders";
 import { requireUser } from "@marketplace/server/next-auth";
 import { fail, readJson, HttpError } from "@marketplace/server/http";
+import { baseCurrency, currencyInput } from "@marketplace/shared/currency";
 export const dynamic = "force-dynamic";
 const schema = z.object({
   customerName: z.string().trim().min(2).max(160),
   customerEmail: z.string().email().max(320),
+  currency: currencyInput.default(baseCurrency),
   items: z
     .array(
       z.object({
@@ -36,13 +38,20 @@ export async function POST(request: Request) {
         user.id,
         input.customerName,
         input.customerEmail,
-        input.items
+        input.items,
+        input.currency
       );
     } catch (e) {
       throw new HttpError(400, (e as Error).message);
     }
     return NextResponse.json(
-      { orderId: result.orderId, total: result.total },
+      {
+        orderId: result.orderId,
+        total: result.total,
+        currency: result.currency,
+        exchangeRate: result.exchangeRate,
+        payableTotal: result.payableTotal,
+      },
       { status: 201 }
     );
   } catch (e) {

@@ -11,6 +11,8 @@ import { I18nProvider, useI18n } from "./I18nProvider";
 import { Toaster } from "./ui/sonner";
 import { NotificationBootstrap } from "./NotificationCenter";
 import type { Locale, Messages } from "@marketplace/shared/i18n";
+import type { Currency, CurrencyConfig } from "@marketplace/shared/currency";
+import { CurrencyProvider } from "./CurrencyProvider";
 
 function QueryProvider({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
@@ -46,10 +48,14 @@ export function Providers({
   children,
   locale,
   messages,
+  currency,
+  currencyConfig,
 }: {
   children: React.ReactNode;
   locale: Locale;
   messages: Messages;
+  currency: Currency;
+  currencyConfig: CurrencyConfig;
 }) {
   return (
     <ThemeProvider
@@ -60,7 +66,9 @@ export function Providers({
       disableTransitionOnChange
     >
       <I18nProvider locale={locale} messages={messages}>
-        <QueryProvider>{children}</QueryProvider>
+        <CurrencyProvider currency={currency} config={currencyConfig}>
+          <QueryProvider>{children}</QueryProvider>
+        </CurrencyProvider>
       </I18nProvider>
     </ThemeProvider>
   );

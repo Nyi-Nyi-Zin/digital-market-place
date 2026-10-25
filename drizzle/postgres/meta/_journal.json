@@ -29,6 +29,13 @@
       "when": 1792869988915,
       "tag": "0003_store_support_operations",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792923275272,
+      "tag": "0004_multi_currency",
+      "breakpoints": true
     }
   ]
 }

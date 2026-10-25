@@ -13,7 +13,12 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { useCart, readCart, writeCart } from "../lib/cart";
-import { formatPrice } from "@marketplace/shared/pricing";
+import { formatOrderTotal } from "@marketplace/shared/pricing";
+import {
+  resolveCurrency,
+  type OrderPricing,
+} from "@marketplace/shared/currency";
+import { usePricing } from "../components/CurrencyProvider";
 import type { CustomerOrder } from "@marketplace/server/customer-orders";
 type Method = {
   id: number;
@@ -21,6 +26,7 @@ type Method = {
   accountName: string;
   accountNumber: string;
   instructions: string | null;
+  currency: string;
 };
 export function CheckoutClient({
   customer,
@@ -32,6 +38,7 @@ export function CheckoutClient({
   buyId?: number;
 }) {
   const { t, intlLocale } = useI18n();
+  const { currency, config, price, changingCurrency } = usePricing();
   const cart = useCart();
   const items = buyId ? cart.filter(x => x.id === buyId) : cart;
   const methods = useQuery({
@@ -43,11 +50,14 @@ export function CheckoutClient({
     queryFn: () => api<{ orders: CustomerOrder[] }>("/api/orders"),
     enabled: Boolean(orderId),
   });
-  const [order, setOrder] = useState<{
-    id: number;
-    total: string;
-    productIds: number[];
-  } | null>(null);
+  const [order, setOrder] = useState<
+    | (OrderPricing & {
+        id: number;
+        total: string;
+        productIds: number[];
+      })
+    | null
+  >(null);
   const [method, setMethod] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -59,12 +69,17 @@ export function CheckoutClient({
       setOrder({
         id: existing.id,
         total: existing.total,
+        currency: existing.currency,
+        exchangeRate: existing.exchangeRate,
+        payableTotal: existing.payableTotal,
         productIds: existing.items.map(i => i.productId),
       });
   }, [existing]);
-  const selected = methods.data?.methods.find(
-    m => m.name === (method || methods.data?.methods[0]?.name)
-  );
+  const paymentCurrency = order ? resolveCurrency(order.currency) : currency;
+  const availableMethods =
+    methods.data?.methods.filter(m => m.currency === paymentCurrency) ?? [];
+  const selected =
+    availableMethods.find(m => m.name === method) ?? availableMethods[0];
   const awaiting = existing?.latestPayment?.status === "pending";
   if (submitted || awaiting)
     return (
@@ -110,13 +125,14 @@ export function CheckoutClient({
 
               const data = new FormData(e.currentTarget);
               try {
-                const result = await api<{ orderId: number; total: string }>(
+                const result = await api<OrderPricing & { orderId: number }>(
                   "/api/orders",
                   {
                     method: "POST",
                     body: JSON.stringify({
                       customerName: data.get("name"),
                       customerEmail: data.get("email"),
+                      currency,
                       items: items.map(item => ({
                         productId: item.id,
                         quantity: 1,
@@ -127,6 +143,9 @@ export function CheckoutClient({
                 setOrder({
                   id: result.orderId,
                   total: result.total,
+                  currency: result.currency,
+                  exchangeRate: result.exchangeRate,
+                  payableTotal: result.payableTotal,
                   productIds: items.map(i => i.id),
                 });
                 toast.success(t("Order created."));
@@ -164,7 +183,7 @@ export function CheckoutClient({
             <h2>{t("Order summary")}</h2>
             {items.map(item => (
               <p key={item.id}>
-                {item.title} · {formatPrice(item.price, intlLocale)}
+                {item.title} · {price(item.price)}
               </p>
             ))}
             {!items.length && (
@@ -178,7 +197,10 @@ export function CheckoutClient({
               size="brand"
               className="button button-primary"
               disabled={
-                pending || !items.length || !methods.data?.methods.length
+                pending ||
+                changingCurrency ||
+                !items.length ||
+                !availableMethods.length
               }
             >
               {pending
@@ -239,9 +261,18 @@ export function CheckoutClient({
           >
             <h2>
               {t("Order #{id}", { id: order.id })} ·{" "}
-              {formatPrice(order.total, intlLocale)}
+              {formatOrderTotal(order, intlLocale)}
             </h2>
             <h3>{t("2. Make your transfer")}</h3>
+            {order.currency !== config.baseCurrency && (
+              <p>
+                {t("Confirmed exchange rate: 1 {base} = {rate} {currency}", {
+                  base: config.baseCurrency,
+                  rate: String(Number(order.exchangeRate)),
+                  currency: order.currency,
+                })}
+              </p>
+            )}
             <p>
               {t(
                 "Pay the confirmed amount to the selected account, then upload the payment screenshot."
@@ -254,7 +285,7 @@ export function CheckoutClient({
                 value={selected?.name ?? ""}
                 onChange={e => setMethod(e.target.value)}
               >
-                {methods.data?.methods.map(m => (
+                {availableMethods.map(m => (
                   <option key={m.id}>{m.name}</option>
                 ))}
               </NativeSelect>
@@ -317,13 +348,16 @@ export function CheckoutClient({
           <p role="status">{t("Loading payment accounts…")}</p>
         ) : methods.error ? (
           <p role="alert">{t(methods.error.message)}</p>
-        ) : !methods.data?.methods.length ? (
+        ) : !availableMethods.length ? (
           <p role="alert">
-            {t("No payment accounts are available. Please try again later.")}
+            {t(
+              "No payment account is available for {currency}. Please contact support.",
+              { currency: paymentCurrency }
+            )}
           </p>
         ) : (
           <p>
-            {t("Available:")} {methods.data.methods.map(m => m.name).join(", ")}
+            {t("Available:")} {availableMethods.map(m => m.name).join(", ")}
           </p>
         )}
       </aside>

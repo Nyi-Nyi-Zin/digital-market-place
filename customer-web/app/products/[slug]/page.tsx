@@ -1,11 +1,14 @@
 import { getServerI18n } from "../../lib/i18n-server";
 import { notFound } from "next/navigation";
-import { storageUrl } from "@marketplace/shared/storage";
+import Link from "next/link";
+import { ArrowLeft, Check, ShieldCheck } from "lucide-react";
 import { Header } from "../../components/Header";
-import { formatPrice } from "@marketplace/shared/pricing";
+import { ProductDetailCover } from "../../components/ProductDetailCover";
+import { Price } from "../../components/CurrencyProvider";
 import { productBySlug } from "@marketplace/server/catalog";
 import { AddToCartButton } from "../../cart/CartClient";
 import { WishlistButton } from "../../components/ProductActions";
+import "./detail.css";
 export const dynamic = "force-dynamic";
 export default async function ProductPage({
   params,
@@ -24,41 +27,59 @@ export default async function ProductPage({
   return (
     <>
       <Header />
-      <main className="shell">
+      <main className="shell product-detail-page">
+        <Link className="detail-back" href="/">
+          <ArrowLeft size={16} aria-hidden="true" />
+          {t("Back to marketplace")}
+        </Link>
         <div className="detail">
-          <div className={`detail-cover cover-${product.tone}`}>
-            {product.thumbnailKey ? (
-              <img
-                className="product-image"
-                src={storageUrl(product.thumbnailKey)}
-                alt={product.title}
-              />
-            ) : (
-              <strong>{product.title}</strong>
-            )}
-          </div>
+          <ProductDetailCover
+            key={product.thumbnailKey}
+            title={product.title}
+            thumbnailKey={product.thumbnailKey}
+          />
           <article className="detail-copy">
-            <p className="eyebrow plain">{product.category}</p>
+            <div className="detail-meta">
+              <span className="detail-category">
+                {product.category || t("Digital product")}
+              </span>
+              {product.sales > 0 && (
+                <span>
+                  {new Intl.NumberFormat(intlLocale).format(product.sales)}{" "}
+                  {t("sales")}
+                </span>
+              )}
+            </div>
             <h1>{product.title}</h1>
-            <p>
-              {product.sales} {t("sales")}
-            </p>
             <p className="detail-description">{product.description}</p>
             <div className="purchase-panel">
-              <div>
+              <div className="detail-price">
                 <small>{t("One-time payment")}</small>
-                <strong>{formatPrice(item.price, intlLocale)}</strong>
-                {product.salePrice !== undefined && (
-                  <s>{formatPrice(product.price, intlLocale)}</s>
-                )}
+                <div className="detail-price-amounts">
+                  <strong>
+                    <Price value={item.price} />
+                  </strong>
+                  {product.salePrice !== undefined && (
+                    <s>
+                      <Price value={product.price} />
+                    </s>
+                  )}
+                </div>
               </div>
-              <AddToCartButton item={item} buy />
-              <AddToCartButton item={item} />
+              <div className="detail-purchase-actions">
+                <AddToCartButton item={item} buy />
+                <AddToCartButton item={item} />
+              </div>
+              <p className="detail-delivery">
+                <ShieldCheck size={17} aria-hidden="true" />
+                <span>
+                  {t("Products are delivered manually after payment approval.")}
+                </span>
+              </p>
             </div>
-            <p>
-              {t("Products are delivered manually after payment approval.")}
-            </p>
-            <WishlistButton productId={product.id} />
+            <div className="detail-wishlist">
+              <WishlistButton productId={product.id} />
+            </div>
             <div className="detail-grid">
               <div>
                 <h2>{t("What is included")}</h2>
@@ -66,8 +87,11 @@ export default async function ProductPage({
                   {(product.includes || t("Digital product"))
                     .split("\n")
                     .filter(Boolean)
-                    .map(text => (
-                      <li key={text}>{text}</li>
+                    .map((text, index) => (
+                      <li key={index}>
+                        <Check size={15} aria-hidden="true" />
+                        <span>{text}</span>
+                      </li>
                     ))}
                 </ul>
               </div>

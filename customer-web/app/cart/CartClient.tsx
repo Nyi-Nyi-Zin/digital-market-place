@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { type CartItem, readCart, writeCart, useCart } from "../lib/cart";
-import { formatPrice } from "@marketplace/shared/pricing";
+import { usePricing } from "../components/CurrencyProvider";
 export function AddToCartButton({
   item,
   buy = false,
@@ -54,11 +54,12 @@ export function CartBadge() {
 }
 export function CartClient() {
   const { t, intlLocale } = useI18n();
+  const { price, total: priceTotal } = usePricing();
   const items = useCart();
   const [ready, setReady] = useState(false);
   const browseLink = useRef<HTMLAnchorElement>(null);
   useEffect(() => setReady(true), []);
-  const total = items.reduce((sum, item) => sum + item.price, 0);
+  const total = priceTotal(items.map(item => item.price));
   const itemCount = t(items.length === 1 ? "{count} item" : "{count} items", {
     count: new Intl.NumberFormat(intlLocale).format(items.length),
   });
@@ -90,9 +91,7 @@ export function CartClient() {
                 <h3>{item.title}</h3>
                 <p>{t("Digital product")}</p>
               </div>
-              <strong className="cart-item-price">
-                {formatPrice(item.price, intlLocale)}
-              </strong>
+              <strong className="cart-item-price">{price(item.price)}</strong>
               <Button
                 variant="brand"
                 size="brand"
@@ -126,11 +125,11 @@ export function CartClient() {
               <dt>
                 {t("Subtotal")} <span>({itemCount})</span>
               </dt>
-              <dd>{formatPrice(total, intlLocale)}</dd>
+              <dd>{total}</dd>
             </div>
             <div className="cart-estimate">
               <dt>{t("Estimated total")}</dt>
-              <dd>{formatPrice(total, intlLocale)}</dd>
+              <dd>{total}</dd>
             </div>
           </dl>
           <p className="cart-price-note">

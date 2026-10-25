@@ -2,7 +2,8 @@ import { getServerI18n } from "../lib/i18n-server";
 import Link from "next/link";
 import { storageUrl } from "@marketplace/shared/storage";
 import { ArrowUpRight, PackageOpen } from "lucide-react";
-import { type Product, formatPrice } from "@marketplace/shared/pricing";
+import type { Product } from "@marketplace/shared/pricing";
+import { Price } from "./CurrencyProvider";
 
 export async function ProductCard({
   product,
@@ -10,7 +11,7 @@ export async function ProductCard({
   product: Product;
   index?: number;
 }) {
-  const { t, intlLocale } = await getServerI18n();
+  const { t } = await getServerI18n();
   const href = `/products/${product.slug}`;
   const hasDiscount = product.salePrice != null;
 
@@ -48,10 +49,12 @@ export async function ProductCard({
         <div className="card-bottom">
           <div className="card-price">
             <strong>
-              {formatPrice(product.salePrice ?? product.price, intlLocale)}
+              <Price value={product.salePrice ?? product.price} />
             </strong>
             {hasDiscount ? (
-              <s>{formatPrice(product.price, intlLocale)}</s>
+              <s>
+                <Price value={product.price} />
+              </s>
             ) : null}
           </div>
           <Link

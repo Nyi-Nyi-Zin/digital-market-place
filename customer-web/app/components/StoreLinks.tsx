@@ -1,7 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { getServerI18n } from "../lib/i18n-server";
-export async function StoreLinks() {
-  const { t } = await getServerI18n();
+import { usePathname } from "next/navigation";
+import { useI18n } from "./I18nProvider";
+
+const authPages = new Set([
+  "/sign-in",
+  "/sign-up",
+  "/forgot-password",
+  "/reset-password",
+]);
+
+export function StoreLinks() {
+  const pathname = usePathname();
+  const { t } = useI18n();
+  if (authPages.has(pathname)) return null;
   return (
     <nav className="store-links shell" aria-label={t("Store information")}>
       {[

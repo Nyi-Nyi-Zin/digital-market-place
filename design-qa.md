@@ -1,75 +1,53 @@
-﻿# Admin list filters, sorting, chips and persistent URLs
+﻿# Cloud Nine product detail refinement
 
-Date: 2026-10-25
+Date: 2026-10-25 (Asia/Rangoon)
 
 final result: passed
 
-## Result and scope
+## Scope and visual target
 
-Products now filter by category, featured Yes/No and discounted/regular price. Orders can filter by a product, including archived products referenced by historical orders. Payments filter by KBZPay/AYA Pay/WavePay and search by transaction reference as well as existing order/payment IDs and sender name. These criteria intersect with existing text/status/time/value filters.
+Refine the existing customer product detail page for a cleaner presentation while keeping Cloud Nine branding, localized controls, theme support, cart/checkout behavior and manual delivery copy. This is an incremental edit of the existing code target, not a new prototype or visual clone. No generated assets were needed.
 
-All four list pages have local-calendar date presets (Today, Yesterday, Last 7 days including today, This month, Custom, All time), section-appropriate sort options, individually removable applied-filter chips and persistent query URLs. Product/category name sorts are available; value sorts use effective product price/order total/payment amount. Categories preserve their previous name-ascending default; other lists default newest first. Stable timestamp/ID tie-breakers preserve pagination.
+Source captures: `tmp/product-detail-cleanup/before-desktop.png` and `before-mobile.png`.
+Implementation captures: `tmp/product-detail-cleanup/after-1440.png`, `after-390.png`, `after-320.png`, `after-light-my-320.png`, `after-dark-my-320.png`.
+Route: `/products/asdasdxx` on the existing local customer server at port 3000. Product content comes from the local development database. No database records were changed.
 
-Filter/sort changes return to page 1. Explicit changes push browser history; debounced text search replaces the current entry. Back/Forward, refresh and direct links restore criteria, sort, page and search input. Default/empty parameters are omitted; unrelated URL parameters and hashes remain. Invalid links display a notice with a clear/recovery action. Legacy order payment-status aliases remain represented truthfully in the status dropdown.
+## Visual comparison
 
-Applied chips group each time/value range into one removable criterion. Keyboard removal focuses the next chip or Filters trigger. Global summary counts remain independent of the filtered page. The longer dialog scrolls its fields while keeping heading and Reset/Apply controls visible. Named saved views remain deferred as discussed.
+Before/after desktop captures were opened together at a 1440 x 1000 CSS viewport, deviceScaleFactor 1. Before/after mobile captures were opened together at a 390 x 844 CSS viewport, deviceScaleFactor 1. Full-page mobile capture heights differ because the layout changed; widths and density match. No image density normalization was needed. Product, locale and theme match. The source desktop header was still resolving its anonymous account status; the implementation shows the settled sign-in state. This incidental difference was excluded from the page comparison.
 
-## Interfaces and data flow
+The full-page comparisons clearly show both the composition and the readable purchase controls, so separate cropped comparison images were unnecessary. Myanmar light/dark 320px captures were also opened and reviewed.
 
-Existing GET /api/admin/overview and GET /api/admin/products accept additional categoryId, featured (all/yes/no), discount (all/discounted/regular), productId, paymentMethod and sort parameters. IDs are positive int32 strings; filters and sorts are validated for their section. Sort values: newest, oldest, value_asc, value_desc, name_asc, name_desc. Unsupported combinations return HTTP 400. Existing status/date-time/value semantics remain.
+## Findings and fixes
 
-The admin overview adds productOptions for the Orders selector. Options are independent of active list filters. Product-order matching uses EXISTS against order_items, preserving order-level totals/pagination. Sorting uses fixed ORM expressions, and reference text uses the existing escaped ILIKE search. Existing archive/manual-fulfillment behavior is retained.
+- Uneven purchase-button wrapping on mobile: replaced the wrapping price/button row with a dedicated price block and two equal-width purchase buttons. Buttons stay aligned with at least 44px touch targets across the tested widths.
+- Broken thumbnail: added a small client component that handles missing images, load errors and errors that occurred before hydration, using the existing icon library and a product-title fallback. Working images use contain sizing so product artwork is not cropped.
+- Inconsistent text density: reduced heading size, increased line height, grouped category metadata, hid zero sales, and added clear separation for includes/license content. Both details sections stack on small screens.
+- Purchase information scattered around the page: grouped the existing manual-delivery explanation inside the purchase panel and made the existing wishlist action visually secondary.
+- Added a translated return-to-marketplace link with visible keyboard focus.
 
-URL times are explicit UTC ISO timestamps; restored controls use the viewer's device timezone. Presets resolve to absolute boundaries when selected rather than retaining a relative Today token. End-second timestamps remain inclusive through .999 milliseconds. This step requires no database migration or production deployment.
+No remaining actionable P0/P1/P2 issues in the scoped page.
 
-## Visual comparison and findings
+## Fidelity surfaces
 
-Visual truth: the user's original conversation filter-dialog/card/sidebar screenshots and the accepted Cloud Nine admin from the preceding task. No local paths were provided for the original attachments; their zoom/density are unknown. This is a refinement of that selected structure, not a pixel-exact clone.
-
-Rendered captures were opened and inspected. Desktop: 1440 x 900/1000 CSS px, deviceScaleFactor 1, Products with Published/Templates/Featured/Discounted active. Additional widths: 768, 390 and 320px. Mobile: 320 x 900, English and Burmese light/dark with all five supported locales tested.
-
-- tmp/admin-list-qa/list-width-1440.png: sort control, four removable chips, consistent summary cards and filtered table.
-- tmp/admin-list-qa/product-filter-desktop.png: section-specific criteria, date preset, scrollable fields and pinned footer.
-- tmp/admin-list-qa/order-filter-desktop.png and payment-filter-desktop.png: appropriate Product/Payment method controls.
-- tmp/admin-list-qa/filters-width-320.png and list-width-320.png: narrow toolbar/chips and always-visible action footer.
-- tmp/admin-list-qa/filters-my-light.png and filters-my-dark.png: actual Burmese translations and real theme-toggle states.
-
-Fidelity surfaces: existing Arial/Myanmar Text typography and UI/control scale remain; paired fields collapse to one column, toolbar/chips wrap within the viewport and dialog field scrolling preserves access to every control. Existing Cloud Nine surfaces, purple actions and accent chips follow shared tokens in both themes. Lucide icons and branding are unchanged; no raster assets are needed. Stored product/category names stay untranslated while new UI labels are localized in five dictionaries.
-
-[P2, resolved] The expanded criteria would push action buttons below the viewport. The dialog now has a separately scrolling field region and pinned heading/footer; browser geometry verifies Apply remains inside the dialog without scrolling at every tested width. [P2, resolved] A URL serializer initially treated literal search text all as a selector default. It now omits all only for relevant selectors, with unit and browser regressions. No actionable P0/P1/P2 visual findings remain.
+- Typography: existing multilingual font stack retained; responsive 28-40px title and readable descriptions; long unbroken strings fit; Myanmar controls visually reviewed at 320px.
+- Spacing/layout: existing two-column desktop structure retained with 48px gap, more compact cover, structured purchase card and consistent section separation. Mobile uses a single column with equal-width purchase actions.
+- Colors/tokens: existing paper, surface, accent, text and border tokens used throughout; existing primary-button branding retained. Light/dark captures reviewed.
+- Image quality: original storage asset is used when available with contain sizing. The current local product image is unavailable; fallback is visible and no broken-image marker remains. Successful loading was checked with an intercepted local PNG, which does not establish live storage health.
+- Copy/content: existing translations and product content retained; manual delivery after payment approval remains explicit. No instant-delivery claim added.
 
 ## Verification
 
-Commands:
+- Customer TypeScript check passed: `node node_modules/typescript/bin/tsc --noEmit -p customer-web`.
+- App/package boundary check passed.
+- Scoped Prettier and git whitespace checks passed.
+- React component review: server page retains database lookup; only image error handling is client-side; client props are minimal and serializable; image has descriptive alt text; icons are decorative; heading hierarchy and button semantics retained. No new data fetching or effects.
+- `tmp/product-detail-cleanup/results.json`: 24 passing browser checks, zero page exceptions, zero unexpected console errors. Expected unavailable-thumbnail network failures were excluded from unexpected resource errors.
+- Responsive layouts checked at 320, 390, 768, 800, 820, 1024 and 1440px.
+- Five locales (`en`, `my`, `th`, `ja`, `zh`) checked with full navigation, actual `html[lang]`, translated purchase label and no overflow in both themes at 320px.
+- Long title/description/includes/license strings and large prices tested through temporary browser DOM changes at 320, 820 and 1440px; persisted product data was not changed.
+- Add to cart success label and matching persisted cart item passed.
+- Buy now reached anonymous sign-in preserving the product-specific checkout destination.
+- Return link navigation and keyboard focus passed.
 
-- node tmp/admin-list-qa.mjs
-- node tmp/admin-list-locales-qa.mjs
-- node node_modules/vitest/vitest.mjs run
-
-Core evidence: tmp/admin-list-qa/results.json, 10 passed groups, errors: []. Strict locale evidence: tmp/admin-list-qa/locale-results.json, 11 passed checks, errors: []. QA uses headless local Chrome, an isolated Next mirror and disposable PGlite with real auth/API/SQL calls. It does not modify the user's database or production data.
-
-Verified:
-
-- Real intersections of category/featured/discount/status; effective-price sorting and distinct stable pages.
-- Product-specific orders, archived option availability, payment method plus reference search and cross-section validation.
-- Direct links, reload, Back/Forward, chip independence/focus, range-group removal, sort/page persistence and page reset.
-- Debounced replace history, literal all search, search history restoration and preserved unrelated URL/hash.
-- Whole local calendar presets, UTC serialization, automatic Custom selection for manual edits and restored preset selection.
-- Section-specific controls and legacy order payment-status link rendering.
-- All four list routes at 320px; Products/dialog at 1440/768/390/320px with no page overflow and visible footer actions.
-- Actual html language and translated heading/field values for English/Burmese/Thai/Japanese/Chinese, both themes, category control geometry, and real theme/language controls preserving URL state.
-- Zero browser runtime or console errors.
-
-An initial invalid-link test accidentally matched Next's route-announcer alert and was scoped to the actual notice. A strict follow-up locale pass forces full reloads because hash-only navigation can preserve the existing document; it verifies html language and translated text rather than relying on cookie setting alone. Actual theme buttons and two rendered frames are used for final locale captures.
-
-Root, admin and customer TypeScript checks, application boundaries, scoped Prettier and git diff --check passed. Vitest: 103 passed; nine existing opt-in PostgreSQL integration cases skipped by their environment gate. No production deployment or physical-device testing was performed. Disposable previews shut down after verification.
-
-## Checklist
-
-- [x] Product/category/featured/discount, order Product, payment method/reference filters.
-- [x] Quick dates and stable section-specific sorting.
-- [x] Removable, keyboard-accessible applied chips.
-- [x] URL persistence, refresh, history and invalid-link recovery.
-- [x] Responsive, localized browser/API/data and static verification.
-
-Previous report: tmp/admin-list-qa/previous-design-qa.md.
+No production build/deployment, real-device test, authenticated wishlist mutation, payment submission or live storage verification was performed. Existing local server remains running. Previous report preserved at `tmp/product-detail-cleanup/previous-design-qa.md`.

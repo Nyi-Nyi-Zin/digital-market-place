@@ -117,6 +117,10 @@ textarea {
   color: var(--muted);
   flex-shrink: 0;
 }
+.language-picker.currency-picker {
+  min-width: 88px;
+  width: auto;
+}
 .language-picker > span:not(.language-chevron) {
   flex: 1;
   min-width: 0;

@@ -50,7 +50,7 @@ export function Preferences() {
           aria-busy={changingLocale}
         >
           <Languages size={16} aria-hidden="true" />
-          <SelectValue />
+          <SelectValue>{localeNames[locale]}</SelectValue>
         </SelectTrigger>
         <SelectContent
           className="language-menu"

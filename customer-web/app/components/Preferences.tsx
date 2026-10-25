@@ -13,9 +13,12 @@ import {
 import { useTheme } from "next-themes";
 import { localeNames, locales, type Locale } from "@marketplace/shared/i18n";
 import { useI18n } from "./I18nProvider";
+import { currencies, type Currency } from "@marketplace/shared/currency";
+import { usePricing } from "./CurrencyProvider";
 
 export function Preferences() {
   const { locale, t, changeLocale, changingLocale } = useI18n();
+  const { currency, config, changeCurrency, changingCurrency } = usePricing();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -40,6 +43,39 @@ export function Preferences() {
         <Moon className="theme-moon" size={18} aria-hidden="true" />
       </Button>
       <Select
+        value={currency}
+        disabled={changingCurrency}
+        onValueChange={value => changeCurrency(value as Currency)}
+      >
+        <SelectTrigger
+          className="language-picker currency-picker"
+          aria-label={t("Currency")}
+          aria-busy={changingCurrency}
+        >
+          <SelectValue>{currency}</SelectValue>
+        </SelectTrigger>
+        <SelectContent
+          className="language-menu"
+          data-header-preference=""
+          position="popper"
+          sideOffset={8}
+          align="end"
+          collisionPadding={12}
+        >
+          {currencies.map(value => (
+            <SelectItem
+              className="language-option"
+              key={value}
+              value={value}
+              disabled={!config.rates[value]}
+            >
+              {value}
+              {!config.rates[value] ? ` · ${t("Not available yet")}` : ""}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
         value={locale}
         disabled={changingLocale}
         onValueChange={value => changeLocale(value as Locale)}
@@ -50,7 +86,7 @@ export function Preferences() {
           aria-busy={changingLocale}
         >
           <Languages size={16} aria-hidden="true" />
-          <SelectValue />
+          <SelectValue>{localeNames[locale]}</SelectValue>
         </SelectTrigger>
         <SelectContent
           className="language-menu"
@@ -74,6 +110,7 @@ export function Preferences() {
       </Select>
       <span className="sr-only" role="status">
         {changingLocale ? t("Changing language…") : ""}
+        {changingCurrency ? t("Changing currency…") : ""}
       </span>
     </div>
   );

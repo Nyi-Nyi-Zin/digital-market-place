@@ -212,6 +212,11 @@ export const orders = pgTable("orders", {
     .default("0.00")
     .notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+  exchangeRate: decimal("exchangeRate", { precision: 20, scale: 8 })
+    .default("1")
+    .notNull(),
+  payableTotal: decimal("payableTotal", { precision: 20, scale: 2 }),
   paymentStatus: orderPaymentStatus("paymentStatus")
     .default("pending")
     .notNull(),
@@ -239,6 +244,7 @@ export const orderItems = pgTable("order_items", {
     .references(() => products.id, { onDelete: "restrict" }),
   titleSnapshot: varchar("titleSnapshot", { length: 220 }).notNull(),
   unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
+  payableUnitPrice: decimal("payableUnitPrice", { precision: 20, scale: 2 }),
   quantity: int("quantity").default(1).notNull(),
 });
 
@@ -252,6 +258,8 @@ export const payments = pgTable("payments", {
     .references(() => users.id, { onDelete: "restrict" }),
   paymentMethod: varchar("paymentMethod", { length: 40 }).notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+  payableAmount: decimal("payableAmount", { precision: 20, scale: 2 }),
   senderName: varchar("senderName", { length: 160 }).notNull(),
   senderPhone: varchar("senderPhone", { length: 60 }).notNull(),
   transactionReference: varchar("transactionReference", { length: 120 }),
@@ -274,6 +282,7 @@ export const payments = pgTable("payments", {
 export const paymentMethods = pgTable("payment_methods", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 40 }).notNull().unique(),
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
   enabled: boolean("enabled").default(false).notNull(),
   accountName: varchar("accountName", { length: 160 }).notNull(),
   accountNumber: varchar("accountNumber", { length: 80 }).notNull(),
@@ -497,6 +506,9 @@ export const storeSettings = pgTable("store_settings", {
   supportEmail: varchar("supportEmail", { length: 320 }).notNull(),
   telegramUsername: varchar("telegramUsername", { length: 32 }).notNull(),
   supportHours: text("supportHours").notNull().default(""),
+  usdRate: decimal("usdRate", { precision: 20, scale: 8 }),
+  sgdRate: decimal("sgdRate", { precision: 20, scale: 8 }),
+  mmkRate: decimal("mmkRate", { precision: 20, scale: 8 }),
   revision: int("revision").notNull().default(1),
   updatedAt: timestamp("updatedAt", { withTimezone: true })
     .notNull()

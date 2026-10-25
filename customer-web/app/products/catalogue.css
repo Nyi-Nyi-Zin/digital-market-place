@@ -28,6 +28,7 @@
   border: 0;
   border-radius: 11px;
   background: transparent;
+  box-shadow: none;
   font: inherit;
   font-size: 13px;
   color: var(--ink);
@@ -353,48 +354,6 @@
   outline: 2px solid var(--violet);
   outline-offset: 3px;
 }
-.storefront-footer {
-  padding-block: 28px;
-  border-top: 1px solid var(--line);
-}
-.storefront-footer .shell {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 24px;
-  font-size: 12px;
-}
-.storefront-footer .footer-brand {
-  color: var(--ink);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-}
-.footer-brand > span {
-  display: inline;
-  color: var(--violet);
-}
-.footer-brand small {
-  display: block;
-  margin-top: 7px;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--muted);
-}
-.storefront-footer .shell > div {
-  display: grid;
-  gap: 7px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.storefront-footer .shell > a:last-child {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--accent-ink, #6036a0);
-}
 @media (min-width: 1200px) {
   .storefront .product-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -469,14 +428,6 @@
   }
   .storefront .cover-fallback strong {
     font-size: 17px;
-  }
-  .storefront-footer .shell {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .storefront-footer span {
-    margin: 0;
   }
 }
 @media (max-width: 420px) {
