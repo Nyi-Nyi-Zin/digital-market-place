@@ -24,8 +24,20 @@ export async function Storefront({
   path: "/";
   children?: ReactNode;
 }) {
-  const { t } = await getServerI18n();
+  const { t, intlLocale } = await getServerI18n();
   const { currency } = await getServerCurrency();
+  const libraryTotal = result.categories.reduce(
+    (total, category) => total + category.count,
+    0
+  );
+  const numberFormat = new Intl.NumberFormat(intlLocale);
+  const formatCount = (count: number) => numberFormat.format(count);
+  const resourceCount = t(
+    result.total === 1 ? "{count} resource" : "{count} resources",
+    {
+      count: formatCount(result.total),
+    }
+  );
   const chips = [
     filters.query?.trim()
       ? { key: "query", label: t("Search: {query}", { query: filters.query }) }
@@ -68,6 +80,7 @@ export async function Storefront({
             aria-current={!filters.category ? "page" : undefined}
           >
             {t("All resources")}
+            <span className="category-count">{formatCount(libraryTotal)}</span>
           </Link>
           {result.categories.map(category => (
             <Link
@@ -81,13 +94,21 @@ export async function Storefront({
               }
             >
               {category.name}
+              <span className="category-count">
+                {formatCount(category.count)}
+              </span>
             </Link>
           ))}
         </nav>
         {chips.length ? (
           <div className="catalogue-selection">
             <strong>
-              {t("{count} resources found", { count: result.total })}
+              {t(
+                result.total === 1
+                  ? "{count} resource found"
+                  : "{count} resources found",
+                { count: formatCount(result.total) }
+              )}
             </strong>
             <div className="catalogue-chips">
               {chips.map(chip => (
@@ -118,7 +139,7 @@ export async function Storefront({
           <div className="catalogue-results">
             <div className="catalogue-results-title">
               <Heading id="library-title">{t("Explore the library")}</Heading>
-              <span>{t("{count} resources", { count: result.total })}</span>
+              <span className="resource-count">{resourceCount}</span>
             </div>
             <CatalogueSort path={path} filters={filters} />
           </div>

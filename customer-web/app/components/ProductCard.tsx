@@ -16,7 +16,7 @@ export async function ProductCard({
   const hasDiscount = product.salePrice != null;
 
   return (
-    <article className="product-card">
+    <article className="product-card group">
       <Link
         className={`cover cover-${product.tone}`}
         href={href}
@@ -58,7 +58,7 @@ export async function ProductCard({
             ) : null}
           </div>
           <Link
-            className="card-view"
+            className="card-view transition-colors duration-200 group-hover:border-violet-600 group-hover:bg-violet-600 group-hover:text-white group-focus-within:border-violet-600 group-focus-within:bg-violet-600 group-focus-within:text-white"
             href={href}
             aria-label={t("View {title}", { title: product.title })}
           >

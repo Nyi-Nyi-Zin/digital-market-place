@@ -97,11 +97,15 @@ export function FeaturedProductBanner({
           <h1 id="featured-title">
             <Link href={href}>{product.title}</Link>
           </h1>
-          {product.description ? (
-            <p className="featured-description">{product.description}</p>
-          ) : null}
+          <p className="featured-description">
+            {product.description.trim() ||
+              t("Explore this digital resource and see what's included.")}
+          </p>
           <div className="featured-price">
             <strong>{price(product.salePrice ?? product.price)}</strong>
+            {(product.salePrice ?? product.price) === 0 ? (
+              <span className="free-badge">{t("Free")}</span>
+            ) : null}
             {product.salePrice != null ? <s>{price(product.price)}</s> : null}
           </div>
           <div className="featured-actions">

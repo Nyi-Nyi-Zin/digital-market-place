@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "./database";
 import { products, categories } from "./schema";
 import type { PublicProduct } from "@marketplace/shared/product";
@@ -67,7 +67,21 @@ export async function catalog(
   } = {}
 ) {
   const db = getDb();
-  const groups = await db.select().from(categories).orderBy(categories.name);
+  const groups = await db
+    .select({
+      ...getTableColumns(categories),
+      count: sql<number>`count(${products.id})::int`,
+    })
+    .from(categories)
+    .leftJoin(
+      products,
+      and(
+        eq(products.categoryId, categories.id),
+        eq(products.status, "published")
+      )
+    )
+    .groupBy(categories.id)
+    .orderBy(categories.name);
   const where = [eq(products.status, "published")];
   if (input.featured === true) where.push(eq(products.featured, true));
   if (input.query)

@@ -34,10 +34,26 @@
   @apply gap-[6px];
 }
 .marketplace-header .header-settings {
-  @apply gap-[16px] pl-[20px] [border-left:1px_solid_var(--line)];
+  @apply gap-4;
 }
 .marketplace-header .header-preferences {
   @apply gap-[4px] m-[0];
+}
+.marketplace-header .header-preference-divider {
+  @apply h-4 w-px shrink-0 bg-zinc-200 dark:bg-white/10;
+}
+.marketplace-header .header-preferences .header-preference-trigger {
+  @apply flex h-11 min-w-0 w-auto items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 text-xs font-normal text-muted-ink shadow-none cursor-pointer transition-colors dark:bg-transparent dark:text-zinc-400;
+}
+.marketplace-header .header-preferences .header-preference-trigger:hover,
+.marketplace-header
+  .header-preferences
+  .header-preference-trigger[data-state="open"],
+.marketplace-header .theme-toggle:hover {
+  @apply bg-zinc-100 text-ink dark:bg-white/5 dark:text-white;
+}
+.marketplace-header .header-preference-trigger:disabled {
+  @apply cursor-wait opacity-50;
 }
 .marketplace-header .icon-link,
 .marketplace-header .theme-toggle,
@@ -46,25 +62,30 @@
   @apply rounded-[10px] [background:transparent] text-[color:var(--secondary-ink)] cursor-pointer;
 }
 .marketplace-header .icon-link:hover,
-.marketplace-header .theme-toggle:hover,
 .marketplace-header .header-menu-toggle:hover {
   @apply [background:var(--accent-soft)] text-accent-ink;
 }
-.marketplace-header .language-picker {
-  @apply h-[44px] border-line [background:var(--surface)];
+.marketplace-header .theme-toggle {
+  @apply border-0 text-muted-ink transition-colors dark:text-zinc-400;
 }
 .marketplace-header .cart-link {
-  @apply inline-flex items-center min-h-[44px] gap-[8px] p-[8px_12px] [border:1px_solid_var(--line)];
-  @apply rounded-[10px] text-[length:12px] whitespace-nowrap;
+  @apply inline-flex items-center min-h-[44px] gap-2 px-3 py-2 border border-solid border-violet-500/30 bg-violet-500/10 text-violet-700;
+  @apply rounded-full text-xs whitespace-nowrap transition-colors dark:bg-violet-500/20 dark:text-violet-300;
 }
 .marketplace-header .cart-link:hover {
-  @apply [background:var(--accent-soft)] [border-color:var(--accent-border)];
+  @apply bg-violet-500/20 border-violet-500/50 dark:bg-violet-500/30;
 }
 .marketplace-header .cart-link b {
-  @apply grid place-items-center min-w-[20px] h-[20px] m-[0] p-[0_4px] rounded-[6px] [background:var(--accent-soft)] text-accent-ink text-[length:10px];
+  @apply grid place-items-center min-w-5 h-5 m-0 px-1 rounded-full bg-violet-500/15 text-inherit text-[10px] tabular-nums;
 }
 .marketplace-header .header-account .button {
   @apply min-h-[44px] p-[10px_17px] rounded-[10px] text-[length:12px] whitespace-nowrap;
+}
+.marketplace-header .header-account .button-primary {
+  @apply shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)] transition-shadow duration-200;
+}
+.marketplace-header .header-account .button-primary:hover {
+  @apply shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_0_20px_rgba(139,92,246,0.3)];
 }
 .marketplace-header .account-link {
   @apply block max-w-[100px] py-[14px] text-[length:12px];

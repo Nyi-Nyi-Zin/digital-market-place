@@ -79,7 +79,7 @@ export function CatalogueControls({ path, filters, categories }: Props) {
           className="search-submit"
           aria-label={t("Search products")}
         >
-          <Search size={18} aria-hidden="true" />
+          {t("Search")}
         </Button>
       </form>
       <Dialog
@@ -206,7 +206,7 @@ export function CatalogueSort({ path, filters }: Omit<Props, "categories">) {
       <HiddenFilters
         filters={{ ...filters, sort: undefined, page: undefined }}
       />
-      <label>
+      <label className="flex items-center gap-2.5 whitespace-nowrap">
         <span>{t("Sort by")}</span>
         <NativeSelect
           name="sort"

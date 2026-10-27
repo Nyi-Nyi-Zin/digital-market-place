@@ -42,13 +42,14 @@ export function Preferences() {
         <Sun className="theme-sun" size={18} aria-hidden="true" />
         <Moon className="theme-moon" size={18} aria-hidden="true" />
       </Button>
+      <span className="header-preference-divider" aria-hidden="true" />
       <Select
         value={currency}
         disabled={changingCurrency}
         onValueChange={value => changeCurrency(value as Currency)}
       >
         <SelectTrigger
-          className="currency-picker flex h-11 w-auto min-w-[5.5rem] items-center gap-[9px] rounded-[9px] border border-[var(--line)] bg-[var(--surface)] px-[10px] text-xs text-[var(--ink)] font-[inherit] cursor-pointer"
+          className="currency-picker header-preference-trigger"
           aria-label={t("Currency")}
           aria-busy={changingCurrency}
         >
@@ -75,13 +76,14 @@ export function Preferences() {
           ))}
         </SelectContent>
       </Select>
+      <span className="header-preference-divider" aria-hidden="true" />
       <Select
         value={locale}
         disabled={changingLocale}
         onValueChange={value => changeLocale(value as Locale)}
       >
         <SelectTrigger
-          className="language-picker"
+          className="language-picker header-preference-trigger"
           aria-label={t("Language")}
           aria-busy={changingLocale}
         >
