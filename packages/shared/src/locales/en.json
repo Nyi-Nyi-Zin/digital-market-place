@@ -745,5 +745,7 @@
   "Enter a positive exchange rate with up to eight decimal places.": "Enter a positive exchange rate with up to eight decimal places.",
   "Exchange rate must be greater than zero.": "Exchange rate must be greater than zero.",
   "Manage your profile, purchases and support requests.": "Manage your profile, purchases and support requests.",
-  "Coming soon": "Coming soon"
+  "Coming soon": "Coming soon",
+  "Admin Dashboard": "Admin Dashboard",
+  "Settings": "Settings"
 }

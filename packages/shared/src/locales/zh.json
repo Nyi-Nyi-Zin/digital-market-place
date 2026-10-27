@@ -745,5 +745,7 @@
   "Enter a positive exchange rate with up to eight decimal places.": "请输入最多八位小数的正汇率。",
   "Exchange rate must be greater than zero.": "汇率必须大于零。",
   "Manage your profile, purchases and support requests.": "管理您的个人资料、购买记录和支持请求。",
-  "Coming soon": "即将推出"
+  "Coming soon": "即将推出",
+  "Admin Dashboard": "管理员控制台",
+  "Settings": "设置"
 }

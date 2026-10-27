@@ -43,7 +43,9 @@ function CustomerHeader({ activePage }: { activePage?: "/support" | "/faq" }) {
         !header.current?.contains(event.target) &&
         !(
           event.target instanceof Element &&
-          event.target.closest("[data-header-preference]")
+          event.target.closest(
+            "[data-header-preference], [data-header-account]"
+          )
         )
       )
         setMenuOpen(false);

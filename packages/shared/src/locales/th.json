@@ -745,5 +745,7 @@
   "Enter a positive exchange rate with up to eight decimal places.": "ป้อนอัตราแลกเปลี่ยนที่เป็นบวกโดยมีทศนิยมไม่เกินแปดตำแหน่ง",
   "Exchange rate must be greater than zero.": "อัตราแลกเปลี่ยนต้องมากกว่าศูนย์",
   "Manage your profile, purchases and support requests.": "จัดการโปรไฟล์ การซื้อ และคำขอความช่วยเหลือของคุณ",
-  "Coming soon": "เร็ว ๆ นี้"
+  "Coming soon": "เร็ว ๆ นี้",
+  "Admin Dashboard": "แดชบอร์ดผู้ดูแลระบบ",
+  "Settings": "การตั้งค่า"
 }
