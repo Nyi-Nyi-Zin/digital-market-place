@@ -743,5 +743,7 @@
   "Exchange rate is not configured for this currency.": "この通貨の為替レートは未設定です。",
   "Choose a payment account that matches the order currency.": "注文の通貨に対応する支払口座を選択してください。",
   "Enter a positive exchange rate with up to eight decimal places.": "小数点以下8桁以内の正の為替レートを入力してください。",
-  "Exchange rate must be greater than zero.": "為替レートは0より大きい値にしてください。"
+  "Exchange rate must be greater than zero.": "為替レートは0より大きい値にしてください。",
+  "Manage your profile, purchases and support requests.": "プロフィール、購入履歴、サポートリクエストを管理できます。",
+  "Coming soon": "近日公開"
 }

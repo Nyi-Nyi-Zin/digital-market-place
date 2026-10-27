@@ -36,30 +36,35 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
       }}
     >
       <h2>{t("Profile")}</h2>
-      <label>
-        {t("Full name")}
-        <Input
-          name="name"
-          defaultValue={name}
-          required
-          minLength={2}
-          maxLength={160}
-        />
-      </label>
-      <label>
-        {t("Email")}
-        <Input value={email} readOnly type="email" />
-      </label>
-      <Button
-        variant="brand"
-        size="brand"
-        className="button button-primary"
-        disabled={pending}
-      >
-        {t("Save profile")}
-      </Button>
+      <div className="profile-fields">
+        <label>
+          {t("Full name")}
+          <Input
+            name="name"
+            autoComplete="name"
+            defaultValue={name}
+            required
+            minLength={2}
+            maxLength={160}
+          />
+        </label>
+        <label>
+          {t("Email")}
+          <Input value={email} readOnly type="email" />
+        </label>
+      </div>
+      <div className="profile-footer">
+        <Button
+          variant="brand"
+          size="brand"
+          className="button button-primary"
+          disabled={pending}
+        >
+          {t("Save profile")}
+        </Button>
 
-      <Link href="/forgot-password">{t("Reset your password →")}</Link>
+        <Link href="/forgot-password">{t("Reset your password →")}</Link>
+      </div>
     </form>
   );
 }

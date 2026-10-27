@@ -11,7 +11,7 @@
   --foreground: var(--ink);
   --popover: var(--surface, var(--paper));
   --popover-foreground: var(--ink);
-  --primary: var(--violet);
+  --primary: var(--action, var(--violet));
   --primary-foreground: #fff;
   --secondary: var(--surface-soft, var(--paper));
   --secondary-foreground: var(--ink);

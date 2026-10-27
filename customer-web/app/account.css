@@ -1,6 +1,79 @@
 @reference "./tailwind.css";
+.customer-account {
+  @apply py-12;
+}
+.customer-account > .eyebrow {
+  @apply inline-flex m-0 rounded-full bg-violet-500/10 px-3 py-1.5 text-[11px];
+}
+.customer-account > h1 {
+  @apply my-4 text-[clamp(32px,4vw,48px)] leading-tight tracking-tight;
+}
+.account-description {
+  @apply m-0 text-sm leading-7 text-muted-ink;
+}
+.customer-account .account-grid {
+  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+}
+.customer-account .account-grid > a {
+  @apply min-w-0 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-purple-500/40 dark:shadow-none;
+}
+.account-action-top {
+  @apply flex items-center justify-between gap-3;
+}
+.account-action-icon {
+  @apply inline-flex shrink-0 items-center justify-center rounded-xl bg-purple-500/10 p-2.5 text-violet-600 dark:text-purple-400;
+}
+.account-action-arrow {
+  @apply text-muted-ink opacity-40 transition-all;
+}
+.account-grid a:hover .account-action-arrow,
+.account-grid a:focus-visible .account-action-arrow {
+  @apply opacity-100 text-brand -translate-y-0.5 translate-x-0.5;
+}
+.customer-account .account-grid h2 {
+  @apply mt-5 mb-2 text-base leading-normal tracking-tight;
+}
+.customer-account .account-grid p {
+  @apply m-0 text-sm leading-6;
+}
+.profile-fields {
+  @apply grid gap-5 md:grid-cols-2;
+}
+.profile-footer {
+  @apply flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-0 border-t border-solid border-line pt-5 mt-2;
+}
+.profile-footer .button {
+  @apply w-full sm:w-auto px-6 py-2.5 min-h-11;
+}
+.profile-footer a {
+  @apply text-sm text-accent-ink leading-7;
+}
+.telegram-integration {
+  @apply flex items-center flex-wrap gap-4;
+}
+.telegram-integration > div {
+  @apply flex-1 min-w-[140px];
+}
+.telegram-integration h2 {
+  @apply m-0 text-base;
+}
+.telegram-integration p {
+  @apply mb-0 mt-1 text-sm leading-6 text-muted-ink;
+}
+.integration-status {
+  @apply rounded-full border border-solid border-accent-border bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-accent-ink;
+}
+.customer-account .account-panel h2 {
+  @apply mt-0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .customer-account .account-grid > a,
+  .account-action-arrow {
+    @apply transform-none transition-none;
+  }
+}
 .account-panel {
-  @apply [background:var(--surface)] [border:1px_solid_var(--line)];
+  @apply [background:var(--surface)] [border:1px_solid_var(--line)] shadow-sm dark:shadow-none;
   @apply rounded-[14px] p-[20px];
 }
 .account-panel {

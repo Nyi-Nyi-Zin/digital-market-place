@@ -1,5 +1,10 @@
 @reference "./tailwind.css";
 :root {
+  --paper: #fafafc;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0cc;
+  --violet: #7c3aed;
   --surface: #fff;
   --surface-soft: #f0f1f5;
   --secondary-ink: #5c6172;
@@ -8,8 +13,8 @@
   --accent-border: #dcccf4;
   --field-border: #b9bdc9;
   --header-background: #ffffffeb;
-  --action: #7a2cff;
-  --action-hover: #6520d8;
+  --action: #7c3aed;
+  --action-hover: #6d28d9;
   --success-bg: #e0f5e8;
   --success-ink: #165a35;
   --warning-bg: #fff0cd;
@@ -19,20 +24,20 @@
 }
 :root[data-theme="dark"] {
   --ink: #f1eef7;
-  --muted: #aea8bd;
-  --line: #353043;
-  --violet: #ba98ff;
-  --paper: #131019;
-  --surface: #1d1926;
-  --surface-soft: #292333;
+  --muted: #a1a1aa;
+  --line: #ffffff14;
+  --violet: #a78bfa;
+  --paper: #0b0914;
+  --surface: #131022;
+  --surface-soft: #1a162b;
   --secondary-ink: #c5bfd2;
-  --accent-soft: #30223f;
+  --accent-soft: #a78bfa14;
   --accent-ink: #d0b5ff;
-  --accent-border: #60497b;
-  --field-border: #645b73;
-  --header-background: #19151feb;
-  --action: #8040e0;
-  --action-hover: #6e2dcc;
+  --accent-border: #a855f766;
+  --field-border: #ffffff26;
+  --header-background: #0b0914eb;
+  --action: #7c3aed;
+  --action-hover: #6d28d9;
   --success-bg: #18382b;
   --success-ink: #9cdeb9;
   --warning-bg: #3e321c;
@@ -129,7 +134,7 @@ textarea {
 }
 .button-primary,
 .toolkit-cta {
-  @apply [background:var(--action)] text-[color:#fff];
+  @apply [background:var(--action)] text-[color:#fff] [box-shadow:inset_0_1px_0_0_#ffffff26] transition-colors;
 }
 .button-primary:hover {
   @apply [background:var(--action-hover)];

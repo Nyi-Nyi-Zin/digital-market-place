@@ -22,7 +22,13 @@
   @apply grid grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)] min-h-[100dvh] [background:var(--surface)];
 }
 .customer-auth-welcome {
-  @apply flex flex-col p-[40px_clamp(32px,_4vw,_80px)] [background:#6520d8] text-[color:#fff];
+  @apply relative isolate overflow-hidden flex flex-col p-[40px_clamp(32px,_4vw,_80px)] [background:radial-gradient(ellipse_at_15%_15%,_#c084fc66,_transparent_55%),radial-gradient(ellipse_at_90%_75%,_#818cf866,_transparent_50%),linear-gradient(145deg,_#4c1d95,_#6d28d9_55%,_#2e1065)] text-[color:#fff];
+}
+.customer-auth-welcome::before {
+  @apply [content:""] pointer-events-none absolute inset-0 -z-10 opacity-10 [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent)];
+}
+.customer-auth-welcome::after {
+  @apply [content:""] pointer-events-none absolute -right-24 bottom-10 -z-10 size-80 rounded-full border border-solid border-white/15 [box-shadow:0_0_0_50px_#ffffff05,0_0_0_100px_#ffffff03];
 }
 .customer-auth-brand {
   @apply w-fit text-[length:22px];
@@ -70,7 +76,7 @@
   @apply grid flex-1 items-center p-[40px_clamp(32px,_5vw,_96px)_72px];
 }
 .customer-auth .auth-card {
-  @apply w-full max-w-[680px] m-[0_auto] p-[0] [border:0];
+  @apply w-full max-w-md m-[0_auto] p-[0] [border:0];
   @apply rounded-[0] [background:transparent];
 }
 .customer-auth .auth-card h1 {

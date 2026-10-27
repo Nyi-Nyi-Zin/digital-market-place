@@ -24,6 +24,23 @@ export function TelegramConnection({
     if (params.get("oauth") === "telegram")
       setError(oauthErrorMessage(params.get("error"), "telegram"));
   }, []);
+  if (!enabled && !linked)
+    return (
+      <section
+        className="account-panel telegram-integration"
+        aria-labelledby="telegram-connection-title"
+      >
+        <span className="account-action-icon">
+          <Send size={21} aria-hidden="true" />
+        </span>
+        <div>
+          <h2 id="telegram-connection-title">{t("Telegram sign-in")}</h2>
+          <p>{t("Telegram sign-in is currently unavailable.")}</p>
+        </div>
+        <span className="integration-status">{t("Coming soon")}</span>
+        {error && <p role="alert">{t(error)}</p>}
+      </section>
+    );
   return (
     <section
       className="account-panel account-form"

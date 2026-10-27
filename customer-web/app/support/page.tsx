@@ -61,6 +61,24 @@ export default async function SupportPage() {
         "Get help with payments, product delivery and your account."
       )}
     >
+      <section className="help-topics" aria-labelledby="topics-title">
+        <h2 id="topics-title">{t("Find help by topic")}</h2>
+        <div className="help-topic-grid">
+          {topics.map(({ icon: Icon, title, description, href, action }) => (
+            <article key={title} className="help-topic-card">
+              <span className="help-topic-icon">
+                <Icon size={22} aria-hidden="true" />
+              </span>
+              <h3>{t(title)}</h3>
+              <p>{t(description)}</p>
+              <Link href={href}>
+                {t(action)}
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
       <section className="help-contact" aria-labelledby="contact-title">
         <h2 id="contact-title">{t("Contact support")}</h2>
         {settings.supportHours && (
@@ -106,24 +124,6 @@ export default async function SupportPage() {
             </span>
             <ArrowUpRight size={18} aria-hidden="true" />
           </a>
-        </div>
-      </section>
-      <section className="help-topics" aria-labelledby="topics-title">
-        <h2 id="topics-title">{t("Find help by topic")}</h2>
-        <div className="help-topic-grid">
-          {topics.map(({ icon: Icon, title, description, href, action }) => (
-            <article key={title} className="help-topic-card">
-              <span className="help-topic-icon">
-                <Icon size={22} aria-hidden="true" />
-              </span>
-              <h3>{t(title)}</h3>
-              <p>{t(description)}</p>
-              <Link href={href}>
-                {t(action)}
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </article>
-          ))}
         </div>
       </section>
       <aside className="help-related">

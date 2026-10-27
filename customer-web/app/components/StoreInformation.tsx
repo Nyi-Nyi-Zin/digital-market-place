@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FaqAccordion } from "./FaqAccordion";
 import { HelpFrame } from "./HelpFrame";
 import { getServerI18n } from "../lib/i18n-server";
 import { getStoreDocument, getStoreSettings } from "@marketplace/server/store";
@@ -46,20 +47,15 @@ export async function StoreInformation({
               </li>
             ))}
           </ol>
+        ) : document === "faq" ? (
+          <FaqAccordion sections={content.sections} />
         ) : (
-          content.sections.map((section, index) =>
-            document === "faq" ? (
-              <details className="information-panel" key={index}>
-                <summary>{section.heading}</summary>
-                <p>{section.body}</p>
-              </details>
-            ) : (
-              <section className="information-panel" key={index}>
-                <h2>{section.heading}</h2>
-                <p>{section.body}</p>
-              </section>
-            )
-          )
+          content.sections.map((section, index) => (
+            <section className="information-panel" key={index}>
+              <h2>{section.heading}</h2>
+              <p>{section.body}</p>
+            </section>
+          ))
         )}
       </div>
       <section className="help-contact information-contact">

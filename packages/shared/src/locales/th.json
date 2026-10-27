@@ -743,5 +743,7 @@
   "Exchange rate is not configured for this currency.": "ยังไม่ได้กำหนดอัตราแลกเปลี่ยนสำหรับสกุลเงินนี้",
   "Choose a payment account that matches the order currency.": "เลือกบัญชีรับชำระที่ตรงกับสกุลเงินของคำสั่งซื้อ",
   "Enter a positive exchange rate with up to eight decimal places.": "ป้อนอัตราแลกเปลี่ยนที่เป็นบวกโดยมีทศนิยมไม่เกินแปดตำแหน่ง",
-  "Exchange rate must be greater than zero.": "อัตราแลกเปลี่ยนต้องมากกว่าศูนย์"
+  "Exchange rate must be greater than zero.": "อัตราแลกเปลี่ยนต้องมากกว่าศูนย์",
+  "Manage your profile, purchases and support requests.": "จัดการโปรไฟล์ การซื้อ และคำขอความช่วยเหลือของคุณ",
+  "Coming soon": "เร็ว ๆ นี้"
 }

@@ -111,7 +111,7 @@ export function CartClient() {
                 }}
               >
                 <Trash2 size={14} aria-hidden="true" />
-                {t("Remove")}
+                <span className="sr-only">{t("Remove")}</span>
               </Button>
             </li>
           ))}

@@ -743,5 +743,7 @@
   "Exchange rate is not configured for this currency.": "Exchange rate is not configured for this currency.",
   "Choose a payment account that matches the order currency.": "Choose a payment account that matches the order currency.",
   "Enter a positive exchange rate with up to eight decimal places.": "Enter a positive exchange rate with up to eight decimal places.",
-  "Exchange rate must be greater than zero.": "Exchange rate must be greater than zero."
+  "Exchange rate must be greater than zero.": "Exchange rate must be greater than zero.",
+  "Manage your profile, purchases and support requests.": "Manage your profile, purchases and support requests.",
+  "Coming soon": "Coming soon"
 }

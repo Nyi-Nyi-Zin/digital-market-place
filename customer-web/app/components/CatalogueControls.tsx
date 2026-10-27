@@ -1,5 +1,11 @@
 "use client";
-import { NativeSelect } from "./ui/native-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 import { Button } from "./ui/button";
 
@@ -8,6 +14,7 @@ import { Input } from "./ui/input";
 import { useI18n } from "./I18nProvider";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { usePricing } from "./CurrencyProvider";
 import {
   Dialog,
@@ -20,6 +27,7 @@ import {
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
   catalogueSortOptions,
+  catalogueHref,
   type CatalogueFilters,
 } from "@marketplace/shared/catalogue-filters";
 
@@ -121,21 +129,38 @@ export function CatalogueControls({ path, filters, categories }: Props) {
             <div className="catalogue-modal-fields">
               <label>
                 {t("Collection")}
-                <NativeSelect
+                <input
+                  type="hidden"
                   name="category"
-                  aria-label={t("Collection")}
                   value={draft.category ?? ""}
-                  onChange={event =>
-                    setDraft({ ...draft, category: event.target.value })
+                />
+                <Select
+                  value={draft.category || "all"}
+                  onValueChange={value =>
+                    setDraft({
+                      ...draft,
+                      category: value === "all" ? "" : value,
+                    })
                   }
                 >
-                  <option value="">{t("All collections")}</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </NativeSelect>
+                  <SelectTrigger
+                    className="catalogue-select"
+                    aria-label={t("Collection")}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="popper"
+                    className="catalogue-select-menu"
+                  >
+                    <SelectItem value="all">{t("All collections")}</SelectItem>
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
               <fieldset>
                 <legend>
@@ -144,31 +169,49 @@ export function CatalogueControls({ path, filters, categories }: Props) {
                 <div className="catalogue-price-fields">
                   <label>
                     {t("Minimum price")}
-                    <Input
-                      name="minPrice"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder={t("No minimum")}
-                      value={draft.minPrice ?? ""}
-                      onChange={event =>
-                        setDraft({ ...draft, minPrice: event.target.value })
-                      }
-                    />
+                    <span className="catalogue-price-input">
+                      <span aria-hidden="true">
+                        {currency === "MMK"
+                          ? "K"
+                          : currency === "SGD"
+                            ? "S$"
+                            : "$"}
+                      </span>
+                      <Input
+                        name="minPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder={t("No minimum")}
+                        value={draft.minPrice ?? ""}
+                        onChange={event =>
+                          setDraft({ ...draft, minPrice: event.target.value })
+                        }
+                      />
+                    </span>
                   </label>
                   <label>
                     {t("Maximum price")}
-                    <Input
-                      name="maxPrice"
-                      type="number"
-                      min={draft.minPrice || "0"}
-                      step="0.01"
-                      placeholder={t("No maximum")}
-                      value={draft.maxPrice ?? ""}
-                      onChange={event =>
-                        setDraft({ ...draft, maxPrice: event.target.value })
-                      }
-                    />
+                    <span className="catalogue-price-input">
+                      <span aria-hidden="true">
+                        {currency === "MMK"
+                          ? "K"
+                          : currency === "SGD"
+                            ? "S$"
+                            : "$"}
+                      </span>
+                      <Input
+                        name="maxPrice"
+                        type="number"
+                        min={draft.minPrice || "0"}
+                        step="0.01"
+                        placeholder={t("No maximum")}
+                        value={draft.maxPrice ?? ""}
+                        onChange={event =>
+                          setDraft({ ...draft, maxPrice: event.target.value })
+                        }
+                      />
+                    </span>
                   </label>
                 </div>
               </fieldset>
@@ -201,6 +244,7 @@ export function CatalogueControls({ path, filters, categories }: Props) {
 
 export function CatalogueSort({ path, filters }: Omit<Props, "categories">) {
   const { t } = useI18n();
+  const router = useRouter();
   return (
     <form action={path} className="catalogue-sort">
       <HiddenFilters
@@ -208,19 +252,28 @@ export function CatalogueSort({ path, filters }: Omit<Props, "categories">) {
       />
       <label className="flex items-center gap-2.5 whitespace-nowrap">
         <span>{t("Sort by")}</span>
-        <NativeSelect
+        <Select
           name="sort"
-          aria-label={t("Sort by")}
-          key={filters.sort ?? "newest"}
-          defaultValue={filters.sort ?? "newest"}
-          onChange={event => event.currentTarget.form?.requestSubmit()}
+          value={filters.sort ?? "newest"}
+          onValueChange={sort =>
+            router.push(catalogueHref(path, filters, { sort, page: undefined }))
+          }
         >
-          {catalogueSortOptions.map(([value, title]) => (
-            <option value={value} key={value}>
-              {t(title)}
-            </option>
-          ))}
-        </NativeSelect>
+          <SelectTrigger className="catalogue-select" aria-label={t("Sort by")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            align="end"
+            className="catalogue-select-menu"
+          >
+            {catalogueSortOptions.map(([value, title]) => (
+              <SelectItem value={value} key={value}>
+                {t(title)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </label>
     </form>
   );

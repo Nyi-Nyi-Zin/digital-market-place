@@ -743,5 +743,7 @@
   "Exchange rate is not configured for this currency.": "ဤငွေကြေးအတွက် ငွေလဲနှုန်း မသတ်မှတ်ရသေးပါ။",
   "Choose a payment account that matches the order currency.": "အော်ဒါ၏ ငွေကြေးနှင့် ကိုက်ညီသော ငွေပေးချေအကောင့်ကို ရွေးပါ။",
   "Enter a positive exchange rate with up to eight decimal places.": "ဒဿမ ရှစ်နေရာအထိရှိသော အပေါင်းငွေလဲနှုန်းကို ထည့်ပါ။",
-  "Exchange rate must be greater than zero.": "ငွေလဲနှုန်းသည် သုညထက် ကြီးရပါမည်။"
+  "Exchange rate must be greater than zero.": "ငွေလဲနှုန်းသည် သုညထက် ကြီးရပါမည်။",
+  "Manage your profile, purchases and support requests.": "သင့်ပရိုဖိုင်၊ ဝယ်ယူမှုများနှင့် အကူအညီတောင်းဆိုမှုများကို စီမံပါ။",
+  "Coming soon": "မကြာမီ ရရှိနိုင်မည်"
 }

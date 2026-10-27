@@ -743,5 +743,7 @@
   "Exchange rate is not configured for this currency.": "尚未设置该货币的汇率。",
   "Choose a payment account that matches the order currency.": "请选择与订单货币一致的收款账户。",
   "Enter a positive exchange rate with up to eight decimal places.": "请输入最多八位小数的正汇率。",
-  "Exchange rate must be greater than zero.": "汇率必须大于零。"
+  "Exchange rate must be greater than zero.": "汇率必须大于零。",
+  "Manage your profile, purchases and support requests.": "管理您的个人资料、购买记录和支持请求。",
+  "Coming soon": "即将推出"
 }

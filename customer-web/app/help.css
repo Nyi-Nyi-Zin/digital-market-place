@@ -15,7 +15,7 @@
   @apply max-w-[780px] my-[44px_36px];
 }
 .help-hero .eyebrow {
-  @apply m-[0_0_14px];
+  @apply inline-flex rounded-full bg-violet-500/10 px-3 py-1.5 m-[0_0_14px];
 }
 .help-hero h1 {
   @apply text-[length:clamp(32px,_4vw,_50px)] leading-[1.2] tracking-[-0.04em] m-[0_0_16px] [overflow-wrap:anywhere];
@@ -71,6 +71,22 @@
 .help-topic-card {
   @apply flex flex-col min-w-[0] p-[25px] [border:1px_solid_var(--line)];
   @apply rounded-[16px] [background:var(--surface)];
+}
+.help-topic-card,
+.help-contact-link {
+  @apply shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-purple-500/40 dark:shadow-none;
+}
+.help-contact-link > svg:first-child {
+  @apply box-content size-[22px] rounded-xl bg-violet-500/10 p-2.5;
+}
+.help-topics {
+  @apply mt-0 mb-8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .help-topic-card,
+  .help-contact-link {
+    @apply transform-none transition-none;
+  }
 }
 .help-topic-icon {
   @apply grid place-items-center w-[44px] h-[44px] rounded-[12px] [background:var(--accent-soft)] text-brand;

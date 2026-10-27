@@ -1,4 +1,66 @@
 @reference "./tailwind.css";
+.faq-accordion {
+  @apply grid gap-3;
+}
+.faq-item {
+  @apply min-w-0 overflow-hidden rounded-2xl border border-solid border-line bg-surface shadow-sm transition-colors dark:shadow-none;
+}
+.faq-item[data-state="open"] {
+  @apply border-purple-500/40;
+}
+.faq-heading {
+  @apply m-0 text-base leading-7;
+}
+.faq-trigger {
+  @apply flex w-full items-center justify-between gap-5 border-0 bg-transparent p-5 sm:p-6 text-left text-ink [font:inherit] font-semibold cursor-pointer;
+}
+.faq-trigger > span {
+  @apply min-w-0 [overflow-wrap:anywhere];
+}
+.faq-trigger > svg {
+  @apply shrink-0 text-muted-ink transition-transform duration-200;
+}
+.faq-trigger[data-state="open"] > svg {
+  @apply rotate-180 text-brand;
+}
+.faq-content {
+  @apply overflow-hidden text-sm text-muted-ink leading-7;
+}
+.faq-content p {
+  @apply m-0 px-5 pb-5 sm:px-6 sm:pb-6 whitespace-pre-wrap [overflow-wrap:anywhere];
+}
+.faq-content[data-state="open"] {
+  @apply [animation:faq-expand_220ms_ease-out];
+}
+.faq-content[data-state="closed"] {
+  @apply [animation:faq-collapse_180ms_ease-in];
+}
+@keyframes faq-expand {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+@keyframes faq-collapse {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-content,
+  .faq-trigger > svg {
+    @apply [animation:none]! transition-none;
+  }
+}
 .store-footer,
 .footer-bottom {
   @apply [border-top:1px_solid_var(--line)];
