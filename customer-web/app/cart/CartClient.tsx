@@ -12,9 +12,17 @@ import {
   ShieldCheck,
   ShoppingBag,
   Trash2,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { type CartItem, readCart, writeCart, useCart } from "../lib/cart";
 import { usePricing } from "../components/CurrencyProvider";
+import {
+  maxCartQuantity,
+  multiplyAmount,
+  sumAmounts,
+} from "@marketplace/shared/currency";
+import { formatPrice } from "@marketplace/shared/pricing";
 export function AddToCartButton({
   item,
   buy = false,
@@ -31,7 +39,22 @@ export function AddToCartButton({
       className={`button button-${buy ? "primary" : "secondary"}`}
       onClick={() => {
         const cart = readCart();
-        if (!cart.some(x => x.id === item.id)) writeCart([...cart, item]);
+        const existing = cart.find(x => x.id === item.id);
+        writeCart(
+          existing
+            ? cart.map(x =>
+                x.id === item.id
+                  ? {
+                      ...x,
+                      quantity: Math.min(
+                        maxCartQuantity,
+                        x.quantity + (buy ? 0 : 1)
+                      ),
+                    }
+                  : x
+              )
+            : [...cart, { ...item, quantity: 1 }]
+        );
         setAdded(true);
         if (!buy) toast.success(t("Added to cart"));
         if (buy) window.location.assign(`/checkout?buy=${item.id}`);
@@ -48,20 +71,27 @@ export function CartBadge() {
     <Link className="cart-link" href="/cart">
       <ShoppingBag size={18} aria-hidden="true" />
       <span className="sr-only">{t("Cart")}</span>
-      <b>{items.length}</b>
+      <b>{items.reduce((sum, item) => sum + item.quantity, 0)}</b>
     </Link>
   );
 }
 export function CartClient() {
   const { t, intlLocale } = useI18n();
-  const { price, total: priceTotal } = usePricing();
+  const { currency, convert } = usePricing();
   const items = useCart();
   const [ready, setReady] = useState(false);
   const browseLink = useRef<HTMLAnchorElement>(null);
   useEffect(() => setReady(true), []);
-  const total = priceTotal(items.map(item => item.price));
-  const itemCount = t(items.length === 1 ? "{count} item" : "{count} items", {
-    count: new Intl.NumberFormat(intlLocale).format(items.length),
+  const total = formatPrice(
+    sumAmounts(
+      items.map(item => multiplyAmount(convert(item.price), item.quantity))
+    ),
+    intlLocale,
+    currency
+  );
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const itemCount = t(count === 1 ? "{count} item" : "{count} items", {
+    count: new Intl.NumberFormat(intlLocale).format(count),
   });
 
   if (!ready)
@@ -89,9 +119,69 @@ export function CartClient() {
               </div>
               <div className="cart-item-copy">
                 <h3>{item.title}</h3>
-                <p>{t("Digital product")}</p>
               </div>
-              <strong className="cart-item-price">{price(item.price)}</strong>
+              <div
+                className="cart-quantity"
+                role="group"
+                aria-label={t("Quantity for {title}", { title: item.title })}
+              >
+                <Button
+                  variant="brand"
+                  size="brand"
+                  type="button"
+                  disabled={item.quantity <= 1}
+                  aria-label={t("Decrease quantity for {title}", {
+                    title: item.title,
+                  })}
+                  onClick={() =>
+                    writeCart(
+                      readCart().map(x =>
+                        x.id === item.id
+                          ? { ...x, quantity: Math.max(1, x.quantity - 1) }
+                          : x
+                      )
+                    )
+                  }
+                >
+                  <Minus size={14} aria-hidden="true" />
+                </Button>
+                <output aria-live="polite">
+                  {new Intl.NumberFormat(intlLocale).format(item.quantity)}
+                </output>
+                <Button
+                  variant="brand"
+                  size="brand"
+                  type="button"
+                  disabled={item.quantity >= maxCartQuantity}
+                  aria-label={t("Increase quantity for {title}", {
+                    title: item.title,
+                  })}
+                  onClick={() =>
+                    writeCart(
+                      readCart().map(x =>
+                        x.id === item.id
+                          ? {
+                              ...x,
+                              quantity: Math.min(
+                                maxCartQuantity,
+                                x.quantity + 1
+                              ),
+                            }
+                          : x
+                      )
+                    )
+                  }
+                >
+                  <Plus size={14} aria-hidden="true" />
+                </Button>
+              </div>
+              <strong className="cart-item-price">
+                {formatPrice(
+                  multiplyAmount(convert(item.price), item.quantity),
+                  intlLocale,
+                  currency
+                )}
+              </strong>
               <Button
                 variant="brand"
                 size="brand"

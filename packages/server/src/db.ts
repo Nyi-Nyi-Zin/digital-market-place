@@ -7,6 +7,8 @@ import {
   currencyInput,
   convertAmount,
   sumAmounts,
+  multiplyAmount,
+  quantityInput,
   type Currency,
 } from "@marketplace/shared/currency";
 export { getDb } from "./database";
@@ -239,9 +241,10 @@ export async function createOrder(
   const selectedCurrency = currencyInput.parse(requestedCurrency);
   if (
     !items.length ||
+    items.length > 100 ||
     items.some(
       item =>
-        item.quantity !== 1 ||
+        !quantityInput.safeParse(item.quantity).success ||
         !Number.isInteger(item.productId) ||
         item.productId < 1
     ) ||
@@ -274,13 +277,19 @@ export async function createOrder(
       );
     if (found.length !== items.length)
       throw new Error("One or more products are unavailable");
-    // Work in cents, not accumulated floating-point prices.
-    const cents = found.reduce(
-      (sum, product) =>
-        sum + Math.round(Number(product.discountPrice ?? product.price) * 100),
-      0
+    const quantities = new Map(
+      items.map(item => [item.productId, item.quantity])
     );
-    const total = (cents / 100).toFixed(2);
+    const total = sumAmounts(
+      found.map(product =>
+        multiplyAmount(
+          product.discountPrice ?? product.price,
+          quantities.get(product.id)!
+        )
+      )
+    );
+    if (Number(total) > 99999999.99)
+      throw new Error("Order total exceeds the supported amount.");
     const payablePrices = found.map(product =>
       convertAmount(
         product.discountPrice ?? product.price,
@@ -288,7 +297,11 @@ export async function createOrder(
         selectedCurrency
       )
     );
-    const payableTotal = sumAmounts(payablePrices);
+    const payableTotal = sumAmounts(
+      payablePrices.map((price, index) =>
+        multiplyAmount(price, quantities.get(found[index].id)!)
+      )
+    );
     const [order] = await tx
       .insert(orders)
       .values({
@@ -310,7 +323,7 @@ export async function createOrder(
         titleSnapshot: product.title,
         unitPrice: String(product.discountPrice ?? product.price),
         payableUnitPrice: payablePrices[index],
-        quantity: 1,
+        quantity: quantities.get(product.id)!,
       }))
     );
     await emitOrderNotification(tx, {

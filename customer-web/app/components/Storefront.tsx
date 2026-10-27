@@ -146,7 +146,11 @@ export async function Storefront({
           {result.products.length ? (
             <div className="product-grid">
               {result.products.map(product => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  showDescription={path !== "/"}
+                />
               ))}
             </div>
           ) : (

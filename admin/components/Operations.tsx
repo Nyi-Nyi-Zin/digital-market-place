@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "../lib/api";
@@ -19,7 +19,18 @@ import {
 } from "@marketplace/shared/pricing";
 import { resolveCurrency } from "@marketplace/shared/currency";
 import { storageUrl } from "@marketplace/shared/storage";
-import { adminStatusLabels } from "@marketplace/shared/pagination";
+import {
+  adminStatusLabels,
+  adminSortLabels,
+  adminSortValues,
+} from "@marketplace/shared/pagination";
+import type { CustomerListInput } from "@marketplace/shared/customer-filters";
+import { ArrowRight } from "lucide-react";
+import { Pagination } from "./Pagination";
+import { ListToolbar } from "./ListToolbar";
+import { CustomerFilters } from "./CustomerFilters";
+import { EmptyTableRow } from "./EmptyTable";
+import { PageHeader } from "./PageHeader";
 import type {
   listCustomers,
   customerDetail,
@@ -83,86 +94,181 @@ export function OperationsPager({
 }
 export function Customers() {
   const { t, intlLocale } = useI18n();
-  const [page, setPage] = useState(1),
-    [search, setSearch] = useState(""),
-    [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [view, setView] = useState<CustomerListInput>({
+    query: "",
+    page: 1,
+    sort: "newest",
+    orderHistory: "all",
+  });
+  useEffect(() => {
+    if (search === view.query) return;
+    const timer = setTimeout(
+      () => setView(previous => ({ ...previous, query: search, page: 1 })),
+      300
+    );
+    return () => clearTimeout(timer);
+  }, [search, view.query]);
   const data = useQuery({
-    queryKey: ["admin", "customers", query, page],
+    queryKey: ["admin", "customers", view],
     queryFn: ({ signal }) =>
       api<Awaited<ReturnType<typeof listCustomers>>>(
-        `/api/admin/customers?${new URLSearchParams({ query, page: String(page) })}`,
+        `/api/admin/customers?${new URLSearchParams({ query: view.query, page: String(view.page), sort: view.sort, orderHistory: view.orderHistory })}`,
         { signal }
       ),
+    placeholderData: previous => previous,
   });
+  const active = Boolean(
+    search ||
+      view.query ||
+      view.sort !== "newest" ||
+      view.orderHistory !== "all"
+  );
   return (
-    <div className="operations-page">
-      <p>{t("Customer accounts and purchase history")}</p>
-      <form
-        className="page-actions"
-        onSubmit={e => {
-          e.preventDefault();
-          setQuery(search);
-          setPage(1);
-        }}
-      >
-        <Input
-          aria-label={t("Search customers")}
-          placeholder={t("Name or email")}
-          value={search}
+    <div className="operations-page customer-list-page">
+      <PageHeader
+        title={t("Customers")}
+        description={t("Customer accounts and purchase history")}
+      />
+      <div className="admin-list-card">
+        <ListToolbar
+          search={search}
           maxLength={160}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <Button type="submit">{t("Search")}</Button>
-      </form>
-      <QueryState query={data}>
-        {data.data && (
-          <>
-            <div className="table-scroll">
-              <table>
-                <caption className="sr-only">{t("Customers")}</caption>
-                <thead>
-                  <tr>
-                    {[
-                      "Customer",
-                      "Orders",
-                      "Approved revenue",
-                      "Unfinished orders",
-                    ].map(h => (
-                      <th key={h}>{t(h)}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.data.customers.length ? (
-                    data.data.customers.map(c => (
-                      <tr key={c.id}>
-                        <td>
-                          <Link href={`/customers/${c.id}`}>
-                            <strong>{c.name ?? t("Customer")}</strong>
-                          </Link>
-                          <small className="operations-meta">{c.email}</small>
-                        </td>
-                        <td>{c.orderCount}</td>
-                        <td>{formatPrice(c.paidTotal, intlLocale)}</td>
-                        <td>{c.openOrders}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4}>{t("No customers found")}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <OperationsPager
-              data={data.data}
-              busy={data.isFetching}
-              change={setPage}
+          placeholder={t("Name or email")}
+          onSearch={setSearch}
+          sort={view.sort}
+          sortOptions={adminSortValues.map(value => ({
+            value,
+            label: adminSortLabels[value],
+          }))}
+          onSort={sort =>
+            setView(previous => ({
+              ...previous,
+              query: search,
+              sort: sort as CustomerListInput["sort"],
+              page: 1,
+            }))
+          }
+          active={active}
+          onClear={() => {
+            setSearch("");
+            setView({
+              query: "",
+              page: 1,
+              sort: "newest",
+              orderHistory: "all",
+            });
+          }}
+          filters={
+            <CustomerFilters
+              value={view.orderHistory}
+              onApply={orderHistory =>
+                setView(previous => ({
+                  ...previous,
+                  query: search,
+                  orderHistory,
+                  page: 1,
+                }))
+              }
             />
-          </>
-        )}
-      </QueryState>
+          }
+        />
+        <QueryState query={data}>
+          {data.data && (
+            <>
+              <div
+                className="table-scroll"
+                tabIndex={0}
+                role="region"
+                aria-label={t("Customers")}
+              >
+                <table>
+                  <caption className="sr-only">{t("Customers")}</caption>
+                  <thead>
+                    <tr>
+                      {[
+                        "Customer",
+                        "Orders",
+                        "Approved revenue",
+                        "Unfinished orders",
+                        "Actions",
+                      ].map(label => (
+                        <th key={label} scope="col">
+                          {t(label)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.data.customers.map(customer => {
+                      const name =
+                        customer.name || customer.email || t("Customer");
+                      const parts = name.trim().split(/\s+/);
+                      const initials = [
+                        parts[0],
+                        ...(parts.length > 1 ? [parts[parts.length - 1]] : []),
+                      ]
+                        .map(part => Array.from(part)[0])
+                        .join("")
+                        .toLocaleUpperCase();
+                      return (
+                        <tr key={customer.id}>
+                          <td>
+                            <div className="admin-table-identity">
+                              <span
+                                className="customer-avatar"
+                                aria-hidden="true"
+                              >
+                                {initials}
+                              </span>
+                              <span>
+                                <Link href={`/customers/${customer.id}`}>
+                                  <strong>{name}</strong>
+                                </Link>
+                                <small className="operations-meta">
+                                  {customer.email}
+                                </small>
+                              </span>
+                            </div>
+                          </td>
+                          <td className="tabular-nums">
+                            {customer.orderCount.toLocaleString(intlLocale)}
+                          </td>
+                          <td className="customer-revenue">
+                            {formatPrice(customer.paidTotal, intlLocale)}
+                          </td>
+                          <td className="tabular-nums">
+                            {customer.openOrders.toLocaleString(intlLocale)}
+                          </td>
+                          <td className="table-actions">
+                            <Link
+                              className="table-details-link"
+                              href={`/customers/${customer.id}`}
+                            >
+                              {t("View details")}
+                              <ArrowRight size={15} aria-hidden="true" />
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {!data.data.customers.length && (
+                      <EmptyTableRow columns={5} message="No customers found" />
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                pagination={data.data.pagination}
+                disabled={data.isFetching || search !== view.query}
+                onPageChange={page =>
+                  setView(previous => ({ ...previous, page }))
+                }
+              />
+            </>
+          )}
+        </QueryState>
+      </div>
     </div>
   );
 }

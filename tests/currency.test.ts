@@ -7,6 +7,8 @@ import {
   currencyInput,
   exchangeRateInput,
   sumAmounts,
+  toBaseAmount,
+  multiplyAmount,
 } from "@marketplace/shared/currency";
 import {
   formatOrderItem,
@@ -17,6 +19,19 @@ import {
 import { settingsInput, defaultSettings } from "@marketplace/shared/store";
 
 describe("store currencies", () => {
+  it("converts entry prices back to base with exact decimal division", () => {
+    expect(toBaseAmount("42000", "4200")).toBe("10.00");
+    expect(toBaseAmount("13.50", "1.35")).toBe("10.00");
+    expect(toBaseAmount("1", "3")).toBe("0.33");
+    expect(toBaseAmount("2.01", "2")).toBe("1.01");
+    expect(() => toBaseAmount("10", "0")).toThrow();
+  });
+  it("multiplies rounded unit prices without rounding a converted line again", () => {
+    expect(multiplyAmount(convertAmount("0.01", "1.5", "SGD"), 3)).toBe("0.06");
+    expect(multiplyAmount("99999999.99", 99)).toBe("9899999999.01");
+    for (const quantity of [0, -1, 1.5, 100, NaN])
+      expect(() => multiplyAmount("1", quantity)).toThrow();
+  });
   it("supports only USD, SGD and MMK and keeps unconfigured currencies unavailable", () => {
     expect(currencyInput.options).toEqual(["USD", "SGD", "MMK"]);
     expect(currencyInput.safeParse("EUR").success).toBe(false);

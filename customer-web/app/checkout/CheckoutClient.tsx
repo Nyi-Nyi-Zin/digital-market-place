@@ -13,9 +13,10 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { useCart, readCart, writeCart } from "../lib/cart";
-import { formatOrderTotal } from "@marketplace/shared/pricing";
+import { formatOrderTotal, formatPrice } from "@marketplace/shared/pricing";
 import {
   resolveCurrency,
+  multiplyAmount,
   type OrderPricing,
 } from "@marketplace/shared/currency";
 import { usePricing } from "../components/CurrencyProvider";
@@ -38,7 +39,7 @@ export function CheckoutClient({
   buyId?: number;
 }) {
   const { t, intlLocale } = useI18n();
-  const { currency, config, price, changingCurrency } = usePricing();
+  const { currency, config, convert, changingCurrency } = usePricing();
   const cart = useCart();
   const items = buyId ? cart.filter(x => x.id === buyId) : cart;
   const methods = useQuery({
@@ -135,7 +136,7 @@ export function CheckoutClient({
                       currency,
                       items: items.map(item => ({
                         productId: item.id,
-                        quantity: 1,
+                        quantity: item.quantity,
                       })),
                     }),
                   }
@@ -183,7 +184,12 @@ export function CheckoutClient({
             <h2>{t("Order summary")}</h2>
             {items.map(item => (
               <p key={item.id}>
-                {item.title} · {price(item.price)}
+                {item.title} × {item.quantity} ·{" "}
+                {formatPrice(
+                  multiplyAmount(convert(item.price), item.quantity),
+                  intlLocale,
+                  currency
+                )}
               </p>
             ))}
             {!items.length && (

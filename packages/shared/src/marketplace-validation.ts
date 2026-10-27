@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { productStatuses } from "./pagination";
-import { baseCurrency, currencyInput } from "./currency";
+import {
+  baseCurrency,
+  currencyInput,
+  toBaseAmount,
+  type CurrencyConfig,
+} from "./currency";
 const money = z
   .string()
   .regex(
@@ -15,6 +20,7 @@ export const productInput = z.object({
     .max(220),
   categoryId: z.number().int().positive(),
   price: money,
+  currency: currencyInput.default(baseCurrency),
   discountPrice: money.nullable().default(null),
   shortDescription: z.string().max(500).default(""),
   description: z.string().max(30000).default(""),
@@ -47,6 +53,32 @@ export function checkProduct(input: z.infer<typeof productInput>) {
     ...input,
     featured: input.status === "archived" ? false : input.featured,
   };
+}
+// Currency is an entry choice; all catalogue prices retain one base currency.
+export function baseProductInput(
+  input: z.infer<typeof productInput>,
+  config: CurrencyConfig
+) {
+  const rate = config.rates[input.currency];
+  if (!rate)
+    throw new z.ZodError([
+      {
+        code: "custom",
+        path: ["currency"],
+        message: "Exchange rate is not configured for this currency.",
+      },
+    ]);
+  const { currency: _currency, ...product } = checkProduct(
+    productInput.parse({
+      ...input,
+      price: toBaseAmount(input.price, rate),
+      discountPrice:
+        input.discountPrice === null
+          ? null
+          : toBaseAmount(input.discountPrice, rate),
+    })
+  );
+  return product;
 }
 export const categoryInput = z.object({
   name: z.string().trim().min(2).max(120),

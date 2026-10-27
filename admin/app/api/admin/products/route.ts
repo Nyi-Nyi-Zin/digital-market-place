@@ -11,11 +11,13 @@ import {
 } from "@marketplace/server/db";
 import {
   productInput,
-  checkProduct,
+  baseProductInput,
 } from "@marketplace/shared/marketplace-validation";
 import { fail, readJson, HttpError } from "@marketplace/server/http";
 import { insertWithGeneratedSlug } from "@marketplace/server/slugs";
 import { adminOverview } from "@marketplace/server/marketplace";
+import { baseCurrency, currencyConfig } from "@marketplace/shared/currency";
+import { storeSettings } from "@marketplace/server/schema";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
@@ -36,7 +38,16 @@ export async function POST(request: Request) {
   try {
     const actor = await requireAdmin();
     return await getDb().transaction(async tx => {
-      const input = checkProduct(productInput.parse(await readJson(request)));
+      const [settings] = await tx
+        .select()
+        .from(storeSettings)
+        .where(eq(storeSettings.id, 1));
+      const input = baseProductInput(
+        productInput.parse(await readJson(request)),
+        currencyConfig(
+          settings ?? { usdRate: null, sgdRate: null, mmkRate: null }
+        )
+      );
       const product = await insertWithGeneratedSlug(
         input.title,
         240,
@@ -67,11 +78,29 @@ export async function PATCH(request: Request) {
     const actor = await requireAdmin();
     return await getDb().transaction(async tx => {
       const raw = await readJson(request);
+      if (
+        raw.currency &&
+        raw.currency !== baseCurrency &&
+        (!Object.hasOwn(raw, "price") || !Object.hasOwn(raw, "discountPrice"))
+      )
+        throw new HttpError(
+          400,
+          "Include regular and discount prices when changing the entry currency."
+        );
       const id = Number(raw.id);
       const db = tx;
       const [old] = await db.select().from(products).where(eq(products.id, id));
       if (!old) throw new HttpError(404, "Product not found");
-      const input = checkProduct(productInput.parse({ ...old, ...raw }));
+      const [settings] = await tx
+        .select()
+        .from(storeSettings)
+        .where(eq(storeSettings.id, 1));
+      const input = baseProductInput(
+        productInput.parse({ ...old, ...raw }),
+        currencyConfig(
+          settings ?? { usdRate: null, sgdRate: null, mmkRate: null }
+        )
+      );
       const [product] = await db
         .update(products)
         .set({

@@ -7,9 +7,11 @@ import { Price } from "./CurrencyProvider";
 
 export async function ProductCard({
   product,
+  showDescription = true,
 }: {
   product: Product;
   index?: number;
+  showDescription?: boolean;
 }) {
   const { t } = await getServerI18n();
   const href = `/products/${product.slug}`;
@@ -36,7 +38,6 @@ export async function ProductCard({
             <strong>{product.title}</strong>
           </div>
         )}
-        <span className="file-tag">{t("Digital product")}</span>
       </Link>
       <div className="card-body">
         <div className="card-meta">
@@ -45,7 +46,9 @@ export async function ProductCard({
         <h3>
           <Link href={href}>{product.title}</Link>
         </h3>
-        <p>{product.shortDescription || product.description}</p>
+        {showDescription && (
+          <p>{product.shortDescription || product.description}</p>
+        )}
         <div className="card-bottom">
           <div className="card-price">
             <strong>

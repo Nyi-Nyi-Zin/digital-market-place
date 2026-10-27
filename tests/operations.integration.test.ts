@@ -7,6 +7,7 @@ import { eq, sql } from "drizzle-orm";
 import * as schema from "@marketplace/server/schema";
 import { getDb, setPaymentStatus } from "@marketplace/server/db";
 import { completeOrder } from "@marketplace/server/notifications";
+import { adminOverview } from "@marketplace/server/marketplace";
 import {
   createTicket,
   ticketDetail,
@@ -265,6 +266,70 @@ describe.skipIf(!databaseURL)(
       const detail = await customerDetail(buyer, {});
       expect(detail.orders).toHaveLength(4);
       expect(Number(detail.summary.paidTotal)).toBe(75);
+    });
+    it("filters customer purchase history and sorts numeric approved revenue across the dataset", async () => {
+      const withOrders = await listCustomers({
+        orderHistory: "with_orders",
+        sort: "value_desc",
+      });
+      expect(withOrders.customers.map(customer => customer.id)).toEqual([
+        buyer,
+      ]);
+      const withoutOrders = await listCustomers({
+        orderHistory: "without_orders",
+      });
+      expect(withoutOrders.customers.map(customer => customer.id)).toEqual([
+        other,
+      ]);
+      const [extraOrder] = await db
+        .insert(schema.orders)
+        .values({
+          userId: other,
+          customerName: "Other",
+          customerEmail: "other@example.test",
+          subtotal: "100.00",
+          total: "100.00",
+          paymentStatus: "approved",
+          orderStatus: "paid",
+        })
+        .returning();
+      try {
+        const descending = await listCustomers({ sort: "value_desc" });
+        expect(
+          descending.customers.map(customer => Number(customer.paidTotal))
+        ).toEqual([100, 75]);
+        const ascending = await listCustomers({ sort: "value_asc" });
+        expect(
+          ascending.customers.map(customer => Number(customer.paidTotal))
+        ).toEqual([75, 100]);
+        expect(descending.pagination).toEqual({
+          page: 1,
+          pages: 1,
+          pageSize: 20,
+          total: 2,
+        });
+      } finally {
+        await db
+          .delete(schema.orders)
+          .where(eq(schema.orders.id, extraOrder.id));
+      }
+      await expect(
+        listCustomers({ orderHistory: "invalid" })
+      ).rejects.toThrow();
+    });
+    it("counts category products without confusing outer category IDs with product IDs", async () => {
+      await db
+        .insert(schema.categories)
+        .values({ name: "Empty count check", slug: "empty-count-check" });
+      const overview = await adminOverview({ section: "categories" });
+      expect(overview.categories.length).toBeGreaterThan(0);
+      for (const category of overview.categories) {
+        const [{ count }] = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(schema.products)
+          .where(eq(schema.products.categoryId, category.id));
+        expect(category.productCount).toBe(count);
+      }
     });
     it("records payment and delivery decisions once even on repeated confirmations", async () => {
       const [payment] = await db

@@ -3,6 +3,7 @@ import {
   asc,
   desc,
   eq,
+  getTableColumns,
   gte,
   ilike,
   inArray,
@@ -42,7 +43,9 @@ export async function adminOverview(raw: unknown = {}) {
   const db = getDb();
   const result = {
     products: [] as (typeof products.$inferSelect)[],
-    categories: [] as (typeof categories.$inferSelect)[],
+    categories: [] as (typeof categories.$inferSelect & {
+      productCount: number;
+    })[],
     categoryOptions: [] as { id: number; name: string }[],
     productOptions: [] as { id: number; title: string }[],
     orders: [] as (typeof orders.$inferSelect & {
@@ -204,9 +207,14 @@ export async function adminOverview(raw: unknown = {}) {
       .where(where);
     result.pagination = paginationFor(total, input.page);
     result.categories = await db
-      .select()
+      .select({
+        ...getTableColumns(categories),
+        productCount: sql<number>`count(${products.id})::int`,
+      })
       .from(categories)
+      .leftJoin(products, eq(products.categoryId, categories.id))
       .where(where)
+      .groupBy(categories.id)
       .orderBy(...sorting)
       .limit(adminPageSize)
       .offset((result.pagination.page - 1) * adminPageSize);

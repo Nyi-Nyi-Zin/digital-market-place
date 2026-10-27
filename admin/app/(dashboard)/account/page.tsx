@@ -7,8 +7,11 @@ export default async function Page() {
   const telegram = await telegramConnection();
   return (
     <>
-      <ProfileForm name={user?.name ?? ""} email={user?.email ?? ""} />
-      <TelegramConnection {...telegram} />
+      <ProfileForm
+        name={user?.name ?? ""}
+        email={user?.email ?? ""}
+        security={<TelegramConnection {...telegram} />}
+      />
     </>
   );
 }

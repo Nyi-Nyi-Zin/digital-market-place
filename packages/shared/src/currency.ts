@@ -7,6 +7,8 @@ export const baseCurrency = currencyInput.parse(
   process.env.NEXT_PUBLIC_MARKETPLACE_CURRENCY ?? "USD"
 );
 export const currencyCookie = "cloud-nine-currency";
+export const maxCartQuantity = 99;
+export const quantityInput = z.number().int().min(1).max(maxCartQuantity);
 export const exchangeRateInput = z
   .string()
   .regex(
@@ -83,6 +85,26 @@ export function sumAmounts(values: string[]): string {
     const [amount, scale] = decimal(value);
     return sum + (amount * BigInt(100)) / scale;
   }, BigInt(0));
+  return `${cents / BigInt(100)}.${String(cents % BigInt(100)).padStart(2, "0")}`;
+}
+export function toBaseAmount(value: string, rate: string): string {
+  const [amount, scale] = decimal(value);
+  const [multiplier, rateScale] = decimal(rate);
+  if (multiplier <= BigInt(0))
+    throw new Error("Exchange rate must be greater than zero.");
+  const numerator = amount * rateScale * BigInt(100);
+  const denominator = scale * multiplier;
+  const cents =
+    (numerator * BigInt(2) + denominator) / (denominator * BigInt(2));
+  return `${cents / BigInt(100)}.${String(cents % BigInt(100)).padStart(2, "0")}`;
+}
+export function multiplyAmount(
+  value: string | number,
+  quantity: number
+): string {
+  quantityInput.parse(quantity);
+  const [amount, scale] = decimal(value);
+  const cents = (amount * BigInt(quantity) * BigInt(100)) / scale;
   return `${cents / BigInt(100)}.${String(cents % BigInt(100)).padStart(2, "0")}`;
 }
 export type OrderPricing = {

@@ -238,4 +238,73 @@ describe.skipIf(!databaseURL)("currency orders and admin rates", () => {
     expect(result.products).toHaveLength(2);
     expect(result.products.map(product => product.price)).toEqual([0.01, 0.01]);
   });
+  it("persists quantities from the orders API and multiplies rounded unit prices", async () => {
+    await saveStoreSettings(admin, {
+      ...(await getStoreSettings()),
+      sgdRate: "1.5",
+    });
+    const response = await POST(
+      new Request("http://localhost:3000/api/orders", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          customerName: "Buyer",
+          customerEmail: "buyer@example.test",
+          currency: "SGD",
+          items: [
+            { productId: products[0].id, quantity: 3 },
+            { productId: products[2].id, quantity: 2 },
+          ],
+        }),
+      })
+    );
+    expect(response.status).toBe(201);
+    const result = await response.json();
+    expect(result.total).toBe("20.01");
+    expect(result.payableTotal).toBe("30.04");
+    const saved = await orderDetail(result.orderId, buyer);
+    expect(
+      saved.items.find(item => item.productId === products[0].id)
+    ).toMatchObject({
+      quantity: 3,
+      unitPrice: "0.01",
+      payableUnitPrice: "0.02",
+    });
+    expect(
+      saved.items.find(item => item.productId === products[2].id)
+    ).toMatchObject({
+      quantity: 2,
+      unitPrice: "9.99",
+      payableUnitPrice: "14.99",
+    });
+  });
+  it("rejects invalid quantities and duplicate lines at both API and database boundaries", async () => {
+    for (const quantity of [0, -1, 1.5, 100]) {
+      const items = [{ productId: products[0].id, quantity }];
+      await expect(
+        createOrder(buyer, "Buyer", "buyer@example.test", items)
+      ).rejects.toThrow();
+      expect(
+        (
+          await POST(
+            new Request("http://localhost:3000/api/orders", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                customerName: "Buyer",
+                customerEmail: "buyer@example.test",
+                items,
+              }),
+            })
+          )
+        ).status
+      ).toBe(400);
+    }
+    await expect(
+      createOrder(buyer, "Buyer", "buyer@example.test", [
+        { productId: products[0].id, quantity: 1 },
+        { productId: products[0].id, quantity: 2 },
+      ])
+    ).rejects.toThrow("distinct");
+  });
 });

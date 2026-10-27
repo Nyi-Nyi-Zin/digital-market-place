@@ -10,10 +10,16 @@ export type SummaryCard = {
   tone: "blue" | "green" | "amber" | "purple";
 };
 
-export function SummaryCards({ cards }: { cards: SummaryCard[] }) {
+export function SummaryCards({
+  cards,
+  className = "",
+}: {
+  cards: SummaryCard[];
+  className?: string;
+}) {
   const { t, intlLocale } = useI18n();
   return (
-    <dl className="metric-grid" aria-label={t("Summary")}>
+    <dl className={`metric-grid ${className}`} aria-label={t("Summary")}>
       {cards.map(({ label, value, icon: Icon, tone }) => (
         <div className="summary-card" key={label}>
           <span className={`summary-icon summary-icon-${tone}`}>
@@ -21,7 +27,12 @@ export function SummaryCards({ cards }: { cards: SummaryCard[] }) {
           </span>
           <dt>{t(label)}</dt>
           <dd
-            className={typeof value === "string" ? "summary-text" : undefined}
+            title={typeof value === "string" ? value : undefined}
+            className={
+              ["Full name", "Email", "Access", "Status"].includes(label)
+                ? "summary-text"
+                : undefined
+            }
           >
             {typeof value === "number"
               ? value.toLocaleString(intlLocale)

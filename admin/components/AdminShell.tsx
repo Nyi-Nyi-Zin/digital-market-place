@@ -56,6 +56,18 @@ const links = [
   { href: "/account", label: "Account", icon: UserRound },
 ];
 const sidebarPreferenceKey = "cloud-nine-admin-sidebar-collapsed";
+const navigationGroups = [
+  { label: "Core", paths: ["/", "/reports", "/activity"] },
+  {
+    label: "Catalogue & Sales",
+    paths: ["/products", "/categories", "/orders", "/customers"],
+  },
+  { label: "Operations", paths: ["/payments", "/support", "/notifications"] },
+  {
+    label: "Configuration",
+    paths: ["/settings/store", "/settings/payment", "/account"],
+  },
+];
 
 export function AdminBrand() {
   return (
@@ -88,22 +100,36 @@ function Navigation({
   const { t } = useI18n();
   return (
     <nav id={id} className="admin-nav" aria-label={t("Admin navigation")}>
-      {links.map(({ href, label, icon: Icon }) => (
-        <Link
-          key={href}
-          href={href}
-          aria-current={
-            path === href || (href !== "/" && path.startsWith(href + "/"))
-              ? "page"
-              : undefined
-          }
-          aria-label={t(label)}
-          title={compact ? t(label) : undefined}
-          onClick={close}
+      {navigationGroups.map(group => (
+        <div
+          className="admin-nav-group"
+          role="group"
+          aria-label={t(group.label)}
+          key={group.label}
         >
-          <Icon size={18} aria-hidden="true" />
-          <span>{t(label)}</span>
-        </Link>
+          <p className="admin-nav-group-label" aria-hidden="true">
+            {t(group.label)}
+          </p>
+          {group.paths
+            .map(path => links.find(link => link.href === path)!)
+            .map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={
+                  path === href || (href !== "/" && path.startsWith(href + "/"))
+                    ? "page"
+                    : undefined
+                }
+                aria-label={t(label)}
+                title={compact ? t(label) : undefined}
+                onClick={close}
+              >
+                <Icon size={18} aria-hidden="true" />
+                <span>{t(label)}</span>
+              </Link>
+            ))}
+        </div>
       ))}
     </nav>
   );
@@ -175,26 +201,26 @@ export function AdminShell({
           </Link>
           <SignOut compact />
         </div>
-        <Button
-          variant="brand"
-          size="brand"
-          type="button"
-          className="sidebar-toggle"
-          aria-controls="admin-sidebar-navigation"
-          aria-expanded={!collapsed}
-          aria-label={t(collapsed ? "Expand sidebar" : "Collapse sidebar")}
-          title={t(collapsed ? "Expand sidebar" : "Collapse sidebar")}
-          onClick={toggleSidebar}
-        >
-          {collapsed ? (
-            <ChevronRight size={18} aria-hidden="true" />
-          ) : (
-            <ChevronLeft size={18} aria-hidden="true" />
-          )}
-        </Button>
       </aside>
       <div className="admin-content">
         <header className="admin-topbar">
+          <Button
+            variant="brand"
+            size="brand"
+            type="button"
+            className="sidebar-toggle"
+            aria-controls="admin-sidebar-navigation"
+            aria-expanded={!collapsed}
+            aria-label={t(collapsed ? "Expand sidebar" : "Collapse sidebar")}
+            title={t(collapsed ? "Expand sidebar" : "Collapse sidebar")}
+            onClick={toggleSidebar}
+          >
+            {collapsed ? (
+              <ChevronRight size={17} aria-hidden="true" />
+            ) : (
+              <ChevronLeft size={17} aria-hidden="true" />
+            )}
+          </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
@@ -234,6 +260,11 @@ export function AdminShell({
             </DialogContent>
           </Dialog>
           <div className="topbar-location">
+            <nav className="admin-breadcrumbs" aria-label={t("Breadcrumbs")}>
+              <Link href="/">{t("Operations Center")}</Link>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">{t(title)}</span>
+            </nav>
             <h1>{t(title)}</h1>
           </div>
           <div className="topbar-tools">

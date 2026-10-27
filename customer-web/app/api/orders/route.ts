@@ -4,7 +4,11 @@ import { createOrder } from "@marketplace/server/db";
 import { customerOrders } from "@marketplace/server/customer-orders";
 import { requireUser } from "@marketplace/server/next-auth";
 import { fail, readJson, HttpError } from "@marketplace/server/http";
-import { baseCurrency, currencyInput } from "@marketplace/shared/currency";
+import {
+  baseCurrency,
+  currencyInput,
+  quantityInput,
+} from "@marketplace/shared/currency";
 export const dynamic = "force-dynamic";
 const schema = z.object({
   customerName: z.string().trim().min(2).max(160),
@@ -14,7 +18,7 @@ const schema = z.object({
     .array(
       z.object({
         productId: z.number().int().positive(),
-        quantity: z.literal(1),
+        quantity: quantityInput,
       })
     )
     .min(1)

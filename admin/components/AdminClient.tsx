@@ -12,7 +12,17 @@ import { storageUrl } from "@marketplace/shared/storage";
 import { useI18n } from "./I18nProvider";
 
 import { useEffect, useRef, useState } from "react";
-import { Archive, Search, Trash2 } from "lucide-react";
+import {
+  Archive,
+  Trash2,
+  Plus,
+  ArrowRight,
+  CreditCard,
+  Package,
+  Settings,
+  Folder,
+  ShoppingBag,
+} from "lucide-react";
 import {
   adminFilterQuery,
   adminStatusLabels,
@@ -23,6 +33,7 @@ import {
 import {
   removeAdminFilter,
   defaultAdminListState,
+  activeAdminFilterKeys,
 } from "@marketplace/shared/admin-list-state";
 import { NativeSelect } from "./ui/native-select";
 import { useAdminListState } from "./useAdminListState";
@@ -48,6 +59,10 @@ import { Pagination } from "./Pagination";
 import { EmptyTable, EmptyTableRow } from "./EmptyTable";
 import { AdminSummary } from "./AdminSummary";
 import { ListFilters } from "./ListFilters";
+import { ListToolbar } from "./ListToolbar";
+import { PageHeader } from "./PageHeader";
+import { EmptyState } from "./EmptyState";
+import { ProductThumbnail } from "./ProductThumbnail";
 type Product = AdminOverview["products"][number];
 type Category = AdminOverview["categories"][number];
 type Operation = { url: string; method: string; data?: unknown };
@@ -153,8 +168,44 @@ export function AdminClient({
   );
   const refreshing = query.isFetching || search !== view.search;
   const emptyList = paginated && data.pagination.total === 0;
+  const hasFilters = activeAdminFilterKeys(search, filters).length > 0;
+  const title = {
+    dashboard: "Overview",
+    products: "Products",
+    categories: "Categories",
+    orders: "Orders",
+    payments: "Payments",
+    settings: "Payment settings",
+  }[section];
   return (
     <>
+      <PageHeader
+        title={t(title)}
+        description={
+          section === "categories"
+            ? t("Organize the catalogue into clear collections.")
+            : undefined
+        }
+        action={
+          section === "products" || section === "categories" ? (
+            <Button
+              ref={addActionRef}
+              variant="brand"
+              size="brand"
+              type="button"
+              className="button button-primary"
+              onClick={event => {
+                actionTriggerRef.current = event.currentTarget;
+                if (section === "products") setProduct(null);
+                else setCategory(null);
+              }}
+            >
+              <Plus size={16} aria-hidden="true" />
+              {t(section === "products" ? "Add product" : "Add category")}
+            </Button>
+          ) : undefined
+        }
+      />
       <AdminSummary section={section} data={data} />
       {invalidLink && paginated && (
         <p role="alert">
@@ -174,105 +225,97 @@ export function AdminClient({
           <section className="admin-panel">
             <h2>{t("Next actions")}</h2>
             <div className="admin-quick">
-              <Link href="/payments">
-                {t("Review {count} pending payments →", {
-                  count: data.stats.pendingPayments,
-                })}
-              </Link>
-              <Link href="/products">{t("Manage products →")}</Link>
-              <Link href="/settings/payment">
-                {t("Configure payment accounts →")}
-              </Link>
+              {[
+                {
+                  href: "/payments",
+                  icon: CreditCard,
+                  title: "Review payments",
+                  description: t("{count} payments awaiting review", {
+                    count:
+                      data.stats.pendingPayments.toLocaleString(intlLocale),
+                  }),
+                },
+                {
+                  href: "/products",
+                  icon: Package,
+                  title: "Manage products",
+                  description: t("Keep your catalogue up to date."),
+                },
+                {
+                  href: "/settings/payment",
+                  icon: Settings,
+                  title: "Payment accounts",
+                  description: t("Manage the accounts customers can pay to."),
+                },
+              ].map(({ href, icon: Icon, title, description }) => (
+                <Link href={href} className="admin-shortcut" key={href}>
+                  <span className="shortcut-icon">
+                    <Icon size={19} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <strong>{t(title)}</strong>
+                    <small>{description}</small>
+                  </span>
+                  <ArrowRight
+                    size={17}
+                    className="shortcut-arrow"
+                    aria-hidden="true"
+                  />
+                </Link>
+              ))}
             </div>
           </section>
         </>
       )}
-      <div className={emptyList ? "admin-empty-list" : undefined}>
+      <div
+        className={
+          paginated
+            ? `admin-list-card${emptyList ? " admin-empty-list" : ""}`
+            : undefined
+        }
+      >
         {paginated && (
-          <form
-            className={`admin-toolbar admin-toolbar-${section}`}
-            onSubmit={e => e.preventDefault()}
-          >
-            <label className="admin-list-search">
-              <span className="sr-only">{t("Search")}</span>
-              <Search size={18} aria-hidden="true" />
-              <Input
-                type="search"
-                value={search}
-                maxLength={200}
-                onChange={e => {
-                  setSearch(e.target.value);
-                }}
+          <ListToolbar
+            search={search}
+            placeholder={searchPlaceholder}
+            onSearch={setSearch}
+            sort={view.sort}
+            sortOptions={adminSortOptions(section).map(value => ({
+              value,
+              label: adminSortLabels[value],
+            }))}
+            onSort={sort =>
+              updateView({ ...view, search, sort: sort as AdminSort, page: 1 })
+            }
+            active={
+              hasFilters || view.sort !== defaultAdminListState(section).sort
+            }
+            onClear={() => {
+              setSearch("");
+              updateView(defaultAdminListState(section));
+            }}
+            filters={
+              <ListFilters
+                search={search}
+                filters={filters}
+                section={section}
                 placeholder={searchPlaceholder}
-              />
-            </label>
-            <label className="admin-sort">
-              <span className="sr-only">{t("Sort")}</span>
-              <NativeSelect
-                aria-label={t("Sort")}
-                value={view.sort}
-                onChange={event =>
+                categories={data.categoryOptions}
+                products={data.productOptions}
+                onApply={(nextSearch, nextFilters) => {
+                  setSearch(nextSearch);
                   updateView({
                     ...view,
-                    search,
-                    sort: event.target.value as AdminSort,
+                    search: nextSearch,
+                    filters: nextFilters,
                     page: 1,
-                  })
-                }
-              >
-                {adminSortOptions(section).map(value => (
-                  <option key={value} value={value}>
-                    {t(adminSortLabels[value])}
-                  </option>
-                ))}
-              </NativeSelect>
-            </label>
-            <ListFilters
-              search={search}
-              filters={filters}
-              section={section}
-              placeholder={searchPlaceholder}
-              categories={data.categoryOptions}
-              products={data.productOptions}
-              onApply={(nextSearch, nextFilters) => {
-                setSearch(nextSearch);
-                updateView({
-                  ...view,
-                  search: nextSearch,
-                  filters: nextFilters,
-                  page: 1,
-                });
-              }}
-            />
-            {section === "products" && (
-              <Button
-                ref={addActionRef}
-                variant="brand"
-                size="brand"
-                type="button"
-                className="button button-primary"
-                onClick={event => {
-                  actionTriggerRef.current = event.currentTarget;
-                  setProduct(null);
+                  });
                 }}
-              >
-                {t("Add product")}
-              </Button>
-            )}
-            <Button
-              variant="brand"
-              size="brand"
-              type="button"
-              className="button button-secondary"
-              onClick={() => {
-                setSearch("");
-                updateView(defaultAdminListState(section));
-              }}
-            >
-              {t("Clear all")}
-            </Button>
-          </form>
+              />
+            }
+          />
         )}
+
         {paginated && (
           <ActiveFilters
             search={view.search}
@@ -311,8 +354,16 @@ export function AdminClient({
                   {data.products.map(p => (
                     <tr key={p.id}>
                       <td>
-                        <strong>{p.title}</strong>
-                        <small>{p.slug}</small>
+                        <div className="admin-table-identity">
+                          <ProductThumbnail
+                            key={p.thumbnailKey ?? "fallback"}
+                            imageKey={p.thumbnailKey}
+                          />
+                          <span>
+                            <strong>{p.title}</strong>
+                            <small>{p.slug}</small>
+                          </span>
+                        </div>
                       </td>
                       <td>
                         {
@@ -372,7 +423,7 @@ export function AdminClient({
         )}
         {section === "orders" && (
           <section className="admin-panel">
-            <OrderList orders={data.orders} />
+            <OrderList orders={data.orders} filtered={hasFilters} />
           </section>
         )}
         {section === "payments" && (
@@ -402,65 +453,94 @@ export function AdminClient({
         )}
         {section === "categories" && (
           <section className="admin-panel">
-            <div className="section-heading">
-              <p>{t("Organize the catalogue into clear collections.")}</p>
-              <Button
-                ref={addActionRef}
-                variant="brand"
-                size="brand"
-                className="button button-primary"
-                onClick={event => {
-                  actionTriggerRef.current = event.currentTarget;
-                  setCategory(null);
-                }}
-              >
-                {t("Add category")}
-              </Button>
+            <div
+              className={`table-scroll${emptyList ? " admin-empty-table" : ""}`}
+              tabIndex={0}
+              role="region"
+              aria-label={t("Categories")}
+            >
+              <table>
+                <thead>
+                  <tr>
+                    {[
+                      "Category Name",
+                      "Slug / Description",
+                      "Products Count",
+                      "Status",
+                      "Actions",
+                    ].map(label => (
+                      <th key={label} scope="col">
+                        {t(label)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.categories.map(c => (
+                    <tr key={c.id}>
+                      <td>
+                        <div className="admin-table-identity">
+                          <span className="category-icon">
+                            <Folder size={18} aria-hidden="true" />
+                          </span>
+                          <strong>{c.name}</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="table-slug">{c.slug}</span>
+                        <small className="category-description">
+                          {c.description}
+                        </small>
+                      </td>
+                      <td className="tabular-nums">
+                        {c.productCount.toLocaleString(intlLocale)}
+                      </td>
+                      <td>
+                        <span
+                          className={`pill ${c.productCount > 0 ? "in-use" : "archived"}`}
+                        >
+                          {t(c.productCount > 0 ? "In use" : "Empty")}
+                        </span>
+                      </td>
+                      <td>
+                        <RowActions
+                          name={c.name}
+                          editLabel={t("Edit category")}
+                          disabled={mutation.isPending || refreshing}
+                          onEdit={trigger => {
+                            actionTriggerRef.current = trigger;
+                            setCategory(c);
+                          }}
+                          destructiveAction={{
+                            label: t("Delete"),
+                            icon: Trash2,
+                            onSelect: trigger => {
+                              actionTriggerRef.current = trigger;
+                              setConfirmation({
+                                title: t("Delete"),
+                                description: t(
+                                  "Delete category {name}? Categories containing products cannot be deleted.",
+                                  { name: c.name }
+                                ),
+                                actionLabel: t("Delete"),
+                                onConfirm: () =>
+                                  save({
+                                    url: `/api/admin/categories?id=${c.id}`,
+                                    method: "DELETE",
+                                  }),
+                              });
+                            },
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                  {!data.categories.length && (
+                    <EmptyTableRow columns={5} message="No categories found." />
+                  )}
+                </tbody>
+              </table>
             </div>
-            {data.categories.map(c => (
-              <article className="record-row" key={c.id}>
-                <div>
-                  <strong>{c.name}</strong>
-                  <p>{c.description || c.slug}</p>
-                </div>
-                <RowActions
-                  name={c.name}
-                  editLabel={t("Edit category")}
-                  disabled={mutation.isPending || refreshing}
-                  onEdit={trigger => {
-                    actionTriggerRef.current = trigger;
-                    setCategory(c);
-                  }}
-                  destructiveAction={{
-                    label: t("Delete"),
-                    icon: Trash2,
-                    onSelect: trigger => {
-                      actionTriggerRef.current = trigger;
-                      setConfirmation({
-                        title: t("Delete"),
-                        description: t(
-                          "Delete category {name}? Categories containing products cannot be deleted.",
-                          { name: c.name }
-                        ),
-                        actionLabel: t("Delete"),
-                        onConfirm: () =>
-                          save({
-                            url: `/api/admin/categories?id=${c.id}`,
-                            method: "DELETE",
-                          }),
-                      });
-                    },
-                  }}
-                />
-              </article>
-            ))}
-            {!data.categories.length && (
-              <EmptyTable
-                label="Categories"
-                headers={["Name", "Description", "Actions"]}
-                message="No categories found."
-              />
-            )}
           </section>
         )}
         {paginated && (
@@ -626,7 +706,13 @@ function Modal({
     </Dialog>
   );
 }
-function OrderList({ orders }: { orders: AdminOverview["orders"] }) {
+function OrderList({
+  orders,
+  filtered = false,
+}: {
+  orders: AdminOverview["orders"];
+  filtered?: boolean;
+}) {
   const { t, intlLocale } = useI18n();
   const client = useQueryClient();
   const complete = useMutation({
@@ -715,10 +801,14 @@ function OrderList({ orders }: { orders: AdminOverview["orders"] }) {
       ))}
     </div>
   ) : (
-    <EmptyTable
-      label="Orders"
-      headers={["Orders", "Customer", "Price", "Status"]}
-      message="No orders found."
+    <EmptyState
+      icon={ShoppingBag}
+      title={filtered ? "No matching orders" : "No orders yet"}
+      description={
+        filtered
+          ? "Try adjusting your search or filters."
+          : "New customer orders and payment verifications will appear here."
+      }
     />
   );
 }

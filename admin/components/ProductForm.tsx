@@ -4,6 +4,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { ImagePlus, Upload, X } from "lucide-react";
 import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
+import {
+  baseCurrency,
+  currencies,
+  currencyConfig,
+} from "@marketplace/shared/currency";
 import {
   checkProduct,
   productInput,
@@ -49,11 +55,20 @@ export function ProductForm({
   save: (draft: Draft) => Promise<void>;
 }) {
   const { t } = useI18n();
+  const settings = useQuery({
+    queryKey: ["admin", "store-settings"],
+    queryFn: () =>
+      api<Parameters<typeof currencyConfig>[0]>("/api/admin/settings/store"),
+  });
+  const config = currencyConfig(
+    settings.data ?? { usdRate: null, sgdRate: null, mmkRate: null }
+  );
   const form = useForm<Draft>({
     defaultValues: {
       title: product?.title ?? "",
       categoryId: product?.categoryId ?? categories[0]?.id,
       price: product?.price ?? "0.00",
+      currency: baseCurrency,
       discountPrice: product?.discountPrice ?? null,
       status: product?.status ?? "draft",
       featured: product?.featured ?? false,
@@ -280,6 +295,34 @@ export function ProductForm({
         </div>
         <div className="product-section">
           <h3>{t("Pricing")}</h3>
+          <Field label={t("Currency")} error={error("currency")}>
+            <NativeSelect {...field("currency")} aria-label={t("Currency")}>
+              {currencies.map(code => (
+                <option key={code} value={code} disabled={!config.rates[code]}>
+                  {code}
+                </option>
+              ))}
+            </NativeSelect>
+          </Field>
+          <p className="product-help">
+            {t(
+              "Prices are converted to {currency} using your store exchange rates when saved.",
+              { currency: baseCurrency }
+            )}
+          </p>
+          {settings.error && (
+            <p className="field-error" role="alert">
+              {t(settings.error.message)}
+            </p>
+          )}
+          {!settings.isPending &&
+            currencies.some(code => !config.rates[code]) && (
+              <p className="product-help">
+                <a href="/settings/store">
+                  {t("Configure exchange rates to enable more currencies.")}
+                </a>
+              </p>
+            )}
           <div className="form-grid">
             <Field label={t("Price")} error={error("price")}>
               <Input

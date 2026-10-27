@@ -19,6 +19,8 @@ import {
 } from "@marketplace/shared/store";
 import { HttpError } from "./http";
 import { recordActivity } from "./activity";
+import { customerListInput } from "@marketplace/shared/customer-filters";
+import { paginationFor } from "@marketplace/shared/pagination";
 
 export async function orderDetail(id: number, ownerId?: number) {
   const db = getDb();
@@ -101,9 +103,12 @@ export async function addOrderNote(id: number, actorId: number, raw: unknown) {
   });
 }
 export async function listCustomers(raw: unknown) {
-  const { query, page: requested } = z
-    .object({ query: z.string().trim().max(160).default(""), page: pageInput })
-    .parse(raw);
+  const {
+    query,
+    page: requested,
+    sort,
+    orderHistory,
+  } = customerListInput.parse(raw);
   const db = getDb(),
     search = `%${query.replace(/[\\%_]/g, "\\$&")}%`;
   const where = and(
@@ -117,14 +122,33 @@ export async function listCustomers(raw: unknown) {
           ilike(users.email, search),
           ilike(sql`${users.id}::text`, search)
         )
-      : undefined
+      : undefined,
+    orderHistory === "with_orders"
+      ? sql`exists(select 1 from ${orders} where ${orders.userId} = ${users.id})`
+      : orderHistory === "without_orders"
+        ? sql`not exists(select 1 from ${orders} where ${orders.userId} = ${users.id})`
+        : undefined
   );
   const [{ total }] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(users)
     .where(where);
-  const pages = Math.max(1, Math.ceil(total / 20)),
-    page = Math.min(requested, pages);
+  const pagination = paginationFor(total, requested, 20);
+  const { page, pages } = pagination;
+  const revenue = sql<string>`coalesce(sum(${orders.total}) filter(where ${orders.paymentStatus} = 'approved'),0)::text`;
+  const revenueSort = sql`coalesce(sum(${orders.total}) filter(where ${orders.paymentStatus} = 'approved'),0)`;
+  const ordering =
+    sort === "oldest"
+      ? asc(users.createdAt)
+      : sort === "name_asc"
+        ? asc(users.name)
+        : sort === "name_desc"
+          ? desc(users.name)
+          : sort === "value_asc"
+            ? revenueSort
+            : sort === "value_desc"
+              ? desc(revenueSort)
+              : desc(users.createdAt);
   const customers = await db
     .select({
       id: users.id,
@@ -132,17 +156,17 @@ export async function listCustomers(raw: unknown) {
       email: users.email,
       createdAt: users.createdAt,
       orderCount: sql<number>`count(${orders.id})::int`,
-      paidTotal: sql<string>`coalesce(sum(${orders.total}) filter(where ${orders.paymentStatus} = 'approved'),0)::text`,
+      paidTotal: revenue,
       openOrders: sql<number>`count(${orders.id}) filter(where ${orders.orderStatus} <> 'completed')::int`,
     })
     .from(users)
     .leftJoin(orders, eq(orders.userId, users.id))
     .where(where)
     .groupBy(users.id)
-    .orderBy(desc(users.createdAt), desc(users.id))
+    .orderBy(ordering, desc(users.id))
     .limit(20)
     .offset((page - 1) * 20);
-  return { customers, page, pages, total };
+  return { customers, page, pages, total, pagination };
 }
 export async function customerDetail(id: number, raw: unknown) {
   const db = getDb(),

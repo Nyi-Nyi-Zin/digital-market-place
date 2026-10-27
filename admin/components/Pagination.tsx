@@ -23,6 +23,14 @@ export function Pagination({
   const pages = empty ? 0 : pagination.pages;
   const formatPage = (value: number) =>
     new Intl.NumberFormat(intlLocale).format(value);
+  if (empty)
+    return (
+      <div className="admin-pagination admin-pagination-empty">
+        <p className="admin-pagination-summary" role="status">
+          {t("0 results")}
+        </p>
+      </div>
+    );
   return (
     <nav className="admin-pagination" aria-label={t("Pagination")}>
       <p

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { Send, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { authClient } from "../lib/auth-client";
 import { useI18n } from "./I18nProvider";
@@ -26,14 +26,20 @@ export function TelegramConnection({
   }, []);
   return (
     <section
-      className="admin-panel admin-form"
+      className="admin-panel admin-form admin-security-panel"
       aria-labelledby="telegram-connection-title"
     >
-      <h2 id="telegram-connection-title">{t("Telegram sign-in")}</h2>
+      <div className="admin-security-heading">
+        <span className="summary-icon summary-icon-purple">
+          <ShieldCheck size={20} aria-hidden="true" />
+        </span>
+        <h2 id="telegram-connection-title">
+          {t("Security & Connected Accounts")}
+        </h2>
+      </div>
+      <h3>{t("Telegram sign-in")}</h3>
       <p>
-        {t(
-          "Connect Telegram to sign in to your existing account. Your email and purchases stay the same."
-        )}
+        {t("Link Telegram to your administrator account for secure sign-in.")}
       </p>
       {linked ? (
         <p role="status">

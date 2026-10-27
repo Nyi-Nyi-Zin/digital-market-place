@@ -29,18 +29,10 @@ export function FeaturedProductBanner({
   const { price } = usePricing();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [failedThumbnail, setFailedThumbnail] = useState<string | null>(null);
-  const rotating =
-    products.length > 1 &&
-    !paused &&
-    !hovered &&
-    !focused &&
-    !reducedMotion &&
-    !hidden;
+  const rotating = products.length > 1 && !paused && !reducedMotion && !hidden;
 
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -63,7 +55,7 @@ export function FeaturedProductBanner({
       5000
     );
     return () => window.clearTimeout(timer);
-  }, [index, products, rotating]);
+  }, [index, products.length, rotating]);
 
   const product = products[index % products.length];
   if (!product) return null;
@@ -76,13 +68,6 @@ export function FeaturedProductBanner({
       className="featured-carousel"
       aria-label={t("Featured product")}
       aria-roledescription={products.length > 1 ? "carousel" : undefined}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocusCapture={() => setFocused(true)}
-      onBlurCapture={event => {
-        if (!event.currentTarget.contains(event.relatedTarget))
-          setFocused(false);
-      }}
     >
       <div
         className={`storefront-banner${hasImage ? "" : " storefront-banner-text"}`}
