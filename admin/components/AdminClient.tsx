@@ -901,9 +901,10 @@ function MethodForm({
           maxLength={80}
         />
       </label>
-      <label>
+      <label className="tailwind-form-field grid min-w-0 gap-2 text-sm font-semibold text-[var(--ink)]">
         {t("Currency")}
         <NativeSelect
+          className="tailwind-field-control"
           name="currency"
           defaultValue={method?.currency ?? baseCurrency}
           aria-label={t("Currency")}

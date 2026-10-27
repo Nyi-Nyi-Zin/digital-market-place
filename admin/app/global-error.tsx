@@ -1,4 +1,5 @@
 "use client";
+import "./tailwind.css";
 import { Button } from "../components/ui/button";
 
 import { useEffect, useState } from "react";
@@ -40,36 +41,16 @@ export default function GlobalError({
   }, [error]);
   const t = createTranslator(dictionaries[locale]);
   return (
-    <html lang={locale}>
-      <body
-        style={{
-          margin: 0,
-          minHeight: "100vh",
-          display: "grid",
-          placeItems: "center",
-          padding: 24,
-          fontFamily: 'Arial, "Myanmar Text", sans-serif',
-          background: dark ? "#11151f" : "#f5f6fa",
-          color: dark ? "#edf0f7" : "#182033",
-          colorScheme: dark ? "dark" : "light",
-        }}
-      >
-        <main style={{ maxWidth: 480 }}>
+    <html lang={locale} data-theme={dark ? "dark" : "light"}>
+      <body className="m-0! grid! min-h-screen! place-items-center! bg-[#f5f6fa]! p-6! text-[#182033]! [color-scheme:light]! [font-family:Arial,'Myanmar_Text',sans-serif]! dark:bg-[#11151f]! dark:text-[#edf0f7]! dark:[color-scheme:dark]!">
+        <main className="max-w-[480px]">
           <p>Cloud Nine · Admin</p>
           <h1>{t("Something needs another try.")}</h1>
           <Button
             variant="brand"
             size="brand"
             onClick={reset}
-            style={{
-              padding: "12px 20px",
-              background: "#6954dc",
-              color: "white",
-              border: 0,
-              borderRadius: 8,
-              cursor: "pointer",
-              font: "inherit",
-            }}
+            className="cursor-pointer! rounded-[8px]! border-0! bg-[#6954dc]! px-5! py-3! text-white! [font:inherit]!"
           >
             {t("Try again")}
           </Button>

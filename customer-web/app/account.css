@@ -1,209 +1,148 @@
+@reference "./tailwind.css";
 .account-panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 20px;
+  @apply [background:var(--surface)] [border:1px_solid_var(--line)];
+  @apply rounded-[14px] p-[20px];
 }
 .account-panel {
-  margin: 20px 0;
+  @apply m-[20px_0];
 }
 .account-panel h2 {
-  font-size: 19px;
+  @apply text-[length:19px];
 }
 .form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  @apply grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-[16px];
 }
 .account-form {
-  display: grid;
-  gap: 16px;
+  @apply grid gap-[16px];
 }
 .account-form label {
-  display: grid;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  @apply grid gap-[8px] text-[length:14px];
+  @apply font-[600];
 }
 .account-form input:not([type="checkbox"]),
 .account-form select,
 .account-form textarea {
-  width: 100%;
-  padding: 11px;
-  border: 1px solid var(--field-border, #b9bdc9);
-  border-radius: 8px;
-  font: inherit;
-  background: var(--surface);
+  @apply w-full p-[11px] [border:1px_solid_var(--field-border,_#b9bdc9)];
+  @apply rounded-[8px] [font:inherit] [background:var(--surface)];
 }
 .account-form textarea {
-  resize: vertical;
+  @apply resize-y;
 }
 .row-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+  @apply flex gap-[10px] items-center flex-wrap;
 }
 .row-actions button:not(.button) {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 10px;
-  cursor: pointer;
+  @apply [border:1px_solid_var(--line)];
+  @apply rounded-[8px] [background:var(--surface)] p-[10px] cursor-pointer;
 }
 .check-label {
-  display: flex !important;
-  align-items: center;
-  gap: 8px !important;
+  @apply flex! items-center gap-[8px]!;
 }
 .check-label input {
-  width: 18px;
-  height: 18px;
+  @apply w-[18px] h-[18px];
 }
 .table-scroll {
-  overflow-x: auto;
+  @apply overflow-x-auto;
 }
 table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 14px;
+  @apply w-full border-collapse text-left text-[length:14px];
 }
 th,
 td {
-  padding: 14px 10px;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
+  @apply p-[14px_10px] [border-bottom:1px_solid_var(--line)] [vertical-align:top];
 }
 th {
-  color: var(--muted);
-  font-weight: 500;
+  @apply text-muted-ink font-[500];
 }
 td small {
-  display: block;
-  color: var(--muted);
-  margin-top: 6px;
+  @apply block text-muted-ink mt-[6px];
 }
 .pill {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 24px;
-  font-size: 12px;
-  background: var(--surface-soft, #f0f1f5);
+  @apply inline-block p-[5px_9px] rounded-[24px] text-[length:12px] [background:var(--surface-soft,_#f0f1f5)];
 }
 .pill.approved,
 .pill.published {
-  background: var(--success-bg, #e0f5e8);
-  color: var(--success-ink, #165a35);
+  @apply [background:var(--success-bg,_#e0f5e8)] text-[color:var(--success-ink,_#165a35)];
 }
 .pill.pending {
-  background: var(--warning-bg, #fff0cd);
-  color: var(--warning-ink, #795508);
+  @apply [background:var(--warning-bg,_#fff0cd)] text-[color:var(--warning-ink,_#795508)];
 }
 .pill.rejected {
-  background: var(--danger-bg, #ffe7e7);
-  color: var(--danger-ink, #9b1825);
+  @apply [background:var(--danger-bg,_#ffe7e7)] text-[color:var(--danger-ink,_#9b1825)];
 }
 .record-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
+  @apply flex justify-between gap-[16px] p-[18px_0] [border-bottom:1px_solid_var(--line)];
 }
 .notice {
-  padding: 14px;
-  background: var(--success-bg, #e0f5e8);
-  color: var(--success-ink, #165a35);
-  border-radius: 8px;
+  @apply p-[14px] [background:var(--success-bg,_#e0f5e8)] text-[color:var(--success-ink,_#165a35)] rounded-[8px];
 }
 .error {
-  padding: 12px;
-  background: var(--danger-bg, #ffe7e7);
-  color: var(--danger-ink, #9b1825);
-  border-radius: 8px;
+  @apply p-[12px] [background:var(--danger-bg,_#ffe7e7)] text-[color:var(--danger-ink,_#9b1825)] rounded-[8px];
 }
 button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+  @apply opacity-[0.55] cursor-not-allowed;
 }
 button,
 a,
 input,
 select,
 textarea {
-  outline-offset: 4px;
+  @apply [outline-offset:4px];
 }
 :focus-visible {
-  outline: 3px solid #7a2cff;
+  @apply [outline:3px_solid_#7a2cff];
 }
 .pager {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 22px 0;
+  @apply flex gap-[12px] items-center flex-wrap m-[22px_0];
 }
 .pager button,
 .pager a {
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: 8px;
+  @apply p-[9px_12px] [border:1px_solid_var(--line)] [background:var(--surface)];
+  @apply rounded-[8px];
 }
 .pager a[aria-current] {
-  background: var(--accent-soft, #ede6ff);
+  @apply [background:var(--accent-soft,_#ede6ff)];
 }
 .filter-bar {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 20px 0;
+  @apply flex items-end gap-[12px] flex-wrap m-[20px_0];
 }
 .filter-bar label {
-  display: grid;
-  gap: 7px;
-  font-size: 13px;
+  @apply grid gap-[7px] text-[length:13px];
 }
 .filter-bar input,
 .filter-bar select {
-  padding: 11px;
-  border: 1px solid var(--field-border, #b9bdc9);
-  border-radius: 8px;
-  max-width: 200px;
+  @apply p-[11px] [border:1px_solid_var(--field-border,_#b9bdc9)];
+  @apply rounded-[8px] max-w-[200px];
 }
 .filter-bar input[type="number"] {
-  max-width: 115px;
+  @apply max-w-[115px];
 }
 @media (max-width: 560px) {
   .form-grid {
-    grid-template-columns: 1fr;
+    @apply grid-cols-[1fr];
   }
   .account-panel {
-    padding: 15px;
+    @apply p-[15px];
   }
   .record-row {
-    flex-direction: column;
+    @apply flex-col;
   }
   .nav-actions .button {
-    padding: 9px;
+    @apply p-[9px];
   }
   .site-header {
-    height: auto;
-    min-height: 65px;
+    @apply h-auto min-h-[65px];
   }
   .nav {
-    padding: 12px 0;
-    flex-wrap: wrap;
+    @apply p-[12px_0] flex-wrap;
   }
   .brand {
-    font-size: 16px;
+    @apply text-[length:16px];
   }
   .nav-actions {
-    margin-left: auto;
+    @apply ml-auto;
   }
   .auth-card {
-    padding: 20px;
+    @apply p-[20px];
   }
 }

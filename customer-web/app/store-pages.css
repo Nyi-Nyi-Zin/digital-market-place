@@ -1,180 +1,140 @@
-.store-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px 28px;
-  padding-block: 28px;
-  border-top: 1px solid var(--line);
-  font-size: 13px;
-  color: var(--muted);
+@reference "./tailwind.css";
+.store-footer,
+.footer-bottom {
+  @apply [border-top:1px_solid_var(--line)];
 }
-.store-links a:hover {
-  color: var(--violet);
+.store-footer a {
+  @apply text-muted-ink [transition:color_150ms];
+}
+.store-footer a:hover {
+  @apply text-brand;
+}
+.store-footer a:focus-visible {
+  @apply rounded-[4px] [outline:2px_solid_var(--violet)] [outline-offset:4px];
+}
+.store-footer .footer-brand {
+  @apply inline-flex items-center gap-[10px] text-[length:18px] font-[800] tracking-[-0.5px] text-ink;
+}
+.footer-brand .brand-mark {
+  @apply [border:1px_solid_var(--accent-border)] rounded-[11px];
+}
+.footer-navigation a {
+  @apply inline-flex min-w-[0] min-h-[36px] items-center text-[length:13px] leading-[1.7] [overflow-wrap:anywhere];
+}
+.footer-legal a {
+  @apply inline-flex min-h-[32px] items-center text-[length:11px] leading-[1.8];
+}
+.store-footer a[aria-current="page"] {
+  @apply font-[600] text-ink;
+}
+@media (prefers-reduced-motion: reduce) {
+  .store-footer a {
+    @apply [transition:none];
+  }
 }
 .information-sections {
-  display: grid;
-  gap: 18px;
+  @apply grid gap-[18px];
 }
 .information-panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: clamp(18px, 3vw, 28px);
-  min-width: 0;
-  overflow-wrap: anywhere;
+  @apply [background:var(--surface)] [border:1px_solid_var(--line)];
+  @apply rounded-[16px] p-[clamp(18px,_3vw,_28px)] min-w-[0] [overflow-wrap:anywhere];
 }
 .information-panel h2 {
-  margin: 0 0 12px;
-  font-size: 20px;
+  @apply m-[0_0_12px] text-[length:20px];
 }
 .information-panel p,
 .buying-steps p {
-  line-height: 1.85;
-  white-space: pre-wrap;
+  @apply leading-[1.85] whitespace-pre-wrap;
 }
 .information-panel summary {
-  cursor: pointer;
-  font-weight: 600;
+  @apply cursor-pointer font-[600];
 }
 .information-contact {
-  margin-top: 24px;
+  @apply mt-[24px];
 }
 .buying-steps {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 16px;
-  counter-reset: steps;
+  @apply [list-style:none] p-[0] grid gap-[16px] [counter-reset:steps];
 }
 .buying-steps li {
-  display: flex;
-  gap: 18px;
-  background: var(--surface);
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  min-width: 0;
+  @apply flex gap-[18px] [background:var(--surface)] p-[24px] [border:1px_solid_var(--line)];
+  @apply rounded-[16px] min-w-[0];
 }
 .buying-steps li > div {
-  min-width: 0;
-  overflow-wrap: anywhere;
+  @apply min-w-[0] [overflow-wrap:anywhere];
 }
 .buying-steps h2 {
-  margin: 0;
-  font-size: 20px;
+  @apply m-[0] text-[length:20px];
 }
 .step-number {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  font-weight: 700;
+  @apply grid place-items-center shrink-0 w-[36px] h-[36px] [background:var(--surface-soft)] [border:1px_solid_var(--line)];
+  @apply rounded-[50%] font-[700];
 }
 .page-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin: 18px 0;
+  @apply flex flex-wrap gap-[12px] items-center m-[18px_0];
 }
 .store-page {
-  max-width: 1000px;
-  display: grid;
-  gap: 20px;
+  @apply max-w-[1000px] grid gap-[20px];
 }
 .store-page > h1 {
-  margin-bottom: 0;
+  @apply mb-[0];
 }
 .order-progress {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 28px;
-  padding-inline-start: 24px;
+  @apply flex flex-wrap gap-[14px_28px] [padding-inline-start:24px];
 }
 .order-progress [aria-current="step"] {
-  color: var(--violet);
-  font-weight: 700;
+  @apply text-brand font-[700];
 }
 .payment-history {
-  padding-block: 16px;
-  border-bottom: 1px solid var(--line);
+  @apply py-[16px] [border-bottom:1px_solid_var(--line)];
 }
 .support-form {
-  display: grid;
-  gap: 16px;
+  @apply grid gap-[16px];
 }
 .support-form label {
-  display: grid;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  @apply grid gap-[8px] text-[length:14px];
+  @apply font-[600];
 }
 .support-form textarea {
-  min-height: 120px;
+  @apply min-h-[120px];
 }
 .support-list {
-  display: grid;
-  gap: 12px;
+  @apply grid gap-[12px];
 }
 .support-list a {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  text-decoration: none;
+  @apply flex flex-wrap items-center justify-between gap-[12px] [text-decoration:none];
 }
 .support-message {
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  overflow-wrap: anywhere;
+  @apply p-[20px] [border:1px_solid_var(--line)];
+  @apply rounded-[14px] [background:var(--surface)] [overflow-wrap:anywhere];
 }
 .support-message[data-author="admin"] {
-  border-inline-start: 4px solid var(--violet);
+  @apply [border-inline-start:4px_solid_var(--violet)];
 }
 .support-message p {
-  white-space: pre-wrap;
-  line-height: 1.8;
+  @apply whitespace-pre-wrap leading-[1.8];
 }
 .support-message small {
-  display: block;
-  margin-top: 6px;
-  color: var(--muted);
+  @apply block mt-[6px] text-muted-ink;
 }
 .support-thread {
-  display: grid;
-  gap: 14px;
-  max-height: 65vh;
-  overflow-y: auto;
+  @apply grid gap-[14px] max-h-[65vh] overflow-y-auto;
 }
 @media (max-width: 600px) {
   .buying-steps li {
-    padding: 18px;
-    gap: 12px;
+    @apply p-[18px] gap-[12px];
   }
   .store-page .record-row {
-    flex-wrap: wrap;
-    gap: 10px;
+    @apply flex-wrap gap-[10px];
   }
 }
 
 .store-page .section-heading h1 {
-  margin: 0;
-  font-size: clamp(28px, 4vw, 38px);
+  @apply m-[0] text-[length:clamp(28px,_4vw,_38px)];
 }
 
 .store-page .section-heading {
-  flex-wrap: wrap;
-  align-items: center;
+  @apply flex-wrap items-center;
 }
 .store-page .section-heading .pill {
-  flex-shrink: 0;
-  overflow-wrap: normal;
-  max-width: 100%;
+  @apply shrink-0 [overflow-wrap:normal] max-w-full;
 }

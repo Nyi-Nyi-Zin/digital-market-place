@@ -1,282 +1,169 @@
+@reference "./tailwind.css";
 .admin-auth-social {
-  display: grid;
-  gap: 12px;
-  margin-top: 24px;
+  @apply grid gap-[12px] mt-[24px];
 }
 .admin-auth-card .admin-auth-google {
-  width: 100%;
-  min-height: 52px;
-  height: auto;
-  padding: 12px 16px;
-  gap: 12px;
-  white-space: normal;
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--border);
+  @apply w-full min-h-[52px] h-auto p-[12px_16px] gap-[12px] whitespace-normal [background:var(--surface)] text-ink [border:1px_solid_var(--border)];
 }
 .admin-auth-google svg {
-  flex-shrink: 0;
+  @apply shrink-0;
 }
 .admin-auth-social small {
-  color: var(--muted);
-  text-align: center;
+  @apply text-muted-ink text-center;
 }
 .admin-auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 8px;
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
+  @apply flex items-center gap-[12px] m-[0_0_8px] text-muted-ink text-[length:13px] text-center;
 }
 .admin-auth-divider::before,
 .admin-auth-divider::after {
-  content: "";
-  flex: 1;
-  border-top: 1px solid var(--border);
+  @apply [content:""] flex-1 [border-top:1px_solid_var(--border)];
 }
 .admin-signin {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  min-height: 100dvh;
-  background: var(--surface);
+  @apply grid grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)] min-h-[100dvh] [background:var(--surface)];
 }
 .admin-signin-welcome {
-  display: flex;
-  flex-direction: column;
-  padding: 36px clamp(32px, 4vw, 80px);
-  background: #5540bb;
-  color: #fff;
+  @apply flex flex-col p-[36px_clamp(32px,_4vw,_80px)] [background:#5540bb] text-[color:#fff];
 }
 .admin-signin-welcome .admin-brand {
-  padding: 0;
-  width: fit-content;
-  color: #fff;
+  @apply p-[0] w-fit text-[color:#fff];
 }
 .admin-signin-welcome .admin-brand-icon {
-  background: #fff;
-  color: #6954dc;
+  @apply [background:#fff] text-[color:#6954dc];
 }
 .admin-signin-welcome .admin-brand-name small {
-  color: #e6dfff;
+  @apply text-[color:#e6dfff];
 }
 .admin-signin-intro {
-  margin: auto 0;
-  padding: 90px 0;
+  @apply m-[auto_0] p-[90px_0];
 }
 .admin-signin-intro h2 {
-  margin: 0 0 28px;
-  max-width: 620px;
-  font-size: clamp(38px, 4.3vw, 72px);
-  line-height: 1.15;
-  letter-spacing: -0.045em;
-  text-wrap: balance;
+  @apply m-[0_0_28px] max-w-[620px] text-[length:clamp(38px,_4.3vw,_72px)] leading-[1.15] tracking-[-0.045em] [text-wrap:balance];
 }
 .admin-signin-intro p {
-  max-width: 560px;
-  margin: 0;
-  font-size: clamp(17px, 1.45vw, 23px);
-  line-height: 1.75;
-  color: #eee8ff;
+  @apply max-w-[560px] m-[0] text-[length:clamp(17px,_1.45vw,_23px)] leading-[1.75] text-[color:#eee8ff];
 }
 .admin-signin:lang(my) h2,
 .admin-signin:lang(my) .admin-auth-card h1 {
-  line-height: 1.5;
-  letter-spacing: 0;
+  @apply leading-[1.5] tracking-[0];
 }
 .admin-signin:lang(th) h2,
 .admin-signin:lang(th) .admin-auth-card h1 {
-  line-height: 1.4;
-  letter-spacing: 0;
+  @apply leading-[1.4] tracking-[0];
 }
 .admin-signin-content {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+  @apply flex flex-col min-w-[0];
 }
 .admin-signin-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 32px clamp(24px, 3vw, 56px);
+  @apply flex items-center justify-between gap-[16px] p-[32px_clamp(24px,_3vw,_56px)];
 }
 .admin-signin-back {
-  display: inline-flex;
-  gap: 9px;
-  align-items: center;
-  min-height: 44px;
-  font-size: 14px;
+  @apply inline-flex gap-[9px] items-center min-h-[44px] text-[length:14px];
 }
 .admin-signin-back:hover {
-  color: var(--accent-ink);
+  @apply text-accent-ink;
 }
 .admin-signin-form-area {
-  flex: 1;
-  display: grid;
-  align-items: center;
-  padding: 40px clamp(32px, 5vw, 96px) 64px;
+  @apply flex-1 grid items-center p-[40px_clamp(32px,_5vw,_96px)_64px];
 }
 .admin-signin .admin-auth-card {
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  @apply w-full max-w-[680px] m-[0_auto] p-[0] [border:0];
+  @apply rounded-[0] [background:transparent] [box-shadow:none];
 }
 .admin-signin .admin-auth-card .eyebrow {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  @apply m-[0] text-muted-ink text-[length:12px] tracking-[0.1em];
 }
 .admin-signin .admin-auth-card h1 {
-  margin: 12px 0 16px;
-  font-size: clamp(30px, 3vw, 56px);
-  line-height: 1.2;
-  letter-spacing: -0.04em;
+  @apply m-[12px_0_16px] text-[length:clamp(30px,_3vw,_56px)] leading-[1.2] tracking-[-0.04em];
 }
 .admin-signin .auth-description {
-  margin: 0 0 36px;
-  font-size: 14px;
+  @apply m-[0_0_36px] text-[length:14px];
 }
 .admin-signin .admin-form {
-  gap: 26px;
+  @apply gap-[26px];
 }
 .admin-signin .admin-form label {
-  font-size: 15px;
-  gap: 9px;
+  @apply text-[length:15px] gap-[9px];
 }
 .admin-signin .admin-form input {
-  min-height: 52px;
-  padding: 12px 15px;
-  border-radius: 6px;
-  font-size: 16px;
-  box-shadow: none;
+  @apply min-h-[52px] p-[12px_15px] rounded-[6px] text-[length:16px] [box-shadow:none];
 }
 .admin-signin-password {
-  display: grid;
-  gap: 9px;
+  @apply grid gap-[9px];
 }
 .admin-auth-password-control {
-  position: relative;
+  @apply relative;
 }
 .admin-form .admin-auth-password-control input {
-  padding-right: 56px;
+  @apply pr-[56px];
 }
 .admin-auth-password-toggle {
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  transform: translateY(-50%);
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
+  @apply absolute top-[50%] right-[5px] [transform:translateY(-50%)] grid place-items-center w-[44px] h-[44px] p-[0] [border:0];
+  @apply rounded-[6px] [background:transparent] text-muted-ink;
 }
 .admin-auth-password-toggle:hover {
-  color: var(--ink);
-  background: var(--surface-soft);
+  @apply text-ink [background:var(--surface-soft)];
 }
 .admin-signin-forgot {
-  justify-self: end;
-  font-size: 14px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  @apply [justify-self:end] text-[length:14px] [text-decoration:underline] [text-underline-offset:4px];
 }
 .admin-signin .admin-form > .button {
-  width: 100%;
-  min-height: 52px;
-  border-radius: 999px;
-  background: #6954dc;
-  color: #fff;
-  font-size: 16px;
+  @apply w-full min-h-[52px] rounded-[999px] [background:#6954dc] text-[color:#fff] text-[length:16px];
 }
 .admin-signin .admin-form > .button:hover {
-  background: #5540bb;
+  @apply [background:#5540bb];
 }
 .admin-signin .auth-links {
-  justify-content: center;
-  margin-top: 32px;
-  padding-top: 28px;
-  border-top: 1px solid var(--line);
-  font-size: 14px;
+  @apply justify-center mt-[32px] pt-[28px] [border-top:1px_solid_var(--line)] text-[length:14px];
 }
 .admin-signin .auth-links a {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  @apply [text-decoration:underline] [text-underline-offset:4px];
 }
 .admin-auth-error {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: var(--danger-bg);
-  color: var(--danger-ink);
-  font-size: 14px;
-  line-height: 1.6;
+  @apply m-[0] p-[12px_14px] rounded-[6px] [background:var(--danger-bg)] text-[color:var(--danger-ink)] text-[length:14px] leading-[1.6];
 }
 .admin-auth-success {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: var(--success-bg);
-  color: var(--success-ink);
-  font-size: 14px;
-  line-height: 1.7;
+  @apply m-[0] p-[12px_14px] rounded-[6px] [background:var(--success-bg)] text-[color:var(--success-ink)] text-[length:14px] leading-[1.7];
 }
 @media (max-width: 900px) {
   .admin-signin {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    @apply grid-cols-[minmax(0,_0.85fr)_minmax(0,_1.15fr)];
   }
   .admin-signin-welcome {
-    padding: 32px;
+    @apply p-[32px];
   }
   .admin-signin-intro h2 {
-    font-size: 40px;
+    @apply text-[length:40px];
   }
   .admin-signin-form-area {
-    padding: 32px 32px 48px;
+    @apply p-[32px_32px_48px];
   }
 }
 @media (max-width: 700px) {
   .admin-signin {
-    display: flex;
-    flex-direction: column;
+    @apply flex flex-col;
   }
   .admin-signin-welcome {
-    padding: 24px;
+    @apply p-[24px];
   }
   .admin-signin-intro {
-    padding: 28px 0 4px;
+    @apply p-[28px_0_4px];
   }
   .admin-signin-intro h2 {
-    margin-bottom: 12px;
-    font-size: 30px;
-    text-wrap: initial;
+    @apply mb-[12px] text-[length:30px] [text-wrap:initial];
   }
   .admin-signin-intro p {
-    font-size: 15px;
+    @apply text-[length:15px];
   }
   .admin-signin-topbar {
-    padding: 16px 24px;
-    gap: 10px;
+    @apply p-[16px_24px] gap-[10px];
   }
   .admin-signin-form-area {
-    padding: 24px 24px 32px;
+    @apply p-[24px_24px_32px];
   }
   .admin-signin .admin-auth-card h1 {
-    font-size: 30px;
+    @apply text-[length:30px];
   }
   .admin-signin .admin-form {
-    gap: 22px;
+    @apply gap-[22px];
   }
 }

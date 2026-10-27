@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./shadcn.css";
+import "./tailwind.css";
 import "./globals.css";
 import "./account.css";
 import { Providers } from "./components/Providers";
@@ -7,7 +7,7 @@ import { getServerI18n } from "./lib/i18n-server";
 import "./preferences.css";
 import "./notifications.css";
 import "./store-pages.css";
-import { StoreLinks } from "./components/StoreLinks";
+import { StoreFooter } from "./components/StoreFooter";
 import { getServerCurrency } from "./lib/currency-server";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function RootLayout({
           currencyConfig={config}
         >
           {children}
-          <StoreLinks />
+          <StoreFooter />
         </Providers>
       </body>
     </html>

@@ -50,6 +50,8 @@ Both sites use local shadcn/ui components: `admin/components/ui` and `customer-w
 
 Use these components for buttons, inputs, textareas, selects, and dialogs. Existing Cloud Nine button classes use `variant="brand" size="brand"`; standard shadcn variants remain available for new controls. `DialogContent` supports `branded` and `overlayClassName` for the existing modals and mobile drawer. Tailwind utilities load without Preflight to preserve the established base styles and both themes.
 
+All customer and admin page styles are authored with Tailwind utilities. Each app's `app/tailwind.css` owns its theme and source scanning. Shared selectors, responsive rules, and component recipes use `@apply` in their existing stylesheets, with `@reference` to that entry point; JSX controls also use utilities directly. Raw CSS is reserved for design variables, font definitions, and animation keyframes. See [the styling guide](docs/styling.md). `npm run check:styles` compiles every stylesheet and checks this convention; it also runs as part of `npm run check`.
+
 Use Sonner's `toast.success`, `toast.error`, or `toast.info` for action notifications. Each app mounts one theme-aware, translated shadcn `Toaster` in its providers. The mutation cache reports API mutation failures centrally; use the `operation-error` toast ID when a form also handles the same failure. Keep persistent loading, empty, and page-fetch error states inline. Destructive decisions use shadcn `AlertDialog`; admin `ConfirmAction` preserves the dialog on failure and closes after success. Add new UI messages to all five shared locale dictionaries.
 
 ## Persistent admin/customer notifications

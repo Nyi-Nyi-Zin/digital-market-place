@@ -172,12 +172,6 @@ export async function Storefront({
           ) : null}
         </section>
       </main>
-      <footer>
-        <div className="shell">
-          © {new Date().getFullYear()} Cloud Nine. Built for modern creators.
-          <span>Manual Myanmar payment review · Secure digital delivery</span>
-        </div>
-      </footer>
     </>
   );
 }

@@ -48,7 +48,7 @@ export function Preferences() {
         onValueChange={value => changeCurrency(value as Currency)}
       >
         <SelectTrigger
-          className="language-picker currency-picker"
+          className="currency-picker flex h-11 w-auto min-w-[5.5rem] items-center gap-[9px] rounded-[9px] border border-[var(--line)] bg-[var(--surface)] px-[10px] text-xs text-[var(--ink)] font-[inherit] cursor-pointer"
           aria-label={t("Currency")}
           aria-busy={changingCurrency}
         >

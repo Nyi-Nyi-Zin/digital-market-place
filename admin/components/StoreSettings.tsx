@@ -173,9 +173,11 @@ function SettingsForm({ initial }: { initial: Settings }) {
         <p>
           {t("Leave support hours blank until your schedule is confirmed.")}
         </p>
-        <fieldset className="content-section">
-          <legend>{t("Exchange rates")}</legend>
-          <p>
+        <fieldset className="grid min-w-0 gap-4 rounded-xl border border-[var(--line)] p-5 max-sm:p-3">
+          <legend className="px-2 text-sm font-semibold text-[var(--ink)]">
+            {t("Exchange rates")}
+          </legend>
+          <p className="text-sm leading-6 text-[var(--muted)]">
             {t("Product prices and reports use {currency}.", {
               currency: baseCurrency,
             })}
@@ -188,9 +190,13 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 | "sgdRate"
                 | "mmkRate";
               return (
-                <label key={value}>
+                <label
+                  className="tailwind-form-field grid min-w-0 gap-2 text-sm font-semibold text-[var(--ink)]"
+                  key={value}
+                >
                   {`1 ${baseCurrency} = ${value}`}
                   <Input
+                    className="tailwind-field-control"
                     aria-label={`1 ${baseCurrency} = ${value}`}
                     type="number"
                     inputMode="decimal"
@@ -206,7 +212,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 </label>
               );
             })}
-          <p>
+          <p className="text-sm leading-6 text-[var(--muted)]">
             {t(
               "Leave a rate blank to disable that currency. Existing orders keep their confirmed rate and total."
             )}

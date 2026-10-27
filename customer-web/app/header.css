@@ -1,244 +1,140 @@
+@reference "./tailwind.css";
 .marketplace-header.site-header {
-  height: auto;
-  min-height: 76px;
-  background: var(--header-background);
-  box-shadow: 0 2px 16px #0d102003;
+  @apply h-auto min-h-[76px] [background:var(--header-background)] [box-shadow:0_2px_16px_#0d102003];
 }
 .marketplace-header .nav {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  min-height: 76px;
-  padding-block: 12px;
-  gap: 24px;
+  @apply grid grid-cols-[auto_minmax(0,_1fr)_auto_auto] items-center min-h-[76px] py-[12px] gap-[24px];
 }
 .marketplace-header .brand {
-  gap: 10px;
-  font-size: 20px;
-  letter-spacing: -0.7px;
-  white-space: nowrap;
+  @apply gap-[10px] text-[length:20px] tracking-[-0.7px] whitespace-nowrap;
 }
 .marketplace-header .brand-mark {
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--accent-border);
-  border-radius: 12px;
+  @apply w-[38px] h-[38px] [border:1px_solid_var(--accent-border)];
+  @apply rounded-[12px];
 }
 .marketplace-header .nav .header-navigation {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 8px;
-  padding: 0;
-  border: 0;
-  order: initial;
-  font-size: 13px;
+  @apply flex items-center gap-[6px] ml-[8px] p-[0] [border:0] [order:initial] text-[length:13px];
 }
 .marketplace-header .header-navigation a {
-  justify-content: center;
-  min-height: 44px;
-  padding: 8px 13px;
-  border-radius: 9px;
-  white-space: nowrap;
-  font-weight: 500;
-  color: var(--secondary-ink);
-  transition:
-    background-color 150ms,
-    color 150ms;
+  @apply justify-center min-h-[44px] p-[8px_13px] rounded-[9px] whitespace-nowrap font-[500] text-[color:var(--secondary-ink)] [transition:background-color_150ms,_color_150ms];
 }
 .marketplace-header .header-navigation a:hover,
 .marketplace-header .header-navigation a[aria-current="page"] {
-  color: var(--accent-ink);
-  background: var(--accent-soft);
+  @apply text-accent-ink [background:var(--accent-soft)];
 }
 .marketplace-header .header-navigation a[aria-current="page"] {
-  font-weight: 700;
+  @apply font-[700];
 }
 .marketplace-header .header-tools,
 .marketplace-header .header-settings,
 .marketplace-header .header-account {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
+  @apply flex items-center gap-[10px] min-w-[0];
 }
 .marketplace-header .header-tools {
-  gap: 6px;
+  @apply gap-[6px];
 }
 .marketplace-header .header-settings {
-  gap: 16px;
-  padding-left: 20px;
-  border-left: 1px solid var(--line);
+  @apply gap-[16px] pl-[20px] [border-left:1px_solid_var(--line)];
 }
 .marketplace-header .header-preferences {
-  gap: 4px;
-  margin: 0;
+  @apply gap-[4px] m-[0];
 }
 .marketplace-header .icon-link,
 .marketplace-header .theme-toggle,
 .marketplace-header .header-menu-toggle {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--secondary-ink);
-  cursor: pointer;
+  @apply grid place-items-center shrink-0 w-[44px] h-[44px] p-[0] [border:1px_solid_transparent];
+  @apply rounded-[10px] [background:transparent] text-[color:var(--secondary-ink)] cursor-pointer;
 }
 .marketplace-header .icon-link:hover,
 .marketplace-header .theme-toggle:hover,
 .marketplace-header .header-menu-toggle:hover {
-  background: var(--accent-soft);
-  color: var(--accent-ink);
+  @apply [background:var(--accent-soft)] text-accent-ink;
 }
 .marketplace-header .language-picker {
-  height: 44px;
-  border-color: var(--line);
-  background: var(--surface);
+  @apply h-[44px] border-line [background:var(--surface)];
 }
 .marketplace-header .cart-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  font-size: 12px;
-  white-space: nowrap;
+  @apply inline-flex items-center min-h-[44px] gap-[8px] p-[8px_12px] [border:1px_solid_var(--line)];
+  @apply rounded-[10px] text-[length:12px] whitespace-nowrap;
 }
 .marketplace-header .cart-link:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent-border);
+  @apply [background:var(--accent-soft)] [border-color:var(--accent-border)];
 }
 .marketplace-header .cart-link b {
-  display: grid;
-  place-items: center;
-  min-width: 20px;
-  height: 20px;
-  margin: 0;
-  padding: 0 4px;
-  border-radius: 6px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
-  font-size: 10px;
+  @apply grid place-items-center min-w-[20px] h-[20px] m-[0] p-[0_4px] rounded-[6px] [background:var(--accent-soft)] text-accent-ink text-[length:10px];
 }
 .marketplace-header .header-account .button {
-  min-height: 44px;
-  padding: 10px 17px;
-  border-radius: 10px;
-  font-size: 12px;
-  white-space: nowrap;
+  @apply min-h-[44px] p-[10px_17px] rounded-[10px] text-[length:12px] whitespace-nowrap;
 }
 .marketplace-header .account-link {
-  display: block;
-  max-width: 100px;
-  padding-block: 14px;
-  font-size: 12px;
+  @apply block max-w-[100px] py-[14px] text-[length:12px];
 }
 .marketplace-header .account-loading {
-  display: block;
-  width: 76px;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 11px;
+  @apply block w-[76px] overflow-hidden whitespace-nowrap text-[length:11px];
 }
 .marketplace-header .header-menu-toggle {
-  display: none;
+  @apply hidden;
 }
 .marketplace-header :is(a, button, select):focus-visible {
-  outline: 2px solid var(--violet);
-  outline-offset: 3px;
+  @apply [outline:2px_solid_var(--violet)];
+  @apply [outline-offset:3px];
 }
 @media (max-width: 1100px) {
   .marketplace-header .nav {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 10px;
-    min-height: 68px;
-    padding-block: 12px;
+    @apply grid-cols-[minmax(0,_1fr)_auto_auto] gap-[10px] min-h-[68px] py-[12px];
   }
   .marketplace-header.site-header {
-    min-height: 68px;
-    max-height: 100dvh;
-    overflow-y: auto;
+    @apply min-h-[68px] max-h-[100dvh] overflow-y-auto;
   }
   .marketplace-header .brand {
-    grid-column: 1;
-    grid-row: 1;
-    font-size: 18px;
-    gap: 8px;
+    @apply [grid-column:1];
+    @apply [grid-row:1] text-[length:18px] gap-[8px];
   }
   .marketplace-header .brand-mark {
-    width: 34px;
-    height: 34px;
+    @apply w-[34px] h-[34px];
   }
   .marketplace-header .header-menu-toggle {
-    display: grid;
-    grid-column: 3;
-    grid-row: 1;
-    border-color: var(--line);
+    @apply grid [grid-column:3];
+    @apply [grid-row:1] border-line;
   }
   .marketplace-header .header-tools {
-    grid-column: 2;
-    grid-row: 1;
+    @apply [grid-column:2];
+    @apply [grid-row:1];
   }
   .marketplace-header .nav .header-navigation,
   .marketplace-header .header-settings {
-    display: none;
-    grid-column: 1 / -1;
+    @apply hidden col-span-full;
   }
   .marketplace-header[data-menu-open="true"] .nav .header-navigation {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    grid-row: 2;
-    margin: 2px 0 0;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-    gap: 4px;
+    @apply flex flex-col items-stretch [grid-row:2] m-[2px_0_0] pt-[12px] [border-top:1px_solid_var(--line)] gap-[4px];
   }
   .marketplace-header .header-navigation a {
-    justify-content: flex-start;
-    font-size: 14px;
-    padding: 10px 14px;
+    @apply justify-start text-[length:14px] p-[10px_14px];
   }
   .marketplace-header[data-menu-open="true"] .header-settings {
-    display: flex;
-    grid-row: 3;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    border: 0;
-    border-top: 1px solid var(--line);
-    padding: 12px 0 0;
-    gap: 8px;
+    @apply flex [grid-row:3] flex-wrap justify-between [border:0];
+    @apply [border-top:1px_solid_var(--line)] p-[12px_0_0] gap-[8px];
   }
   .marketplace-header .header-account {
-    flex-wrap: wrap;
-    gap: 8px;
+    @apply flex-wrap gap-[8px];
   }
 }
 @media (max-width: 560px) {
   .marketplace-header .nav {
-    gap: 6px;
+    @apply gap-[6px];
   }
   .marketplace-header .header-tools .icon-link {
-    display: none;
+    @apply hidden;
   }
   .marketplace-header .brand {
-    font-size: 17px;
-    gap: 6px;
+    @apply text-[length:17px] gap-[6px];
   }
   .marketplace-header .cart-link {
-    padding: 8px 10px;
-    gap: 6px;
+    @apply p-[8px_10px] gap-[6px];
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .marketplace-header .header-navigation a {
-    transition: none;
+    @apply [transition:none];
   }
 }

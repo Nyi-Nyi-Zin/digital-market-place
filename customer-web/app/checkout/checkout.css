@@ -1,46 +1,30 @@
+@reference "../tailwind.css";
 .payment-options button.selected-payment {
-  background: #7a2cff;
-  color: #fff;
-  border-color: #7a2cff;
+  @apply [background:#7a2cff] text-[color:#fff] [border-color:#7a2cff];
 }
 .payment-detail {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--accent-soft, #f5f1ff);
-  color: var(--secondary-ink, #444);
+  @apply mt-[16px] p-[14px] rounded-[12px] [background:var(--accent-soft,_#f5f1ff)] text-[color:var(--secondary-ink,_#444)];
 }
 .payment-detail p {
-  margin: 7px 0;
-  font-weight: bold;
+  @apply m-[7px_0] [font-weight:bold];
 }
 .payment-detail small {
-  color: var(--muted, #6e7384);
+  @apply text-[color:var(--muted,_#6e7384)];
 }
 .purchase-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 30px;
+  @apply grid gap-[12px] mt-[30px];
 }
 .purchase-list article {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  align-items: center;
-  padding: 18px;
-  border: 1px solid var(--line, #e8e9ef);
-  border-radius: 15px;
-  background: var(--surface);
+  @apply flex justify-between gap-[15px] items-center p-[18px] [border:1px_solid_var(--line,_#e8e9ef)];
+  @apply rounded-[15px] [background:var(--surface)];
 }
 .purchase-list p,
 .loading-copy {
-  color: var(--muted, #6e7384);
+  @apply text-[color:var(--muted,_#6e7384)];
 }
 .purchase-list article > div:last-child {
-  display: flex;
-  gap: 14px;
-  align-items: center;
+  @apply flex gap-[14px] items-center;
 }
 .library-link {
-  margin-top: 20px;
+  @apply mt-[20px];
 }

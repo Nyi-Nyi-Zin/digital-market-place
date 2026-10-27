@@ -1,8 +1,9 @@
-/* Keep the established Cloud Nine base styles; shadcn adds utilities without a global reset. */
+/* Tailwind entry point and Cloud Nine design tokens for the admin application. */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
+@source "./";
 @source "../components";
 @custom-variant dark (&:is([data-theme="dark"] *));
 
@@ -23,6 +24,15 @@
   --radius: 0.625rem;
 }
 @theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-ink: var(--ink);
+  --color-muted-ink: var(--muted);
+  --color-muted-ink: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--accent);
+  --color-accent-ink: var(--accent-ink);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-popover: var(--popover);
@@ -45,54 +55,47 @@
 }
 
 [data-slot="native-select-wrapper"] {
-  width: 100%;
-  min-width: 0;
+  @apply w-full min-w-[0];
 }
 [data-slot="native-select"] {
-  padding-right: 2.25rem;
+  @apply pr-[2.25rem];
 }
 [data-slot="native-select-wrapper"] [data-slot="native-select-icon"] {
-  width: 1rem;
-  height: 1rem;
+  @apply w-[1rem] h-[1rem];
 }
 [data-slot="select-item"] {
-  padding-right: 2rem;
+  @apply pr-[2rem];
 }
 [data-slot="alert-dialog-content"] {
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  @apply max-h-[calc(100dvh_-_2rem)] overflow-y-auto [background:var(--surface)] [border:1px_solid_var(--border)];
 }
 /* Scoped defaults normally supplied by Preflight, without resetting the site. */
 [data-slot="alert-dialog-title"],
 [data-slot="alert-dialog-description"] {
-  margin: 0;
+  @apply m-[0];
 }
 [data-slot="button"]:not([data-variant="brand"]),
 [data-slot="alert-dialog-action"],
 [data-slot="alert-dialog-cancel"] {
-  border: 1px solid transparent;
+  @apply [border:1px_solid_transparent];
 }
 [data-slot="button"][data-variant="default"],
 [data-slot="button"][data-variant="destructive"],
 [data-slot="alert-dialog-action"] {
-  color: #fff;
+  @apply text-[color:#fff];
 }
 [data-slot="button"][data-variant="outline"],
 [data-slot="alert-dialog-cancel"] {
-  border-color: var(--input);
+  @apply [border-color:var(--input)];
 }
 [data-sonner-toaster] {
-  font-family: inherit;
+  @apply [font-family:inherit];
 }
 [data-sonner-toast] {
-  overflow-wrap: anywhere;
+  @apply [overflow-wrap:anywhere];
 }
 [data-sonner-toast] [data-close-button] {
-  min-height: 20px;
-  width: 20px;
-  padding: 0;
+  @apply min-h-[20px] w-[20px] p-[0];
 }
 @media (prefers-reduced-motion: reduce) {
   [data-slot="dialog-content"],
@@ -101,7 +104,6 @@
   [data-slot="alert-dialog-overlay"],
   [data-slot="select-content"],
   [data-sonner-toast] {
-    animation: none !important;
-    transition: none !important;
+    @apply [animation:none]! [transition:none]!;
   }
 }
